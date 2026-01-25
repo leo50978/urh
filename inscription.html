@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription | URH</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Google Fonts pour un style futuriste -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --neon-blue: #00f3ff;
+      --dark-bg: #0a0e17;
+      --card-bg: rgba(16, 22, 36, 0.9);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--dark-bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(100, 126, 234, 0.15) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 20%);
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+
+    .futuristic-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .futuristic-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      color: #e2e8f0;
+    }
+
+    .futuristic-input:focus {
+      outline: none;
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 2px rgba(0, 243, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .neon-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .neon-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .neon-button:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .neon-button:hover:after {
+      left: 100%;
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .status-success {
+      background: rgba(72, 187, 120, 0.1);
+      border: 1px solid rgba(72, 187, 120, 0.3);
+      border-radius: 8px;
+    }
+
+    .status-error {
+      background: rgba(245, 101, 101, 0.1);
+      border: 1px solid rgba(245, 101, 101, 0.3);
+      border-radius: 8px;
+    }
+
+    .home-link {
+      transition: all 0.3s ease;
+      border-radius: 8px;
+    }
+
+    .home-link:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateX(-5px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .futuristic-card {
+        border-radius: 16px;
+        margin: 0 16px;
+      }
+    }
+
+    /* Animation pour le statut */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</head>
+
+<body class="flex flex-col min-h-screen">
+
+  <!-- Header minimal avec lien d'accueil -->
+  <header class="py-6 px-4 md:px-8">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="index.html" class="home-link flex items-center p-2">
+        <i class="fas fa-arrow-left text-gray-400 mr-2"></i>
+        <span class="text-gray-300 font-medium">Retour à l'accueil</span>
+      </a>
+           <div class="text-xl font-bold logo-text"><img src="logo.png" class="w-15 h-10" alt=""></div>
+
+    </div>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md futuristic-card p-6 md:p-8">
+      
+      <!-- Logo et titre -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 mb-4">
+          <i class="fas fa-user-astronaut text-2xl text-white"></i>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-bold mb-2">Créer un compte</h1>
+        <p class="text-gray-400 text-sm md:text-base">
+          Rejoignez la plateforme d'apprentissage futuriste
+        </p>
+      </div>
+
+      <form id="registerForm" class="space-y-5">
+        
+        <!-- Champ Nom complet -->
+        <div>
+          <label class="block text-sm font-medium mb-2 text-gray-300">
+            <i class="fas fa-user mr-2 text-blue-400"></i>Nom complet
+          </label>
+          <input id="name" type="text" required
+                 class="w-full futuristic-input px-4 py-3 focus:outline-none"
+                 placeholder="Votre nom complet">
+        </div>
+
+        <!-- Champ Email -->
+        <div>
+          <label class="block text-sm font-medium mb-2 text-gray-300">
+            <i class="fas fa-envelope mr-2 text-blue-400"></i>Email
+          </label>
+          <input id="email" type="email" required
+                 class="w-full futuristic-input px-4 py-3 focus:outline-none"
+                 placeholder="votre@email.com">
+        </div>
+
+        <!-- Champ Mot de passe -->
+        <div>
+          <label class="block text-sm font-medium mb-2 text-gray-300">
+            <i class="fas fa-lock mr-2 text-blue-400"></i>Mot de passe
+          </label>
+          <input id="password" type="password" required minlength="6"
+                 class="w-full futuristic-input px-4 py-3 focus:outline-none"
+                 placeholder="Minimum 6 caractères">
+        </div>
+
+        <!-- Champ Confirmation mot de passe -->
+        <div>
+          <label class="block text-sm font-medium mb-2 text-gray-300">
+            <i class="fas fa-lock mr-2 text-blue-400"></i>Confirmer le mot de passe
+          </label>
+          <input id="confirmPassword" type="password" required minlength="6"
+                 class="w-full futuristic-input px-4 py-3 focus:outline-none"
+                 placeholder="Répétez votre mot de passe">
+        </div>
+
+        <!-- Bouton d'inscription -->
+        <button type="submit"
+                class="w-full neon-button text-white py-3 px-4 rounded-lg text-lg font-semibold mt-2">
+          <i class="fas fa-rocket mr-2"></i>Créer mon compte
+        </button>
+
+        <!-- Message de statut -->
+        <div id="status" class="text-sm text-center py-3 px-4 fade-in hidden"></div>
+
+        <!-- Lien de connexion -->
+        <div class="text-center pt-4 border-t border-gray-800">
+          <p class="text-gray-400">
+            Déjà un compte ?
+            <a href="connexion.html" class="text-blue-400 font-medium hover:text-blue-300 transition">
+              Se connecter
+              <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </p>
+        </div>
+
+        <!-- Conditions d'utilisation -->
+        <p class="text-xs text-center text-gray-500 pt-2">
+          En vous inscrivant, vous acceptez nos 
+          <a href="#" class="text-blue-400 hover:text-blue-300">conditions d'utilisation</a>
+          et notre 
+          <a href="#" class="text-blue-400 hover:text-blue-300">politique de confidentialité</a>.
+        </p>
+      </form>
+    </div>
+  </main>
+
+
+
+  <!-- FIREBASE LOGIC (conservée sans modification) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } 
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } 
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Elements
+    const form = document.getElementById("registerForm");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      // Réinitialiser le statut
+      status.classList.add("hidden");
+
+      if (password !== confirmPassword) {
+        status.textContent = "Les mots de passe ne correspondent pas";
+        status.className = "status-error fade-in";
+        status.classList.remove("hidden");
+        return;
+      }
+
+      status.textContent = "Création du compte en cours...";
+      status.className = "text-blue-400 fade-in";
+      status.classList.remove("hidden");
+
+      try {
+        // Create Auth user
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+        // Create Firestore user profile
+        await setDoc(doc(db, "users", cred.user.uid), {
+          name: name,
+          email: email,
+          role: "student",
+          createdAt: serverTimestamp(),
+          progress: 0
+        });
+
+        status.textContent = "Compte créé avec succès ✔ Redirection...";
+        status.className = "status-success fade-in";
+        status.classList.remove("hidden");
+
+        // Animation de succès
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Compte créé !';
+        submitBtn.classList.remove('neon-button');
+        submitBtn.classList.add('bg-green-600', 'cursor-default');
+        
+        // Redirect
+        setTimeout(() => {
+          window.location.href = "profil.html";
+        }, 1500);
+
+      } catch (error) {
+        let errorMessage = "Une erreur est survenue";
+        
+        // Messages d'erreur plus conviviaux
+        if (error.code === 'auth/email-already-in-use') {
+          errorMessage = "Cet email est déjà utilisé";
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = "Email invalide";
+        } else if (error.code === 'auth/weak-password') {
+          errorMessage = "Le mot de passe est trop faible";
+        } else {
+          errorMessage = error.message;
+        }
+        
+        status.textContent = errorMessage;
+        status.className = "status-error fade-in";
+        status.classList.remove("hidden");
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mon Profil | URH</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js pour les graphiques -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    
+    .progress-ring__circle {
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 0.5s ease;
+      stroke-linecap: round;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+    
+    .course-card {
+      border-left: 4px solid #4f46e5;
+    }
+    
+    .module-completed {
+      background-color: #10b981;
+      color: white;
+    }
+    
+    .module-pending {
+      background-color: #f3f4f6;
+      color: #6b7280;
+    }
+    
+    .user-menu-hidden {
+      display: none !important;
+    }
+    
+    .auth-buttons-hidden {
+      display: none !important;
+    }
+    
+    .user-avatar {
+      transition: transform 0.2s ease;
+    }
+    
+    .user-avatar:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800 min-h-screen">
+
+  <!-- Header Fixe -->
+  <header class="fixed w-full z-50 bg-white shadow-md">
+    <nav class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center">
+            <img src="logo.png" alt="URH Logo" class="h-10">
+          </div>
+          <span class="font-bold text-xl text-green-700">URH</span>
+        </div>
+
+        <!-- Navigation Desktop -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="index.html" class="text-green-700 font-medium">Accueil</a>
+          <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium">Cours</a>
+          <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium">Admission</a>
+          <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium">Actualités</a>
+          <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium">Contact</a>
+          
+          <!-- Boutons d'authentification -->
+          <div id="auth-buttons-desktop" class="flex items-center space-x-4">
+            <a href="connexion.html" class="text-green-600 hover:text-green-800 font-medium">
+              Connexion
+            </a>
+            <a href="inscription.html" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+              Inscription
+            </a>
+          </div>
+          
+          <!-- Menu utilisateur -->
+          <div id="user-menu-desktop" class="user-menu-hidden flex items-center space-x-4">
+            <div class="relative">
+              <button id="user-menu-button" class="flex items-center focus:outline-none">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center user-avatar">
+                  <i class="fas fa-user text-green-600"></i>
+                </div>
+              </button>
+              
+              <!-- Dropdown menu utilisateur -->
+              <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+                <a href="profil.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  <i class="fas fa-user-circle mr-2"></i> Mon profil
+                </a>
+                <button id="logout-button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton menu mobile -->
+        <button class="md:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+      </div>
+    </nav>
+    
+    <!-- Menu Mobile -->
+    <div id="mobile-menu" class="md:hidden bg-white shadow-lg px-4 py-3 hidden">
+      <div class="flex flex-col space-y-4">
+        <a href="index.html" class="text-green-700 font-medium py-2">Accueil</a>
+        <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Cours</a>
+        <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Actualité</a>
+        <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Admissions</a>
+        <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Contact</a>
+        
+        <!-- Boutons d'authentification mobile -->
+        <div id="auth-buttons-mobile" class="pt-4 border-t border-gray-200">
+          <a href="connexion.html" class="block text-center text-green-600 hover:text-green-800 font-medium py-2">
+            Connexion
+          </a>
+          <a href="inscription.html" class="block text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg mt-2 transition duration-300">
+            Inscription
+          </a>
+        </div>
+        
+        <!-- Menu utilisateur mobile -->
+        <div id="user-menu-mobile" class="user-menu-hidden pt-4 border-t border-gray-200">
+          <a href="profil.html" class="flex items-center text-gray-700 hover:text-green-700 font-medium py-2">
+            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+              <i class="fas fa-user text-green-600"></i>
+            </div>
+            Mon profil
+          </a>
+          <button id="logout-button-mobile" class="w-full flex items-center text-left text-gray-700 hover:text-green-700 font-medium py-2">
+            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+              <i class="fas fa-sign-out-alt text-gray-600"></i>
+            </div>
+            Déconnexion
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="h-16"></div> <!-- Espace pour le header fixe -->
+
+  <main class="container mx-auto px-4 py-8 max-w-7xl">
+    
+    <!-- EN-TÊTE DU PROFIL AVEC BANNIÈRE -->
+    <section class="mb-8">
+      <div class="rounded-xl overflow-hidden shadow-xl">
+        <!-- Bannière -->
+        <div class="gradient-bg h-32 md:h-40 relative">
+          <div class="absolute bottom-0 left-6 transform translate-y-1/2">
+            <div class="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white bg-white flex items-center justify-center shadow-lg">
+              <i class="fas fa-user-circle text-6xl md:text-7xl text-green-600"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Informations utilisateur -->
+        <div class="bg-white pt-12 md:pt-14 pb-6 px-6 md:px-8">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div class="mb-4 md:mb-0">
+              <h1 id="userName" class="text-2xl md:text-3xl font-bold text-gray-800">—</h1>
+              <p id="userEmail" class="text-gray-500 mt-1">—</p>
+              <div class="flex items-center mt-3">
+                <span id="userRole" class="inline-block px-4 py-1 text-sm rounded-full bg-green-100 text-green-600 font-medium">
+                  —
+                </span>
+                <span class="ml-3 text-sm text-gray-500">
+                  <i class="fas fa-calendar-alt mr-1"></i>
+                  Membre depuis <span id="memberSince">—</span>
+                </span>
+              </div>
+            </div>
+            <div class="flex space-x-3">
+              <button id="editProfileBtn" class="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors">
+                <i class="fas fa-edit mr-2"></i>Éditer le profil
+              </button>
+              <button id="settingsBtn" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors">
+                <i class="fas fa-cog mr-2"></i>Paramètres
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- STATISTIQUES PRINCIPALES -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Progression globale -->
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-medium text-gray-500">Progression globale</h3>
+          <i class="fas fa-chart-line text-green-500 text-lg"></i>
+        </div>
+        <div class="flex items-center">
+          <div class="relative w-16 h-16 mr-4">
+            <svg class="w-full h-full" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+              <circle id="progressRing" class="progress-ring__circle" cx="50" cy="50" r="45" fill="none" stroke="#4f46e5" stroke-width="8" stroke-dashoffset="283"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span id="userProgress" class="text-lg font-bold text-gray-800">0%</span>
+            </div>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-800">0%</p>
+            <p class="text-sm text-gray-500">Complété</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Cours suivis -->
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-medium text-gray-500">Cours suivis</h3>
+          <i class="fas fa-book-open text-green-500 text-lg"></i>
+        </div>
+        <div class="flex items-center">
+          <div class="mr-4">
+            <p id="userCourses" class="text-3xl font-bold text-gray-800">0</p>
+            <p class="text-sm text-gray-500">Cours actifs</p>
+          </div>
+          <div class="ml-auto">
+            <div class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+              <span id="approvedCourses">0</span> approuvés
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Certificats obtenus -->
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-medium text-gray-500">Certificats obtenus</h3>
+          <i class="fas fa-award text-yellow-500 text-lg"></i>
+        </div>
+        <div class="flex items-center">
+          <div class="mr-4">
+            <p id="userCertificates" class="text-3xl font-bold text-gray-800">0</p>
+            <p class="text-sm text-gray-500">Certificats</p>
+          </div>
+          <div class="ml-auto">
+            <a href="#" class="text-green-600 hover:text-green-800 text-sm font-medium">
+              Voir tous <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modules complétés -->
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-medium text-gray-500">Modules complétés</h3>
+          <i class="fas fa-check-circle text-purple-500 text-lg"></i>
+        </div>
+        <div class="flex items-center">
+          <div class="mr-4">
+            <p id="completedModules" class="text-3xl font-bold text-gray-800">0</p>
+            <p class="text-sm text-gray-500">Modules terminés</p>
+          </div>
+          <div class="ml-auto">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <i class="fas fa-tasks text-purple-600"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- SECTION PRINCIPALE AVEC DEUX COLONNES -->
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Colonne de gauche : Cours et modules -->
+      <div class="lg:w-2/3">
+        <!-- Cours avec progression -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Mes cours en progression</h2>
+            <a href="#" class="text-green-600 hover:text-green-800 text-sm font-medium">
+              Voir tous <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+          
+          <div id="coursesContainer" class="space-y-6">
+            <!-- Les cours seront ajoutés dynamiquement ici -->
+            <div class="text-center py-8">
+              <i class="fas fa-spinner fa-spin text-gray-400 text-2xl mb-3"></i>
+              <p class="text-gray-500">Chargement des cours...</p>
+            </div>
+          </div>
+          
+          <!-- Aucun cours message -->
+          <div id="noCoursesMessage" class="hidden text-center py-8">
+            <i class="fas fa-book-open text-gray-400 text-3xl mb-3"></i>
+            <h3 class="text-lg font-medium text-gray-600 mb-2">Aucun cours en cours</h3>
+            <p class="text-gray-500 mb-4">Commencez votre premier cours pour voir votre progression ici.</p>
+            <a href="catalogue.html" class="inline-block px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              <i class="fas fa-plus mr-2"></i>Explorer les cours
+            </a>
+          </div>
+        </section>
+        
+        <!-- Graphique de progression -->
+        <section class="bg-white rounded-xl shadow-lg p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-6">Progression mensuelle</h2>
+          <div class="h-64">
+            <canvas id="progressChart"></canvas>
+          </div>
+        </section>
+      </div>
+      
+      <!-- Colonne de droite : Détails et activités -->
+      <div class="lg:w-1/3">
+        <!-- Dernière activité -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 class="text-xl font-bold text-gray-800 mb-6">Activité récente</h2>
+          <div id="activityContainer" class="space-y-4">
+            <div class="flex items-start">
+              <div class="mr-3 mt-1">
+                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                  <i class="fas fa-book text-green-600 text-sm"></i>
+                </div>
+              </div>
+              <div>
+                <p class="font-medium text-gray-800">Aucune activité récente</p>
+                <p class="text-sm text-gray-500">Vos activités s'afficheront ici</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Modules complétés -->
+        <section class="bg-white rounded-xl shadow-lg p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-6">Derniers modules complétés</h2>
+          <div id="modulesContainer" class="space-y-3">
+            <div class="text-center py-4">
+              <p class="text-gray-500">Chargement des modules...</p>
+            </div>
+          </div>
+          
+          <!-- Aucun module message -->
+          <div id="noModulesMessage" class="hidden text-center py-4">
+            <i class="fas fa-clipboard-list text-gray-400 text-2xl mb-2"></i>
+            <p class="text-gray-500">Aucun module complété pour le moment</p>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Examen final</p>
+                <p id="examStatus" class="text-sm text-gray-500">Non complété</p>
+              </div>
+              <div id="examBadge" class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                En attente
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white pt-12 pb-8">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-4 gap-8 mb-8">
+                    <!-- Logo et description -->
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-6">
+                          <div class="mr-3">
+        <img src="logo.png" alt="Logo URH HAITI" class="h-12 w-auto object-contain">
+    </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">URH HAITI</h2>
+                                <p class="text-sm text-gray-300">Plateforme d'enseignement en ligne</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mb-6">École de référence en matière de formation à l'échelle nationale et internationale</p>
+                        <div class="flex space-x-4">
+                            <a href="https://www.facebook.com/share/1BnXZxoXJr/" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-400 transition">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-700 transition">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Liens rapides -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Liens rapides</h3>
+                        <ul class="space-y-3">
+                            <li><a href="index.html" class="text-gray-400 hover:text-white transition">Accueil</a></li>
+                            <li><a href="formation.html" class="text-gray-400 hover:text-white transition">Formations</a></li>
+                            <li><a href="apropos.html" class="text-gray-400 hover:text-white transition">À propos</a></li>
+                            <li><a href="https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant" class="text-gray-400 hover:text-white transition">Admission</a></li>
+                            <li><a href="contct.html" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Contact footer -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Contact</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-map-marker-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-phone-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-envelope text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Copyright -->
+                <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+                    <p>&copy; 2026 URH. Tous droits réservés.</p>
+                    <p class="mt-2">Site conçu avec <i class="fas fa-heart text-red-500"></i></p>
+                </div>
+            </div>
+        </footer>
+
+  <!-- MODAL D'ÉDITION DE PROFIL (caché par défaut) -->
+  <div id="editProfileModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-gray-800">Modifier le profil</h3>
+          <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <form id="profileForm">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-2" for="editName">
+              Nom complet
+            </label>
+            <input type="text" id="editName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-medium mb-2" for="editEmail">
+              Adresse email
+            </label>
+            <input type="email" id="editEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+          </div>
+          
+          <div class="flex justify-end space-x-3">
+            <button type="button" id="cancelEditBtn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+              Annuler
+            </button>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE LOGIC ET INITIALISATION -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+
+    // Initialiser Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Variables globales
+    let userData = {};
+    let userProgressData = [];
+
+    // ============================================
+    // GESTION DU HEADER
+    // ============================================
+
+    function setupHeaderEventListeners() {
+      // Menu mobile
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+      }
+      
+      // Dropdown menu utilisateur (desktop)
+      const userMenuButton = document.getElementById('user-menu-button');
+      const userDropdown = document.getElementById('user-dropdown');
+      
+      if (userMenuButton && userDropdown) {
+        userMenuButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          userDropdown.classList.toggle('hidden');
+        });
+        
+        // Fermer le dropdown en cliquant ailleurs
+        document.addEventListener('click', () => {
+          userDropdown.classList.add('hidden');
+        });
+        
+        // Empêcher la fermeture quand on clique dans le dropdown
+        userDropdown.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+      
+      // Boutons de déconnexion
+      const logoutButton = document.getElementById('logout-button');
+      const logoutButtonMobile = document.getElementById('logout-button-mobile');
+      
+      if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+      }
+      
+      if (logoutButtonMobile) {
+        logoutButtonMobile.addEventListener('click', handleLogout);
+      }
+    }
+
+    function updateHeaderForAuthState(user) {
+      const authButtonsDesktop = document.getElementById('auth-buttons-desktop');
+      const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+      const userMenuDesktop = document.getElementById('user-menu-desktop');
+      const userMenuMobile = document.getElementById('user-menu-mobile');
+      
+      if (user) {
+        // Utilisateur connecté
+        if (authButtonsDesktop) authButtonsDesktop.classList.add('auth-buttons-hidden');
+        if (authButtonsMobile) authButtonsMobile.classList.add('auth-buttons-hidden');
+        if (userMenuDesktop) userMenuDesktop.classList.remove('user-menu-hidden');
+        if (userMenuMobile) userMenuMobile.classList.remove('user-menu-hidden');
+      } else {
+        // Utilisateur non connecté
+        if (authButtonsDesktop) authButtonsDesktop.classList.remove('auth-buttons-hidden');
+        if (authButtonsMobile) authButtonsMobile.classList.remove('auth-buttons-hidden');
+        if (userMenuDesktop) userMenuDesktop.classList.add('user-menu-hidden');
+        if (userMenuMobile) userMenuMobile.classList.add('user-menu-hidden');
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        await signOut(auth);
+        window.location.href = 'connexion.html';
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion:", error);
+        alert("Erreur lors de la déconnexion");
+      }
+    }
+
+    // ============================================
+    // LOGIQUE PRINCIPALE
+    // ============================================
+
+    // Initialiser les graphiques
+    let progressChart;
+    const initChart = () => {
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      progressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+          datasets: [{
+            label: 'Progression (%)',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    };
+
+    // Mettre à jour l'anneau de progression
+    const updateProgressRing = (progress) => {
+      const circle = document.getElementById('progressRing');
+      const radius = 45;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (progress / 100) * circumference;
+      
+      circle.style.strokeDasharray = `${circumference} ${circumference}`;
+      circle.style.strokeDashoffset = offset;
+    };
+
+    // Formater la date
+    const formatDate = (timestamp) => {
+      if (!timestamp) return "—";
+      
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      return date.toLocaleDateString('fr-FR', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    };
+
+    // Afficher les cours de l'utilisateur
+    const displayUserCourses = (courses) => {
+      const coursesContainer = document.getElementById('coursesContainer');
+      const noCoursesMessage = document.getElementById('noCoursesMessage');
+      
+      if (!courses || Object.keys(courses).length === 0) {
+        coursesContainer.classList.add('hidden');
+        noCoursesMessage.classList.remove('hidden');
+        return;
+      }
+      
+      coursesContainer.classList.remove('hidden');
+      noCoursesMessage.classList.add('hidden');
+      
+      let coursesHTML = '';
+      
+      Object.entries(courses).forEach(([courseId, courseData]) => {
+        // Trouver la progression pour ce cours
+        const courseProgress = userProgressData.find(p => p.courseId === courseId);
+        const completedModules = courseProgress ? (courseProgress.completedModules || []).length : 0;
+        
+        // Calculer la progression approximative (si on suppose 10 modules par cours)
+        const progressPercentage = Math.min(100, Math.round((completedModules / 10) * 100));
+        
+        coursesHTML += `
+          <div class="course-card bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <h3 class="font-bold text-gray-800">Cours ID: ${courseId.substring(0, 8)}...</h3>
+                <div class="flex items-center mt-1">
+                  <span class="text-xs px-2 py-1 rounded-full ${courseData.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                    ${courseData.status === 'approved' ? 'Approuvé' : 'En attente'}
+                  </span>
+                  <span class="text-xs text-gray-500 ml-2">
+                    <i class="fas fa-calendar-alt mr-1"></i>
+                    ${formatDate(courseData.paidAt)}
+                  </span>
+                </div>
+              </div>
+              <span class="text-lg font-bold text-green-600">${progressPercentage}%</span>
+            </div>
+            
+            <div class="mb-3">
+              <div class="flex justify-between text-xs text-gray-500 mb-1">
+                <span>Progression</span>
+                <span>${completedModules}/10 modules</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: ${progressPercentage}%"></div>
+              </div>
+            </div>
+            
+            <div class="flex justify-between text-sm">
+              <div>
+                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                <span class="text-gray-600">${completedModules} modules complétés</span>
+              </div>
+              <a href="#" class="text-green-600 hover:text-green-800 font-medium">
+                Continuer <i class="fas fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      });
+      
+      coursesContainer.innerHTML = coursesHTML;
+      
+      // Mettre à jour le nombre de cours approuvés
+      const approvedCount = Object.values(courses).filter(c => c.status === 'approved').length;
+      document.getElementById('approvedCourses').textContent = approvedCount;
+    };
+
+    // Afficher les modules complétés
+    const displayCompletedModules = () => {
+      const modulesContainer = document.getElementById('modulesContainer');
+      const noModulesMessage = document.getElementById('noModulesMessage');
+      
+      // Rassembler tous les modules complétés de tous les cours
+      let allCompletedModules = [];
+      userProgressData.forEach(progress => {
+        if (progress.completedModules && progress.completedModules.length > 0) {
+          allCompletedModules = allCompletedModules.concat(
+            progress.completedModules.map(moduleId => ({
+              moduleId,
+              courseId: progress.courseId
+            }))
+          );
+        }
+      });
+      
+      if (allCompletedModules.length === 0) {
+        modulesContainer.classList.add('hidden');
+        noModulesMessage.classList.remove('hidden');
+        return;
+      }
+      
+      modulesContainer.classList.remove('hidden');
+      noModulesMessage.classList.add('hidden');
+      
+      // Afficher les 5 derniers modules
+      const recentModules = allCompletedModules.slice(-5).reverse();
+      let modulesHTML = '';
+      
+      recentModules.forEach(module => {
+        modulesHTML += `
+          <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div class="mr-3">
+              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                <i class="fas fa-check text-green-600"></i>
+              </div>
+            </div>
+            <div>
+              <p class="font-medium text-gray-800">Module ${module.moduleId}</p>
+              <p class="text-xs text-gray-500">Cours: ${module.courseId.substring(0, 6)}...</p>
+            </div>
+          </div>
+        `;
+      });
+      
+      modulesContainer.innerHTML = modulesHTML;
+      document.getElementById('completedModules').textContent = allCompletedModules.length;
+    };
+
+    // Vérifier le statut de l'examen final
+    const updateExamStatus = () => {
+      const examStatus = document.getElementById('examStatus');
+      const examBadge = document.getElementById('examBadge');
+      
+      let anyExamPassed = false;
+      userProgressData.forEach(progress => {
+        if (progress.finalExamPassed) {
+          anyExamPassed = true;
+        }
+      });
+      
+      if (anyExamPassed) {
+        examStatus.textContent = "Réussi";
+        examBadge.className = "px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium";
+        examBadge.textContent = "Réussi";
+      } else {
+        examStatus.textContent = "Non complété";
+        examBadge.className = "px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium";
+        examBadge.textContent = "En attente";
+      }
+    };
+
+    // Mettre à jour le graphique avec des données simulées
+    const updateChartWithData = () => {
+      // Générer des données simulées basées sur la progression
+      const progress = userData.progress || 0;
+      const dataPoints = [];
+      
+      for (let i = 0; i < 12; i++) {
+        if (i === 11) {
+          // Mois actuel - utiliser la progression réelle
+          dataPoints.push(progress);
+        } else {
+          // Mois précédents - générer des valeurs aléatoires mais croissantes
+          const prevValue = i > 0 ? dataPoints[i-1] : 0;
+          const maxIncrease = Math.min(progress - prevValue, 15);
+          const increase = i < 11 ? Math.random() * maxIncrease : 0;
+          dataPoints.push(Math.min(progress, Math.round(prevValue + increase)));
+        }
+      }
+      
+      if (progressChart) {
+        progressChart.data.datasets[0].data = dataPoints;
+        progressChart.update();
+      }
+    };
+
+    // Gestion de la modal d'édition
+    const setupModalHandlers = () => {
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const cancelEditBtn = document.getElementById('cancelEditBtn');
+      const editProfileModal = document.getElementById('editProfileModal');
+      const profileForm = document.getElementById('profileForm');
+      
+      editProfileBtn.addEventListener('click', () => {
+        document.getElementById('editName').value = userData.name || '';
+        document.getElementById('editEmail').value = userData.email || '';
+        editProfileModal.classList.remove('hidden');
+      });
+      
+      closeModalBtn.addEventListener('click', () => {
+        editProfileModal.classList.add('hidden');
+      });
+      
+      cancelEditBtn.addEventListener('click', () => {
+        editProfileModal.classList.add('hidden');
+      });
+      
+      profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Ici, vous ajouteriez le code pour mettre à jour le profil dans Firebase
+        alert('Fonctionnalité de mise à jour du profil à implémenter');
+        editProfileModal.classList.add('hidden');
+      });
+      
+      // Fermer la modal en cliquant en dehors
+      editProfileModal.addEventListener('click', (e) => {
+        if (e.target === editProfileModal) {
+          editProfileModal.classList.add('hidden');
+        }
+      });
+    };
+
+    // Gestion du bouton paramètres
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      alert('Page des paramètres à implémenter');
+    });
+
+    // Charger les données de progression
+    const loadUserProgress = async (userId) => {
+      try {
+        const progressQuery = query(
+          collection(db, "progress"),
+          where("userId", "==", userId)
+        );
+        
+        const querySnapshot = await getDocs(progressQuery);
+        userProgressData = [];
+        
+        querySnapshot.forEach((doc) => {
+          userProgressData.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Mettre à jour l'interface avec les données de progression
+        displayCompletedModules();
+        updateExamStatus();
+        
+      } catch (error) {
+        console.error("Erreur chargement progression :", error);
+      }
+    };
+
+    // Protéger la page + charger les données utilisateur
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "connexion.html";
+        return;
+      }
+
+      try {
+        // 1. Configurer le header
+        setupHeaderEventListeners();
+        updateHeaderForAuthState(user);
+
+        // 2. Charger les données utilisateur
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        
+        if (!userDoc.exists()) {
+          console.error("Aucune donnée utilisateur trouvée");
+          return;
+        }
+
+        userData = userDoc.data();
+        
+        // 3. Afficher les informations de base
+        document.getElementById("userName").textContent = userData.name || "Utilisateur";
+        document.getElementById("userEmail").textContent = userData.email || "";
+        document.getElementById("userRole").textContent = userData.role === "student" ? "Étudiant" : userData.role || "Étudiant";
+        
+        // 4. Mettre à jour la progression
+        const progressValue = userData.progress || 0;
+        document.getElementById("userProgress").textContent = progressValue + "%";
+        updateProgressRing(progressValue);
+        
+        // 5. Compter les cours
+        const coursesCount = userData.courses ? Object.keys(userData.courses).length : 0;
+        document.getElementById("userCourses").textContent = coursesCount;
+        
+        // 6. Mettre à jour les certificats (simulation)
+        const certificatesCount = userData.certificatesCount || 0;
+        document.getElementById("userCertificates").textContent = certificatesCount;
+        
+        // 7. Date d'inscription (simulée - vous devrez ajouter ce champ dans votre DB)
+        const memberSince = userData.createdAt ? formatDate(userData.createdAt) : formatDate(new Date());
+        document.getElementById("memberSince").textContent = memberSince;
+        
+        // 8. Initialiser le graphique
+        initChart();
+        
+        // 9. Charger les données de progression
+        await loadUserProgress(user.uid);
+        
+        // 10. Afficher les cours
+        if (userData.courses) {
+          displayUserCourses(userData.courses);
+        }
+        
+        // 11. Mettre à jour le graphique
+        updateChartWithData();
+        
+        // 12. Configurer les gestionnaires d'événements
+        setupModalHandlers();
+        
+      } catch (error) {
+        console.error("Erreur chargement profil :", error);
+      }
+    });
+  </script>
+</body>
+</html>

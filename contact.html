@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - URH HAITI</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --dark: #1f2937;
+            --light: #f9fafb;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #374151;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .section-padding {
+            padding: 3rem 0;
+        }
+        
+        @media (min-width: 768px) {
+            .section-padding {
+                padding: 5rem 0;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .stagger-delay-1 { animation-delay: 0.1s; }
+        .stagger-delay-2 { animation-delay: 0.2s; }
+        .stagger-delay-3 { animation-delay: 0.3s; }
+        .stagger-delay-4 { animation-delay: 0.4s; }
+        
+        /* Hover effects */
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, #2563eb, #10b981);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* Map container */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        @media (min-width: 768px) {
+            .map-container {
+                height: 400px;
+                border-radius: 16px;
+            }
+        }
+        
+        /* Stats counter */
+        .stat-item {
+            position: relative;
+        }
+        
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 40px;
+            background: #e5e7eb;
+        }
+        
+        .stat-item:last-child::after {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-item::after {
+                display: none;
+            }
+        }
+        
+        /* Form input focus */
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Grid pattern */
+        .bg-grid-pattern {
+            background-image: 
+                linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+                linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        /* Header styles */
+        .user-menu-hidden {
+            display: none !important;
+        }
+        
+        .auth-buttons-hidden {
+            display: none !important;
+        }
+        
+        .user-avatar {
+            transition: transform 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .mobile-stack {
+                flex-direction: column !important;
+            }
+            
+            .mobile-full-width {
+                width: 100% !important;
+            }
+            
+            .mobile-text-center {
+                text-align: center !important;
+            }
+            
+            .mobile-p-4 {
+                padding: 1rem !important;
+            }
+            
+            .mobile-space-y-4 > * + * {
+                margin-top: 1rem !important;
+            }
+        }
+        
+        /* Text wrapping for long content */
+        .break-words {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+        
+        /* Responsive typography */
+        .responsive-text {
+            font-size: clamp(1rem, 2.5vw, 1.125rem);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Fixe -->
+    <header class="fixed w-full z-50 bg-white shadow-md">
+        <nav class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center">
+                        <img src="logo.png" alt="URH Logo" class="h-8 sm:h-10">
+                    </div>
+                    <span class="font-bold text-lg sm:text-xl text-green-700">URH</span>
+                </div>
+
+                <!-- Navigation Desktop -->
+                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-green-700 font-medium text-sm lg:text-base">Accueil</a>
+                    <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium text-sm lg:text-base">Cours</a>
+                    <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium text-sm lg:text-base">Admission</a>
+                    <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium text-sm lg:text-base">Actualités</a>
+                    <a href="contact.html" class="text-green-700 font-medium text-sm lg:text-base">Contact</a>
+                    
+                    <!-- Boutons d'authentification -->
+                    <div id="auth-buttons-desktop" class="flex items-center space-x-3 lg:space-x-4">
+                        <a href="connexion.html" class="text-green-600 hover:text-green-800 font-medium text-sm lg:text-base">
+                            Connexion
+                        </a>
+                        <a href="inscription.html" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 lg:py-2 lg:px-4 rounded-lg transition duration-300 text-sm lg:text-base">
+                            Inscription
+                        </a>
+                    </div>
+                    
+                    <!-- Menu utilisateur -->
+                    <div id="user-menu-desktop" class="user-menu-hidden flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center focus:outline-none">
+                                <div class="w-9 h-9 lg:w-10 lg:h-10 bg-green-100 rounded-full flex items-center justify-center user-avatar">
+                                    <i class="fas fa-user text-green-600 text-sm lg:text-base"></i>
+                                </div>
+                            </button>
+                            
+                            <!-- Dropdown menu utilisateur -->
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-40 lg:w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+                                <a href="profil.html" class="block px-3 lg:px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm lg:text-base">
+                                    <i class="fas fa-user-circle mr-2"></i> Mon profil
+                                </a>
+                                <button id="logout-button" class="w-full text-left px-3 lg:px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm lg:text-base">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton menu mobile -->
+                <button class="md:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-xl sm:text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="md:hidden bg-white shadow-lg px-4 py-3 hidden">
+            <div class="flex flex-col space-y-3">
+                <a href="index.html" class="text-gray-700 hover:text-green-700 font-medium py-2 text-base">Accueil</a>
+                <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium py-2 text-base">Cours</a>
+                <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium py-2 text-base">Actualité</a>
+                <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium py-2 text-base">Admissions</a>
+                <a href="contact.html" class="text-green-700 font-medium py-2 text-base">Contact</a>
+                
+                <!-- Boutons d'authentification mobile -->
+                <div id="auth-buttons-mobile" class="pt-3 border-t border-gray-200">
+                    <a href="connexion.html" class="block text-center text-green-600 hover:text-green-800 font-medium py-2 text-base">
+                        Connexion
+                    </a>
+                    <a href="inscription.html" class="block text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg mt-2 transition duration-300 text-base">
+                        Inscription
+                    </a>
+                </div>
+                
+                <!-- Menu utilisateur mobile -->
+                <div id="user-menu-mobile" class="user-menu-hidden pt-3 border-t border-gray-200">
+                    <a href="profil.html" class="flex items-center text-gray-700 hover:text-green-700 font-medium py-2 text-base">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-green-600"></i>
+                        </div>
+                        Mon profil
+                    </a>
+                    <button id="logout-button-mobile" class="w-full flex items-center text-left text-gray-700 hover:text-green-700 font-medium py-2 text-base">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        </div>
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-16 sm:h-20"></div> <!-- Espace pour le header fixe -->
+
+    <!-- Contenu principal -->
+    <main>
+        <!-- Hero Section Contact -->
+        <section id="contact-hero" class="relative bg-gradient-to-r from-green-600 to-emerald-600 overflow-hidden" style="margin-top: 2vh;">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+            </div>
+            <div class="container mx-auto px-4 sm:px-6 py-12 md:py-24 relative">
+                <div class="max-w-3xl mx-auto text-center text-white fade-in-up">
+                    <h1 id="contact-title" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 break-words">
+                        Chargement...
+                    </h1>
+                    <p id="contact-subtitle" class="text-lg sm:text-xl md:text-2xl opacity-90 mb-6 md:mb-8 responsive-text break-words px-2">
+                        Chargement du sous-titre...
+                    </p>
+                    <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
+                        <a href="#formulaire" class="bg-white text-green-600 hover:bg-gray-100 px-5 py-3 sm:px-6 sm:py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition text-sm sm:text-base mobile-full-width sm:w-auto">
+                            <i class="fas fa-envelope mr-2"></i> <span id="contact-button-1">Écrire un message</span>
+                        </a>
+                        <a href="tel:+A definir " id="contact-phone" class="bg-transparent border-2 border-white text-white hover:bg-white/10 px-5 py-3 sm:px-6 sm:py-3 rounded-lg font-medium transition text-sm sm:text-base mobile-full-width sm:w-auto">
+                            <i class="fas fa-phone mr-2"></i> <span id="phone-number">+509 A definir</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section id="contact-stats" class="section-padding bg-white">
+            <div class="container mx-auto px-4 sm:px-6">
+                <div id="stats-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+                    <!-- Les statistiques seront chargées dynamiquement -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-green-600" role="status">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <p class="mt-2 text-gray-600 text-sm sm:text-base">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Contact Section -->
+        <section class="section-padding bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6">
+                <div class="grid lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
+                    <!-- Informations de contact -->
+                    <div class="lg:col-span-1 mobile-space-y-4">
+                        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl hover-lift fade-in-up stagger-delay-1">
+                            <h2 id="contact-info-title" class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 md:mb-8 flex items-center break-words">
+                                <i class="fas fa-headset text-green-600 mr-3 text-lg sm:text-xl"></i>
+                                Chargement...
+                            </h2>
+                            
+                            <div id="contact-info-container" class="space-y-6 sm:space-y-8">
+                                <!-- Les informations de contact seront chargées dynamiquement -->
+                                <div class="text-center py-6 sm:py-8">
+                                    <div class="spinner-border text-green-600" role="status">
+                                        <i class="fas fa-spinner fa-spin fa-lg sm:fa-2x"></i>
+                                    </div>
+                                    <p class="mt-4 text-gray-600 text-sm sm:text-base">Chargement des informations...</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Horaires -->
+                        <div id="opening-hours" class="mt-6 sm:mt-8 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl fade-in-up stagger-delay-2">
+                            <!-- Les horaires seront chargés dynamiquement -->
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-white" role="status">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                                <p class="mt-2 text-sm sm:text-base">Chargement des horaires...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulaire de contact et carte -->
+                    <div class="lg:col-span-2 mobile-space-y-4">
+                        <!-- Formulaire -->
+                        <div id="formulaire" class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl hover-lift fade-in-up stagger-delay-3">
+                            <div id="form-header" class="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
+                                <!-- Le header du formulaire sera chargé dynamiquement -->
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-green-600" role="status">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </div>
+                                    <p class="mt-2 text-gray-600 text-sm sm:text-base">Chargement du formulaire...</p>
+                                </div>
+                            </div>
+                            
+                            <form id="contactForm" class="space-y-4 sm:space-y-6">
+                                <!-- Les options du formulaire seront chargées dynamiquement -->
+                                <div class="text-center py-6 sm:py-8">
+                                    <div class="spinner-border text-green-600" role="status">
+                                        <i class="fas fa-spinner fa-spin fa-lg sm:fa-2x"></i>
+                                    </div>
+                                    <p class="mt-4 text-gray-600 text-sm sm:text-base">Chargement du formulaire...</p>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Carte Google Maps -->
+                        <div id="map-section" class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl hover-lift fade-in-up stagger-delay-4 mt-6 sm:mt-8">
+                            <!-- La carte sera chargée dynamiquement -->
+                            <div class="text-center py-6 sm:py-8">
+                                <div class="spinner-border text-green-600" role="status">
+                                    <i class="fas fa-spinner fa-spin fa-lg sm:fa-2x"></i>
+                                </div>
+                                <p class="mt-4 text-gray-600 text-sm sm:text-base">Chargement de la carte...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="contact-faq" class="section-padding bg-white">
+            <div class="container mx-auto px-4 sm:px-6">
+                <div id="faq-header" class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 fade-in-up">
+                    <!-- Le header FAQ sera chargé dynamiquement -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-orange-600" role="status">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <p class="mt-2 text-gray-600 text-sm sm:text-base">Chargement des FAQ...</p>
+                    </div>
+                </div>
+                
+                <div id="faq-container" class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
+                    <!-- Les FAQ seront chargées dynamiquement -->
+                    <div class="text-center py-6 sm:py-8">
+                        <div class="spinner-border text-green-600" role="status">
+                            <i class="fas fa-spinner fa-spin fa-lg sm:fa-2x"></i>
+                        </div>
+                        <p class="mt-4 text-gray-600 text-sm sm:text-base">Chargement des questions fréquentes...</p>
+                    </div>
+                </div>
+                
+                <div id="faq-footer" class="text-center mt-8 sm:mt-12">
+                    <!-- Le footer FAQ sera chargé dynamiquement -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section id="contact-cta" class="section-padding bg-gradient-to-r from-green-600 to-purple-600 text-white">
+            <div class="container mx-auto px-4 sm:px-6">
+                <div class="max-w-4xl mx-auto text-center fade-in-up">
+                    <h2 id="cta-title" class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 break-words px-2">
+                        Chargement...
+                    </h2>
+                    <p id="cta-text" class="text-lg sm:text-xl opacity-90 mb-8 sm:mb-10 max-w-2xl mx-auto responsive-text break-words px-2">
+                        Chargement du texte CTA...
+                    </p>
+                    <div id="cta-buttons" class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                        <!-- Les boutons CTA seront chargés dynamiquement -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-8 sm:pt-12 pb-6 sm:pb-8">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+                <!-- Logo et description -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center mb-4 sm:mb-6 mobile-stack sm:flex-row">
+                        <div class="mr-3 mb-3 sm:mb-0">
+                            <img src="logo.png" alt="Logo URH HAITI" class="h-10 sm:h-12 w-auto object-contain">
+                        </div>
+                        <div class="mobile-text-center sm:text-left">
+                            <h2 class="text-xl sm:text-2xl font-bold">URH HAITI</h2>
+                            <p class="text-xs sm:text-sm text-gray-300">Plateforme d'enseignement en ligne</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base break-words">École de référence en matière de formation à l'échelle nationale et internationale</p>
+                    <div class="flex space-x-3 sm:space-x-4">
+                        <a href="https://www.facebook.com/share/1BnXZxoXJr/" target="_blank" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition text-sm sm:text-base">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-400 transition text-sm sm:text-base">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition text-sm sm:text-base">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-700 transition text-sm sm:text-base">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Liens rapides -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4 sm:mb-6">Liens rapides</h3>
+                    <ul class="space-y-2 sm:space-y-3">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Accueil</a></li>
+                        <li><a href="formation.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Formations</a></li>
+                        <li><a href="apropos.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">À propos</a></li>
+                        <li><a href="https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Admission</a></li>
+                        <li><a href="contct.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact footer -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4 sm:mb-6">Contact</h3>
+                    <ul class="space-y-2 sm:space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-green-400 mt-1 mr-3 text-sm sm:text-base"></i>
+                            <span class="text-gray-400 text-sm sm:text-base break-words">A definir </span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt text-green-400 mt-1 mr-3 text-sm sm:text-base"></i>
+                            <span class="text-gray-400 text-sm sm:text-base">A definir </span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope text-green-400 mt-1 mr-3 text-sm sm:text-base"></i>
+                            <span class="text-gray-400 text-sm sm:text-base break-words">A definir  definir </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="pt-6 sm:pt-8 border-t border-gray-800 text-center text-gray-500 text-xs sm:text-sm">
+                <p>&copy; 2026 URH. Tous droits réservés.</p>
+                <p class="mt-1 sm:mt-2">Site conçu avec <i class="fas fa-heart text-red-500"></i></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // ============================================
+        // CONFIGURATION FIREBASE
+        // ============================================
+   const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Variables globales
+        let currentUser = null;
+
+        // ============================================
+        // GESTION DU HEADER (IDENTIQUE AUX AUTRES PAGES)
+        // ============================================
+
+        function setupHeaderEventListeners() {
+            // Menu mobile
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Dropdown menu utilisateur (desktop)
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuButton && userDropdown) {
+                userMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                
+                // Fermer le dropdown en cliquant ailleurs
+                document.addEventListener('click', () => {
+                    userDropdown.classList.add('hidden');
+                });
+                
+                // Empêcher la fermeture quand on clique dans le dropdown
+                userDropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Boutons de déconnexion
+            const logoutButton = document.getElementById('logout-button');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+            
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', handleLogout);
+            }
+        }
+
+        function updateHeaderForAuthState(user) {
+            const authButtonsDesktop = document.getElementById('auth-buttons-desktop');
+            const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+            const userMenuDesktop = document.getElementById('user-menu-desktop');
+            const userMenuMobile = document.getElementById('user-menu-mobile');
+            
+            if (user) {
+                // Utilisateur connecté
+                if (authButtonsDesktop) authButtonsDesktop.classList.add('auth-buttons-hidden');
+                if (authButtonsMobile) authButtonsMobile.classList.add('auth-buttons-hidden');
+                if (userMenuDesktop) userMenuDesktop.classList.remove('user-menu-hidden');
+                if (userMenuMobile) userMenuMobile.classList.remove('user-menu-hidden');
+            } else {
+                // Utilisateur non connecté
+                if (authButtonsDesktop) authButtonsDesktop.classList.remove('auth-buttons-hidden');
+                if (authButtonsMobile) authButtonsMobile.classList.remove('auth-buttons-hidden');
+                if (userMenuDesktop) userMenuDesktop.classList.add('user-menu-hidden');
+                if (userMenuMobile) userMenuMobile.classList.add('user-menu-hidden');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                window.location.href = 'connexion.html';
+            } catch (error) {
+                console.error("Erreur lors de la déconnexion:", error);
+                alert("Erreur lors de la déconnexion");
+            }
+        }
+
+        function initializeAuth() {
+            auth.onAuthStateChanged((user) => {
+                currentUser = user;
+                updateHeaderForAuthState(user);
+                console.log('État d\'authentification:', user ? 'connecté' : 'non connecté');
+            });
+        }
+
+        // ============================================
+        // DONNÉES PAR DÉFAUT POUR LA PAGE CONTACT
+        // ============================================
+        const defaultContactData = {
+            hero: {
+                title: "Contactez-<span class='text-yellow-300'>nous</span>",
+                subtitle: "Nous sommes là pour répondre à toutes vos questions et vous accompagner dans votre parcours",
+                button1: "Écrire un message",
+                phone: "+509 A definir"
+            },
+            stats: [
+                {
+                    number: "24/7",
+                    label: "Support en ligne",
+                    color: "green"
+                },
+                {
+                    number: "2h",
+                    label: "Réponse moyenne",
+                    color: "emerald"
+                },
+                {
+                    number: "98%",
+                    label: "Satisfaction client",
+                    color: "purple"
+                },
+                {
+                    number: "500+",
+                    label: "Étudiants aidés",
+                    color: "orange"
+                }
+            ],
+            contactInfo: {
+                title: "Nos coordonnées",
+                items: [
+                    {
+                        type: "address",
+                        icon: "map-marker-alt",
+                        color: "green",
+                        title: "Adresse principale",
+                        text: "A definir ",
+                        details: "Port-au-Prince, Haïti",
+                        link: "https://maps.google.com/?q=24+Puits+Blain+prolongée+Delmas+75",
+                        linkText: "Voir sur Google Maps"
+                    },
+                    {
+                        type: "phone",
+                        icon: "phone-alt",
+                        color: "emerald",
+                        title: "Téléphone & WhatsApp",
+                        text: "+509 A definir",
+                        buttons: [
+                            {
+                                text: "Appeler",
+                                icon: "phone",
+                                color: "emerald",
+                                link: "tel:+A definir "
+                            },
+                            {
+                                text: "WhatsApp",
+                                icon: "whatsapp",
+                                color: "green",
+                                link: "https://wa.me/A definir "
+                            }
+                        ]
+                    },
+                    {
+                        type: "email",
+                        icon: "envelope",
+                        color: "purple",
+                        title: "Adresse email",
+                        text: "A definir  definir ",
+                        link: "mailto:A definir  definir ",
+                        linkText: "Envoyer un email"
+                    },
+                    {
+                        type: "social",
+                        icon: "share-alt",
+                        color: "red",
+                        title: "Réseaux sociaux",
+                        text: "Suivez-nous pour les dernières actualités",
+                        socials: [
+                            {
+                                icon: "facebook-f",
+                                color: "green",
+                                link: "https://www.facebook.com/share/1FeUqFu3WX/"
+                            },
+                            {
+                                icon: "twitter",
+                                color: "green-400",
+                                link: "#"
+                            },
+                            {
+                                icon: "instagram",
+                                gradient: "from-purple-600 to-pink-600",
+                                link: "#"
+                            },
+                            {
+                                icon: "linkedin-in",
+                                color: "green-700",
+                                link: "#"
+                            }
+                        ]
+                    }
+                ]
+            },
+            openingHours: {
+                title: "Horaires d'ouverture",
+                schedule: [
+                    {
+                        day: "Lundi - Vendredi",
+                        hours: "8:00 - 18:00"
+                    },
+                    {
+                        day: "Samedi",
+                        hours: "9:00 - 14:00"
+                    },
+                    {
+                        day: "Dimanche",
+                        hours: "Fermé",
+                        highlight: true
+                    }
+                ],
+                note: "Visites guidées sur rendez-vous uniquement"
+            },
+            form: {
+                title: "Envoyez-nous un message",
+                subtitle: "Nous vous répondons généralement dans les 2 heures ouvrables",
+                badge: "Réponse rapide garantie",
+                badgeIcon: "bolt",
+                subjects: [
+                    "Demande d'admission",
+                    "Information sur les formations",
+                    "Visite guidée de l'institut",
+                    "Partenariat professionnel",
+                    "Offre d'emploi",
+                    "Autre demande"
+                ]
+            },
+            map: {
+                title: "Notre localisation",
+                address: "A definir ",
+                description: "URH HAITI - Campus Delmas",
+                mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.028043844441!2d-72.3024670242704!3d18.476287971800397!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8eb9e7b5c5c5c5c5%3A0x5c5c5c5c5c5c5c5c!2sDelmas%2075%2C%20Port-au-Prince%2C%20Ha%C3%AFti!5e0!3m2!1sfr!2sht!4v1681234567890!5m2!1sfr!2sht",
+                features: [
+                    {
+                        icon: "bus",
+                        title: "Accessible en transport",
+                        description: "Tap-tap, moto-taxi",
+                        color: "green"
+                    },
+                    {
+                        icon: "parking",
+                        title: "Parking gratuit",
+                        description: "Pour étudiants et visiteurs",
+                        color: "emerald"
+                    },
+                    {
+                        icon: "wheelchair",
+                        title: "Accessible PMR",
+                        description: "Installations adaptées",
+                        color: "purple"
+                    }
+                ]
+            },
+            faq: {
+                badge: "Questions fréquentes",
+                badgeColor: "orange",
+                title: "Vous avez des <span class='gradient-text'>questions</span> ?",
+                subtitle: "Trouvez rapidement des réponses à vos interrogations les plus courantes",
+                items: [
+                    {
+                        icon: "graduation-cap",
+                        color: "green",
+                        question: "Quand puis-je m'inscrire ?",
+                        answer: "Les inscriptions sont ouvertes toute l'année pour différentes sessions. Contactez-nous pour connaître les dates exactes de la prochaine rentrée."
+                    },
+                    {
+                        icon: "money-bill-wave",
+                        color: "emerald",
+                        question: "Y a-t-il des frais d'inscription ?",
+                        answer: "Oui, des frais d'inscription modiques sont requis. Des facilités de paiement et bourses sont disponibles pour les étudiants éligibles."
+                    },
+                    {
+                        icon: "file-alt",
+                        color: "purple",
+                        question: "Quels documents fournir ?",
+                        answer: "Copie du diplôme, photos d'identité, photocopie de la CIN, certificat de naissance et fiche d'inscription remplie."
+                    },
+                    {
+                        icon: "clock",
+                        color: "red",
+                        question: "Quels sont les horaires des cours ?",
+                        answer: "Nous proposons des cours en journée, en soirée et le samedi pour s'adapter à tous les emplois du temps."
+                    }
+                ],
+                footer: {
+                    text: "Voir toutes les questions fréquentes",
+                    link: "faq.html"
+                }
+            },
+            cta: {
+                title: "Prêt à démarrer votre formation ?",
+                text: "Rejoignez l'URH HAITI et transformez votre avenir avec une formation professionnelle d'excellence.",
+                buttons: [
+                    {
+                        text: "S'inscrire maintenant",
+                        icon: "user-plus",
+                        link: "inscription.html",
+                        style: "primary"
+                    },
+                    {
+                        text: "Appeler maintenant",
+                        icon: "phone-alt",
+                        link: "tel:+A definir ",
+                        style: "secondary"
+                    }
+                ]
+            }
+        };
+        
+        // ============================================
+        // LOGIQUE DE LA PAGE CONTACT (MOBILE FIRST)
+        // ============================================
+
+        // Fonction pour charger le contenu de la page Contact
+        async function loadContactContent() {
+            try {
+                console.log("Chargement du contenu 'Contact' depuis Firebase...");
+                
+                // Récupérer le document contact/content
+                const docRef = db.collection('contact').doc('content');
+                const doc = await docRef.get();
+                
+                let data = defaultContactData;
+                
+                if (doc.exists) {
+                    console.log("Document 'contact' trouvé dans Firebase");
+                    data = doc.data();
+                } else {
+                    console.log("Aucun document 'contact' trouvé, utilisation des données par défaut");
+                }
+                
+                // Mettre à jour l'interface avec les données
+                updateUIWithData(data);
+                
+            } catch (error) {
+                console.error("Erreur lors du chargement depuis Firebase:", error);
+                console.log("Utilisation des données par défaut");
+                updateUIWithData(defaultContactData);
+            }
+        }
+        
+        // Fonction pour mettre à jour l'interface avec les données
+        function updateUIWithData(data) {
+            // Mettre à jour la section Hero
+            if (data.hero) {
+                document.getElementById('contact-title').innerHTML = data.hero.title;
+                document.getElementById('contact-subtitle').textContent = data.hero.subtitle;
+                document.getElementById('contact-button-1').textContent = data.hero.button1;
+                document.getElementById('phone-number').textContent = data.hero.phone;
+                document.getElementById('contact-phone').href = `tel:${data.hero.phone.replace(/\s/g, '')}`;
+            }
+            
+            // Mettre à jour les statistiques
+            if (data.stats && data.stats.length > 0) {
+                const statsContainer = document.getElementById('stats-container');
+                statsContainer.innerHTML = data.stats.map((stat, index) => `
+                    <div class="text-center stat-item fade-in-up stagger-delay-${index + 1}">
+                        <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-${stat.color}-600 mb-1 sm:mb-2 break-words">${stat.number}</div>
+                        <p class="text-gray-600 font-medium text-sm sm:text-base break-words">${stat.label}</p>
+                    </div>
+                `).join('');
+            }
+            
+            // Mettre à jour les informations de contact
+            if (data.contactInfo) {
+                document.getElementById('contact-info-title').innerHTML = `
+                    <i class="fas fa-headset text-green-600 mr-3 text-lg sm:text-xl"></i>
+                    <span class="break-words">${data.contactInfo.title}</span>
+                `;
+                
+                const contactContainer = document.getElementById('contact-info-container');
+                if (data.contactInfo.items && data.contactInfo.items.length > 0) {
+                    contactContainer.innerHTML = data.contactInfo.items.map(item => {
+                        let html = `
+                            <div class="flex items-start group mobile-stack sm:flex-row">
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-${item.color}-50 to-${item.color}-100 flex items-center justify-center mr-4 sm:mr-5 mb-3 sm:mb-0 group-hover:scale-110 transition duration-300 flex-shrink-0">
+                                    <i class="fas fa-${item.icon} text-${item.color}-600 text-lg sm:text-xl"></i>
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="font-bold text-gray-900 text-base sm:text-lg mb-2 break-words">${item.title}</h4>
+                                    <p class="text-gray-600 mb-2 text-sm sm:text-base break-words">${item.text}</p>
+                        `;
+                        
+                        if (item.details) {
+                            html += `<p class="text-xs sm:text-sm text-gray-500 break-words">${item.details}</p>`;
+                        }
+                        
+                        if (item.buttons) {
+                            html += `
+                                <div class="flex flex-wrap gap-2 mt-3">
+                                    ${item.buttons.map(btn => `
+                                        <a href="${btn.link}" target="_blank" class="bg-${btn.color}-100 text-${btn.color}-700 px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-${btn.color}-200 transition inline-flex items-center break-words">
+                                            <i class="fas fa-${btn.icon} mr-1 sm:mr-2 text-xs sm:text-sm"></i> ${btn.text}
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+                        
+                        if (item.socials) {
+                            html += `
+                                <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base break-words">${item.text}</p>
+                                <div class="flex flex-wrap gap-2 sm:gap-3">
+                                    ${item.socials.map(social => {
+                                        if (social.gradient) {
+                                            return `
+                                                <a href="${social.link}" target="_blank" class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r ${social.gradient} rounded-full flex items-center justify-center hover:opacity-90 transition transform hover:-translate-y-1 flex-shrink-0">
+                                                    <i class="fab fa-${social.icon} text-white text-sm sm:text-base"></i>
+                                                </a>
+                                            `;
+                                        } else {
+                                            return `
+                                                <a href="${social.link}" target="_blank" class="w-8 h-8 sm:w-10 sm:h-10 bg-${social.color} rounded-full flex items-center justify-center hover:bg-${social.color.replace('-400', '-500').replace('-600', '-700').replace('-700', '-800')} transition transform hover:-translate-y-1 flex-shrink-0">
+                                                    <i class="fab fa-${social.icon} text-white text-sm sm:text-base"></i>
+                                                </a>
+                                            `;
+                                        }
+                                    }).join('')}
+                                </div>
+                            `;
+                        }
+                        
+                        if (item.link) {
+                            html += `
+                                <a href="${item.link}" target="_blank" class="text-${item.color}-600 text-xs sm:text-sm font-medium mt-2 inline-flex items-center hover:text-${item.color}-800 transition break-words">
+                                    <i class="fas fa-${item.type === 'address' ? 'directions' : 'paper-plane'} mr-1 sm:mr-2 text-xs sm:text-sm"></i>
+                                    ${item.linkText}
+                                </a>
+                            `;
+                        }
+                        
+                        html += `</div></div>`;
+                        return html;
+                    }).join('');
+                }
+            }
+            
+            // Mettre à jour les horaires d'ouverture
+            if (data.openingHours) {
+                const hoursContainer = document.getElementById('opening-hours');
+                hoursContainer.innerHTML = `
+                    <h4 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center break-words">
+                        <i class="fas fa-clock mr-2 sm:mr-3 text-base sm:text-lg"></i>
+                        ${data.openingHours.title}
+                    </h4>
+                    <div class="space-y-2 sm:space-y-3">
+                        ${data.openingHours.schedule.map(item => `
+                            <div class="flex justify-between items-center py-2 ${item.highlight ? '' : 'border-b border-white/20'}">
+                                <span class="text-sm sm:text-base break-words">${item.day}</span>
+                                <span class="font-bold ${item.highlight ? 'text-red-200' : ''} text-sm sm:text-base break-words">${item.hours}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-4 sm:mt-6 p-3 bg-white/10 rounded-lg text-center">
+                        <p class="text-xs sm:text-sm break-words">${data.openingHours.note}</p>
+                    </div>
+                `;
+            }
+            
+            // Mettre à jour le formulaire
+            if (data.form) {
+                const formHeader = document.getElementById('form-header');
+                formHeader.innerHTML = `
+                    <div class="flex-grow min-w-0">
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2 break-words">${data.form.title}</h2>
+                        <p class="text-gray-600 text-sm sm:text-base break-words">${data.form.subtitle}</p>
+                    </div>
+                    <div class="mt-2 sm:mt-0">
+                        <div class="bg-green-50 text-green-700 px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium inline-flex items-center break-words">
+                            <i class="fas fa-${data.form.badgeIcon} mr-1 sm:mr-2 text-xs sm:text-sm"></i>
+                            ${data.form.badge}
+                        </div>
+                    </div>
+                `;
+                
+                const formContainer = document.getElementById('contactForm');
+                formContainer.innerHTML = `
+                    <!-- Nom complet -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="group">
+                            <label for="firstName" class="block text-gray-700 mb-1 sm:mb-2 font-medium text-sm sm:text-base">Prénom <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input type="text" id="firstName" 
+                                       class="w-full p-3 sm:p-4 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-3 focus:ring-green-500/30 focus:border-green-500 outline-none transition-all duration-300 form-input text-sm sm:text-base"
+                                       placeholder="Votre prénom"
+                                       required>
+                                <div class="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                                    <i class="fas fa-user text-gray-400 text-sm sm:text-base"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="group">
+                            <label for="lastName" class="block text-gray-700 mb-1 sm:mb-2 font-medium text-sm sm:text-base">Nom <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input type="text" id="lastName" 
+                                       class="w-full p-3 sm:p-4 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-3 focus:ring-green-500/30 focus:border-green-500 outline-none transition-all duration-300 form-input text-sm sm:text-base"
+                                       placeholder="Votre nom"
+                                       required>
+                                <div class="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                                    <i class="fas fa-user text-gray-400 text-sm sm:text-base"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email et téléphone -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="group">
+                            <label for="email" class="block text-gray-700 mb-1 sm:mb-2 font-medium text-sm sm:text-base">Email <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input type="email" id="email" 
+                                       class="w-full p-3 sm:p-4 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-3 focus:ring-green-500/30 focus:border-green-500 outline-none transition-all duration-300 form-input text-sm sm:text-base"
+                                       placeholder="exemple@email.com"
+                                       required>
+                                <div class="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                                    <i class="fas fa-envelope text-gray-400 text-sm sm:text-base"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="group">
+                            <label for="phone" class="block text-gray-700 mb-1 sm:mb-2 font-medium text-sm sm:text-base">Téléphone (optionnel)</label>
+                            <div class="relative">
+                                <input type="tel" id="phone" 
+                                       class="w-full p-3 sm:p-4 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-3 focus:ring-green-500/30 focus:border-green-500 outline-none transition-all duration-300 form-input text-sm sm:text-base"
+                                       placeholder="+509 XX XX XX XX">
+                                <div class="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                                    <i class="fas fa-phone text-gray-400 text-sm sm:text-base"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sujet -->
+                    <div class="group">
+                        <label for="subject" class="block text-gray-700 mb-1 sm:mb-2 font-medium text-sm sm:text-base">Sujet <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <select id="subject" 
+                                    class="w-full p-3 sm:p-4 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-3 focus:ring-green-500/30 focus:border-green-500 outline-none transition-all duration-300 form-input appearance-none bg-white text-sm sm:text-base"
+                                    required>
+                                <option value="" disabled selected>Sélectionnez un sujet</option>
+                                ${data.form.subjects.map(subject => `<option value="${subject.toLowerCase().replace(/\s/g, '-')}" class="text-sm sm:text-base break-words">${subject}</option>`).join('')}
+                            </select>
+                            <div class="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400 text-sm sm:text-base"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message -->
+                    <div class="group">
+                        <label for="message" class="block text-gray-700 mb-1 sm:mb-2 font-medium text-sm sm:text-base">Message <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <textarea id="message" rows="4" 
+                                      class="w-full p-3 sm:p-4 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-3 focus:ring-green-500/30 focus:border-green-500 outline-none transition-all duration-300 form-input resize-none text-sm sm:text-base"
+                                      placeholder="Décrivez-nous votre demande en détail..."
+                                      required></textarea>
+                            <div class="absolute right-3 sm:right-4 top-3 sm:top-4">
+                                <i class="fas fa-edit text-gray-400 text-sm sm:text-base"></i>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-1 sm:mt-2">
+                            <span class="text-xs sm:text-sm text-gray-500">Minimum 30 caractères</span>
+                            <span id="charCount" class="text-xs sm:text-sm text-gray-500">0/1000</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Checkbox consentement -->
+                    <div class="flex items-start">
+                        <input type="checkbox" id="consent" class="mt-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-green-600 rounded focus:ring-green-500" required>
+                        <label for="consent" class="text-gray-700 text-xs sm:text-sm break-words">
+                            J'accepte que mes données personnelles soient utilisées pour traiter ma demande conformément à la 
+                            <a href="#" class="text-green-600 hover:text-green-800 underline break-words">politique de confidentialité</a>.
+                        </label>
+                    </div>
+                    
+                    <!-- Bouton submit -->
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white p-3 sm:p-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center group">
+                        <span class="break-words">Envoyer le message</span>
+                        <i class="fas fa-paper-plane ml-2 sm:ml-3 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform text-sm sm:text-base"></i>
+                    </button>
+                    
+                    <!-- Message de confirmation -->
+                    <div id="formSuccess" class="hidden p-4 sm:p-6 bg-emerald-50 border border-emerald-200 rounded-lg sm:rounded-xl text-emerald-700 text-center mt-4 sm:mt-6">
+                        <i class="fas fa-check-circle text-xl sm:text-3xl mb-2 sm:mb-3"></i>
+                        <p class="font-bold text-base sm:text-lg break-words">Message envoyé avec succès !</p>
+                        <p class="mt-1 sm:mt-2 text-sm sm:text-base break-words">Nous vous répondrons dans les plus brefs délais.</p>
+                    </div>
+                    
+                    <!-- Message d'erreur -->
+                    <div id="formError" class="hidden p-4 sm:p-6 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl text-red-700 text-center mt-4 sm:mt-6">
+                        <i class="fas fa-exclamation-circle text-xl sm:text-3xl mb-2 sm:mb-3"></i>
+                        <p class="font-bold text-base sm:text-lg break-words">Une erreur est survenue</p>
+                        <p class="mt-1 sm:mt-2 text-sm sm:text-base break-words" id="errorMessage">Veuillez réessayer plus tard.</p>
+                    </div>
+                `;
+                
+                // Initialiser le compteur de caractères
+                setupCharacterCounter();
+                
+                // Initialiser la validation du formulaire
+                setupFormValidation();
+            }
+            
+            // Mettre à jour la carte
+            if (data.map) {
+                const mapSection = document.getElementById('map-section');
+                mapSection.innerHTML = `
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center break-words">
+                        <i class="fas fa-map-marked-alt text-emerald-600 mr-2 sm:mr-3 text-lg sm:text-xl"></i>
+                        ${data.map.title}
+                    </h3>
+                    
+                    <div class="map-container">
+                        <!-- Carte Google Maps intégrée -->
+                        <iframe 
+                            src="${data.map.mapUrl}" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Localisation URH HAITI">
+                        </iframe>
+                        
+                        <!-- Overlay d'information -->
+                        <div class="absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 sm:p-4 shadow-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                                    <i class="fas fa-map-marker-alt text-white text-sm sm:text-base"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="font-bold text-gray-900 text-sm sm:text-base break-words">${data.map.description}</h4>
+                                    <p class="text-xs sm:text-sm text-gray-600 break-words">${data.map.address}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                        ${data.map.features.map(feature => `
+                            <div class="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
+                                <i class="fas fa-${feature.icon} text-${feature.color}-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
+                                <p class="font-medium text-gray-900 text-sm sm:text-base break-words">${feature.title}</p>
+                                <p class="text-xs sm:text-sm text-gray-600 break-words">${feature.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // Mettre à jour les FAQ
+            if (data.faq) {
+                const faqHeader = document.getElementById('faq-header');
+                faqHeader.innerHTML = `
+                    <div class="inline-flex items-center space-x-1 sm:space-x-2 bg-gradient-to-r from-${data.faq.badgeColor}-100 to-yellow-100 text-${data.faq.badgeColor}-700 px-3 py-1 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 break-words">
+                        <i class="fas fa-question-circle text-xs sm:text-sm"></i>
+                        <span>${data.faq.badge}</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 break-words">
+                        ${data.faq.title}
+                    </h2>
+                    <p class="text-base sm:text-lg text-gray-600 break-words">${data.faq.subtitle}</p>
+                `;
+                
+                const faqContainer = document.getElementById('faq-container');
+                if (data.faq.items && data.faq.items.length > 0) {
+                    faqContainer.innerHTML = data.faq.items.map((item, index) => `
+                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-4 sm:p-6 hover-lift fade-in-up stagger-delay-${index + 1}">
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-${item.color}-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                    <i class="fas fa-${item.icon} text-${item.color}-600 text-sm sm:text-base"></i>
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="font-bold text-gray-900 text-base sm:text-lg mb-1 sm:mb-2 break-words">${item.question}</h4>
+                                    <p class="text-gray-600 text-sm sm:text-base break-words">${item.answer}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                const faqFooter = document.getElementById('faq-footer');
+                if (data.faq.footer) {
+                    faqFooter.innerHTML = `
+                        <a href="${data.faq.footer.link}" class="inline-flex items-center text-green-600 font-bold text-base sm:text-lg hover:text-green-800 transition break-words">
+                            <span class="break-words">${data.faq.footer.text}</span>
+                            <i class="fas fa-arrow-right ml-2 sm:ml-3 text-sm sm:text-base"></i>
+                        </a>
+                    `;
+                }
+            }
+            
+            // Mettre à jour la section CTA
+            if (data.cta) {
+                document.getElementById('cta-title').textContent = data.cta.title;
+                document.getElementById('cta-text').textContent = data.cta.text;
+                
+                const ctaButtons = document.getElementById('cta-buttons');
+                if (data.cta.buttons && data.cta.buttons.length > 0) {
+                    ctaButtons.innerHTML = data.cta.buttons.map(button => {
+                        if (button.style === 'primary') {
+                            return `
+                                <a href="${button.link}" class="bg-white text-green-600 hover:bg-gray-100 px-4 py-3 sm:px-8 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg shadow-xl hover:shadow-2xl transition-all duration-300 mobile-full-width sm:w-auto text-center break-words">
+                                    <i class="fas fa-${button.icon} mr-1 sm:mr-2 text-sm sm:text-base"></i> ${button.text}
+                                </a>
+                            `;
+                        } else {
+                            return `
+                                <a href="${button.link}" class="bg-transparent border-2 border-white text-white hover:bg-white/10 px-4 py-3 sm:px-8 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg transition-all duration-300 mobile-full-width sm:w-auto text-center break-words">
+                                    <i class="fas fa-${button.icon} mr-1 sm:mr-2 text-sm sm:text-base"></i> ${button.text}
+                                </a>
+                            `;
+                        }
+                    }).join('');
+                }
+            }
+            
+            // Initialiser les animations
+            initAnimations();
+        }
+        
+        // Initialiser le compteur de caractères
+        function setupCharacterCounter() {
+            const messageTextarea = document.getElementById('message');
+            const charCount = document.getElementById('charCount');
+            
+            if (messageTextarea && charCount) {
+                messageTextarea.addEventListener('input', function() {
+                    const length = this.value.length;
+                    charCount.textContent = `${length}/1000`;
+                    
+                    if (length > 1000) {
+                        charCount.classList.add('text-red-500');
+                        this.value = this.value.substring(0, 1000);
+                    } else if (length > 800) {
+                        charCount.classList.add('text-orange-500');
+                    } else {
+                        charCount.classList.remove('text-red-500', 'text-orange-500');
+                    }
+                });
+            }
+        }
+        
+        // Initialiser la validation du formulaire
+        function setupFormValidation() {
+            const contactForm = document.getElementById('contactForm');
+            const formSuccess = document.getElementById('formSuccess');
+            const formError = document.getElementById('formError');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Masquer les messages précédents
+                    if (formSuccess) formSuccess.classList.add('hidden');
+                    if (formError) formError.classList.add('hidden');
+                    
+                    // Validation
+                    const firstName = document.getElementById('firstName').value.trim();
+                    const lastName = document.getElementById('lastName').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const subject = document.getElementById('subject').value;
+                    const message = document.getElementById('message').value.trim();
+                    const consent = document.getElementById('consent').checked;
+                    
+                    let isValid = true;
+                    let errors = [];
+                    
+                    // Validation des champs
+                    if (!firstName) {
+                        isValid = false;
+                        errors.push("Le prénom est requis");
+                    }
+                    
+                    if (!lastName) {
+                        isValid = false;
+                        errors.push("Le nom est requis");
+                    }
+                    
+                    if (!email || !isValidEmail(email)) {
+                        isValid = false;
+                        errors.push("Une adresse email valide est requise");
+                    }
+                    
+                    if (!subject) {
+                        isValid = false;
+                        errors.push("Veuillez sélectionner un sujet");
+                    }
+                    
+                    if (!message || message.length < 30) {
+                        isValid = false;
+                        errors.push("Le message doit contenir au moins 30 caractères");
+                    }
+                    
+                    if (!consent) {
+                        isValid = false;
+                        errors.push("Veuillez accepter la politique de confidentialité");
+                    }
+                    
+                    if (!isValid) {
+                        errorMessage.textContent = errors.join(". ");
+                        formError.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    // Simulation d'envoi réussi (dans un vrai site, envoyer à un serveur)
+                    formSuccess.classList.remove('hidden');
+                    
+                    // Réinitialiser le formulaire après 5 secondes
+                    setTimeout(() => {
+                        contactForm.reset();
+                        const charCount = document.getElementById('charCount');
+                        if (charCount) charCount.textContent = '0/1000';
+                        formSuccess.classList.add('hidden');
+                        
+                        // Scroll to top du formulaire
+                        document.getElementById('formulaire').scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }, 5000);
+                });
+            }
+        }
+        
+        // Fonction de validation email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // Fonction pour initialiser les animations
+        function initAnimations() {
+            // Configuration des animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in-up');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            // Observer tous les éléments à animer
+            document.querySelectorAll('.fade-in-up').forEach(el => {
+                if (!el.classList.contains('fade-in-up')) {
+                    observer.observe(el);
+                }
+            });
+        }
+        
+        // Gestion des événements
+        function setupEventListeners() {
+            // Navigation fluide
+            document.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A' && e.target.getAttribute('href') && e.target.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = e.target.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 80,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Configurer le header
+            setupHeaderEventListeners();
+            
+            // 2. Initialiser l'authentification Firebase
+            initializeAuth();
+            
+            // 3. Charger le contenu depuis Firebase
+            loadContactContent();
+            
+            // 4. Configurer les écouteurs d'événements
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>

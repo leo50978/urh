@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plateforme de Formation - Cours</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        .spa-view {
+            display: none;
+        }
+        .spa-view.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .locked {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .module-completed {
+            background-color: #10b98120;
+            border-left: 4px solid #10b981;
+        }
+        .course-locked {
+            position: relative;
+        }
+        .course-locked::after {
+            content: "🔒";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+        }
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .user-menu-hidden {
+            display: none !important;
+        }
+        .auth-buttons-hidden {
+            display: none !important;
+        }
+        .user-avatar {
+            transition: transform 0.2s ease;
+        }
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        /* Styles pour les badges de filtre */
+.filter-badge {
+    transition: all 0.2s ease;
+}
+
+.filter-badge:hover {
+    background-color: #eff6ff;
+}
+
+/* Animation pour la recherche */
+.search-transition {
+    transition: all 0.3s ease;
+}
+
+/* Styles pour les résultats de recherche */
+.search-highlight {
+    background-color: #fef3c7;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="fixed w-full z-50 bg-white shadow-md">
+        <nav class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center">
+                        <img src="logo.png" alt="URH Logo" class="h-10">
+                    </div>
+                    <span class="font-bold text-xl text-green-700">URH</span>
+                </div>
+
+                <!-- Navigation Desktop -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-green-700 font-medium">Accueil</a>
+                    <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium">Cours</a>
+                    <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium">Admission</a>
+                    <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium">Actualités</a>
+                    <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium">Contact</a>
+                    
+                    <!-- Boutons d'authentification (visible quand l'utilisateur n'est PAS connecté) -->
+                    <div id="auth-buttons-desktop" class="flex items-center space-x-4">
+                        <a href="connexion.html" class="text-green-600 hover:text-green-800 font-medium">
+                            Connexion
+                        </a>
+                        <a href="inscription.html" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                            Inscription
+                        </a>
+                    </div>
+                    
+                    <!-- Menu utilisateur (visible quand l'utilisateur EST connecté) -->
+                    <div id="user-menu-desktop" class="user-menu-hidden flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center focus:outline-none">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center user-avatar">
+                                    <i class="fas fa-user text-green-600"></i>
+                                </div>
+                            </button>
+                            
+                            <!-- Dropdown menu utilisateur -->
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+                                <a href="profil.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user-circle mr-2"></i> Mon profil
+                                </a>
+                                <button id="logout-button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton menu mobile -->
+                <button class="md:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="md:hidden bg-white shadow-lg px-4 py-3 hidden">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-green-700 font-medium py-2">Accueil</a>
+                <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Cours</a>
+                <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Actualité</a>
+                <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Admissions</a>
+                <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Contact</a>
+                
+                <!-- Boutons d'authentification mobile -->
+                <div id="auth-buttons-mobile" class="pt-4 border-t border-gray-200">
+                    <a href="connexion.html" class="block text-center text-green-600 hover:text-green-800 font-medium py-2">
+                        Connexion
+                    </a>
+                    <a href="inscription.html" class="block text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg mt-2 transition duration-300">
+                        Inscription
+                    </a>
+                </div>
+                
+                <!-- Menu utilisateur mobile -->
+                <div id="user-menu-mobile" class="user-menu-hidden pt-4 border-t border-gray-200">
+                    <a href="profil.html" class="flex items-center text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-green-600"></i>
+                        </div>
+                        Mon profil
+                    </a>
+                    <button id="logout-button-mobile" class="w-full flex items-center text-left text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        </div>
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-16"></div> <!-- Espace pour le header fixe -->
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Vue  (Vue 1) -->
+        <div id="catalogue-view" class="spa-view active">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800"></h1>
+                <div class="text-sm text-gray-600" id="user-greeting"></div>
+            </div>
+            <!-- Section recherche et filtres -->
+<div class="mb-8">
+    <!-- Barre de recherche -->
+    <div class="mb-6">
+        <div class="relative max-w-2xl">
+            <input 
+                type="text" 
+                id="search-input" 
+                placeholder="Rechercher un cours par titre, description, catégorie..."
+                class="w-full px-4 py-3 pl-12 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
+            >
+            <div class="absolute left-4 top-3.5 text-gray-400">
+                <i class="fas fa-search"></i>
+            </div>
+            <button id="clear-search" class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 hidden">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Filtres -->
+    <div class="flex flex-wrap gap-4 items-center">
+        <!-- Filtre par catégorie -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+            <select id="filter-category" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="all">Toutes les catégories</option>
+                <!-- Les options seront chargées dynamiquement -->
+            </select>
+        </div>
+        
+        <!-- Filtre par niveau -->
+        <div style="display: none;">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Niveau</label>
+            <select id="filter-level" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="all">Tous les niveaux</option>
+                <option value="débutant">Débutant</option>
+                <option value="intermédiaire">Intermédiaire</option>
+                <option value="avancé">Avancé</option>
+                <option value="expert">Expert</option>
+            </select>
+        </div>
+        
+        <!-- Filtre par prix -->
+        <div style="display: none">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Prix</label>
+            <select id="filter-price" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="all">Tous les prix</option>
+                <option value="free">Gratuit</option>
+                <option value="paid">Payant</option>
+                <option value="0-50">0 - 50Gdes</option>
+                <option value="51-100">51 - 100Gdes</option>
+                <option value="101-500">101 - 500Gdes</option>
+                <option value="501+">Plus de 500Gdes</option>
+            </select>
+        </div>
+        
+        <!-- Filtre par statut (accessibilité) -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+            <select id="filter-status" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="all">Tous les cours</option>
+                <option value="approved">Cours débloqués</option>
+                <option value="locked">Cours verrouillés</option>
+            </select>
+        </div>
+        
+        <!-- Tri -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Trier par</label>
+            <select id="sort-by" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="newest">Plus récent</option>
+                <option value="oldest">Plus ancien</option>
+                <option value="price-asc">Prix (croissant)</option>
+                <option value="price-desc">Prix (décroissant)</option>
+                <option value="title-asc">Titre (A-Z)</option>
+                <option value="title-desc">Titre (Z-A)</option>
+                <option value="popularity">Popularité</option>
+            </select>
+        </div>
+        
+        <!-- Bouton réinitialiser -->
+        <div class="self-end">
+            <button id="reset-filters" class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-redo mr-2"></i>Réinitialiser
+            </button>
+        </div>
+    </div>
+    
+    <!-- Résultats de la recherche -->
+    <div class="mt-4 flex items-center justify-between">
+        <div id="search-results-info" class="text-gray-600">
+            <!-- Le nombre de résultats sera mis à jour ici -->
+        </div>
+        <div id="active-filters" class="flex flex-wrap gap-2">
+            <!-- Les filtres actifs seront affichés ici -->
+        </div>
+    </div>
+</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="courses-container">
+                <!-- Les cours seront chargés dynamiquement ici -->
+                <div class="col-span-3 text-center py-10">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+                    <p class="mt-2 text-gray-600">Chargement des cours...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Modules d'un cours débloqué (Vue 2) -->
+        <div id="modules-view" class="spa-view">
+            <div class="mb-6">
+                <button id="back-to-catalogue" class="text-green-600 hover:text-green-800 mb-4">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour au catalogue
+                </button>
+                <h1 class="text-3xl font-bold text-gray-800" id="course-title"></h1>
+                <p class="text-gray-600 mt-2" id="course-description"></p>
+                <div class="mt-4 flex items-center">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <span class="ml-4 text-sm font-medium text-gray-700" id="progress-text">0% complet</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Modules du cours</h2>
+                <div id="modules-list" class="space-y-4">
+                    <!-- Les modules seront chargés dynamiquement ici -->
+                </div>
+                
+                <div class="mt-10 pt-6 border-t border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Examen final</h3>
+                    <div id="final-exam-card" class="bg-gray-50 rounded-lg p-4 border border-gray-300">
+                        <p class="text-gray-700 mb-4">L'examen final sera disponible une fois tous les modules terminés.</p>
+                        <button id="start-exam-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-graduation-cap mr-2"></i>Commencer l'examen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Lecture d'un module (Vue 3) -->
+        <div id="module-view" class="spa-view">
+            <div class="mb-6">
+                <button id="back-to-modules" class="text-green-600 hover:text-green-800 mb-4">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour aux modules
+                </button>
+                <h1 class="text-3xl font-bold text-gray-800" id="module-title"></h1>
+                <p class="text-gray-600" id="module-order-text">Module </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="bg-black rounded-lg overflow-hidden mb-6">
+                        <div id="video-placeholder" class="w-full h-64 bg-gray-800 flex items-center justify-center text-white">
+                            <i class="fas fa-video text-4xl"></i>
+                            <p class="ml-3">Vidéo du module</p>
+                        </div>
+                        <video id="module-video" class="w-full hidden" controls>
+                            Votre navigateur ne supporte pas la lecture de vidéos.
+                        </video>
+                    </div>
+                    
+                    <!-- Quiz Section -->
+                    <div id="quiz-section" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-question-circle text-green-600 mr-2"></i>Quiz du module
+                        </h3>
+                        <div id="quiz-questions">
+                            <!-- Les questions seront chargées dynamiquement ici -->
+                        </div>
+                        <div id="quiz-result" class="hidden mt-4 p-4 rounded-lg"></div>
+                        <button id="submit-quiz-btn" class="mt-6 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-paper-plane mr-2"></i>Soumettre le quiz
+                        </button>
+                    </div>
+                    
+                    <!-- Assignment Section -->
+                    <div id="assignment-section" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-tasks text-green-600 mr-2"></i>Devoir à rendre
+                        </h3>
+                        <div id="assignment-description" class="text-gray-700 mb-4"></div>
+                        <div class="mt-4">
+                            <label class="block text-gray-700 mb-2">Télécharger votre travail :</label>
+                            <input type="file" id="assignment-file" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <button id="submit-assignment-btn" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-upload mr-2"></i>Soumettre le devoir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Actions</h3>
+                        <button id="mark-complete-btn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 mb-4 flex items-center justify-center">
+                            <i class="fas fa-check-circle mr-2"></i>Marquer comme terminé
+                        </button>
+                        <div class="text-sm text-gray-600 mt-4">
+                            <p class="mb-2"><i class="fas fa-info-circle mr-2 text-green-600"></i>Terminez ce module pour débloquer le suivant.</p>
+                            <p><i class="fas fa-lock mr-2 text-gray-600"></i>Progression automatiquement sauvegardée.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Examen final (Vue 4) -->
+        <div id="exam-view" class="spa-view">
+            <div class="mb-6">
+                <button id="back-to-modules-from-exam" class="text-green-600 hover:text-green-800 mb-4">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour aux modules
+                </button>
+                <h1 class="text-3xl font-bold text-gray-800">Examen Final</h1>
+                <p class="text-gray-600 mt-2" id="exam-course-title"></p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="mb-6 p-4 bg-green-50 rounded-lg">
+                    <h3 class="text-lg font-semibold text-green-800 mb-2">Instructions</h3>
+                    <ul class="list-disc pl-5 text-green-700">
+                        <li>L'examen contient plusieurs questions à choix multiples</li>
+                        <li>Vous devez obtenir un score minimum de <span id="pass-score" class="font-bold">70%</span> pour réussir</li>
+                        <li>Une fois commencé, vous ne pouvez pas quitter l'examen</li>
+                        <li>Le résultat est final et ne peut pas être modifié</li>
+                    </ul>
+                </div>
+                
+                <div id="exam-questions-container" class="space-y-8">
+                    <!-- Les questions d'examen seront chargées dynamiquement ici -->
+                </div>
+                
+                <div class="mt-10 pt-6 border-t border-gray-200">
+                    <button id="submit-exam-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 text-lg font-semibold">
+                        <i class="fas fa-paper-plane mr-2"></i>Soumettre l'examen
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Certificat (Vue 5) -->
+        <div id="certificate-view" class="spa-view">
+            <div class="mb-6">
+                <button id="back-to-catalogue-from-cert" class="text-green-600 hover:text-green-800 mb-4">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour au catalogue
+                </button>
+                <h1 class="text-3xl font-bold text-gray-800">Félicitations !</h1>
+                <p class="text-gray-600 mt-2">Vous avez réussi le cours <span id="cert-course-title" class="font-semibold"></span></p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Certificat de Réussite</h2>
+                    <p class="text-gray-600">Ce certificat atteste que vous avez complété avec succès toutes les exigences du cours.</p>
+                </div>
+                
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 mb-8">
+                    <div id="certificate-image" class="max-w-full h-auto mx-auto mb-6 rounded-lg bg-gradient-to-r from-green-50 to-green-50 p-12">
+                        <i class="fas fa-award text-6xl text-green-600 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-gray-800" id="certificate-course-name"></h3>
+                        <p class="text-gray-600 mt-2" id="certificate-student-name"></p>
+                        <p class="text-gray-500 mt-4">Délivré le <span id="certificate-date" class="font-medium"></span></p>
+                    </div>
+                    <p id="certificate-type" class="text-lg font-semibold text-gray-800"></p>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="download-cert-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700">
+                        <i class="fas fa-download mr-2"></i>Télécharger le certificat
+                    </button>
+                    <button id="share-cert-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700">
+                        <i class="fas fa-share-alt mr-2"></i>Partager
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+       <footer class="bg-gray-900 text-white pt-12 pb-8">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-4 gap-8 mb-8">
+                    <!-- Logo et description -->
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-6">
+                          <div class="mr-3">
+        <img src="logo.png" alt="Logo URH HAITI" class="h-12 w-auto object-contain">
+    </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">URH HAITI</h2>
+                                <p class="text-sm text-gray-300">Plateforme d'enseignement en ligne</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mb-6">École de référence en matière de formation à l'échelle nationale et internationale</p>
+                        <div class="flex space-x-4">
+                            <a href="https://www.facebook.com/share/1BnXZxoXJr/" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-400 transition">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-700 transition">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Liens rapides -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Liens rapides</h3>
+                        <ul class="space-y-3">
+                            <li><a href="index.html" class="text-gray-400 hover:text-white transition">Accueil</a></li>
+                            <li><a href="formation.html" class="text-gray-400 hover:text-white transition">Formations</a></li>
+                            <li><a href="apropos.html" class="text-gray-400 hover:text-white transition">À propos</a></li>
+                            <li><a href="https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant" class="text-gray-400 hover:text-white transition">Admission</a></li>
+                            <li><a href="contct.html" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Contact footer -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Contact</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-map-marker-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-phone-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-envelope text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir  definir </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Copyright -->
+                <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+                    <p>&copy; 2026 URH. Tous droits réservés.</p>
+                    <p class="mt-2">Site conçu avec <i class="fas fa-heart text-red-500"></i></p>
+                </div>
+            </div>
+        </footer>
+<script type="module">
+    // ============================================
+    // CONFIGURATION FIREBASE
+    // ============================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { 
+        getAuth, 
+        onAuthStateChanged, 
+        signOut 
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        query, 
+        where, 
+        doc, 
+        getDoc, 
+        setDoc, 
+        updateDoc,
+        orderBy
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+    // Initialisation Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ============================================
+    // VARIABLES GLOBALES
+    // ============================================
+    let currentUser = null;
+    let currentCourseId = null;
+    let currentModuleOrder = null;
+    let currentCourseData = null;
+    let userEnrollment = null;
+    let courseModules = [];
+    let userProgress = {
+        completedModules: [],
+        finalExamPassed: false
+    };
+let allCourses = [];
+let filteredCourses = [];
+let categories = new Set();
+let currentFilters = {
+    search: '',
+    category: 'all',
+    level: 'all',
+    price: 'all',
+    status: 'all',
+    sort: 'newest'
+};
+
+// ============================================
+// FONCTIONS DE RECHERCHE ET FILTRAGE
+// ============================================
+
+function setupSearchAndFilters() {
+    // Élément de recherche
+    const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search');
+    
+    if (searchInput) {
+        // Recherche en temps réel avec debounce
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentFilters.search = e.target.value;
+                applyFilters();
+                
+                // Afficher/masquer le bouton de nettoyage
+                if (clearSearchBtn) {
+                    if (e.target.value.trim() !== '') {
+                        clearSearchBtn.classList.remove('hidden');
+                    } else {
+                        clearSearchBtn.classList.add('hidden');
+                    }
+                }
+            }, 300);
+        });
+    }
+    
+    // Bouton pour effacer la recherche
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', () => {
+            if (searchInput) {
+                searchInput.value = '';
+                currentFilters.search = '';
+                clearSearchBtn.classList.add('hidden');
+                applyFilters();
+            }
+        });
+    }
+    
+    // Filtres
+    const filterCategory = document.getElementById('filter-category');
+    const filterLevel = document.getElementById('filter-level');
+    const filterPrice = document.getElementById('filter-price');
+    const filterStatus = document.getElementById('filter-status');
+    const sortBy = document.getElementById('sort-by');
+    const resetBtn = document.getElementById('reset-filters');
+    
+    // Écouteurs de changement pour les filtres
+    if (filterCategory) filterCategory.addEventListener('change', (e) => {
+        currentFilters.category = e.target.value;
+        applyFilters();
+    });
+    
+    if (filterLevel) filterLevel.addEventListener('change', (e) => {
+        currentFilters.level = e.target.value;
+        applyFilters();
+    });
+    
+    if (filterPrice) filterLevel.addEventListener('change', (e) => {
+        currentFilters.price = e.target.value;
+        applyFilters();
+    });
+    
+    if (filterStatus) filterStatus.addEventListener('change', (e) => {
+        currentFilters.status = e.target.value;
+        applyFilters();
+    });
+    
+    if (sortBy) sortBy.addEventListener('change', (e) => {
+        currentFilters.sort = e.target.value;
+        applyFilters();
+    });
+    
+    // Bouton de réinitialisation
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetFilters);
+    }
+}
+
+function applyFilters() {
+    if (allCourses.length === 0) return;
+    
+    // Filtrer les cours
+    filteredCourses = allCourses.filter(course => {
+        // Filtre de recherche
+        if (currentFilters.search.trim() !== '') {
+            const searchTerm = currentFilters.search.toLowerCase();
+            const matchesSearch = 
+                (course.title && course.title.toLowerCase().includes(searchTerm)) ||
+                (course.description && course.description.toLowerCase().includes(searchTerm)) ||
+                (course.category && course.category.toLowerCase().includes(searchTerm)) ||
+                (course.tags && Array.isArray(course.tags) && 
+                 course.tags.some(tag => tag.toLowerCase().includes(searchTerm)));
+            
+            if (!matchesSearch) return false;
+        }
+        
+        // Filtre par catégorie
+        if (currentFilters.category !== 'all') {
+            if (!course.category || course.category !== currentFilters.category) {
+                return false;
+            }
+        }
+        
+        // Filtre par niveau
+        if (currentFilters.level !== 'all') {
+            if (!course.level || course.level !== currentFilters.level) {
+                return false;
+            }
+        }
+        
+        // Filtre par prix
+        if (currentFilters.price !== 'all') {
+            const coursePrice = parseFloat(course.price) || 0;
+            
+            switch(currentFilters.price) {
+                case 'free':
+                    if (coursePrice > 0) return false;
+                    break;
+                case 'paid':
+                    if (coursePrice <= 0) return false;
+                    break;
+                case '0-50':
+                    if (coursePrice < 0 || coursePrice > 50) return false;
+                    break;
+                case '51-100':
+                    if (coursePrice < 51 || coursePrice > 100) return false;
+                    break;
+                case '101-500':
+                    if (coursePrice < 101 || coursePrice > 500) return false;
+                    break;
+                case '501+':
+                    if (coursePrice <= 500) return false;
+                    break;
+            }
+        }
+        
+        // Filtre par statut (débloqué/verrouillé)
+        if (currentFilters.status !== 'all') {
+            if (currentFilters.status === 'approved' && !course.isApproved) {
+                return false;
+            }
+            if (currentFilters.status === 'locked' && course.isApproved) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
+    // Trier les cours
+    sortCourses();
+    
+    // Afficher les cours filtrés
+    displayCourses(filteredCourses);
+    
+    // Mettre à jour les informations de résultats
+    updateSearchResultsInfo();
+    updateActiveFiltersDisplay();
+}
+
+function sortCourses() {
+    filteredCourses.sort((a, b) => {
+        switch(currentFilters.sort) {
+            case 'newest':
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            case 'oldest':
+                return (a.createdAt || 0) - (b.createdAt || 0);
+            case 'price-asc':
+                return (a.price || 0) - (b.price || 0);
+            case 'price-desc':
+                return (b.price || 0) - (a.price || 0);
+            case 'title-asc':
+                return (a.title || '').localeCompare(b.title || '');
+            case 'title-desc':
+                return (b.title || '').localeCompare(a.title || '');
+            case 'popularity':
+                return (b.popularity || 0) - (a.popularity || 0);
+            default:
+                return 0;
+        }
+    });
+}
+
+function updateSearchResultsInfo() {
+    const infoElement = document.getElementById('search-results-info');
+    if (infoElement) {
+        if (currentFilters.search || 
+            currentFilters.category !== 'all' || 
+            currentFilters.level !== 'all' || 
+            currentFilters.price !== 'all' || 
+            currentFilters.status !== 'all') {
+            
+            infoElement.innerHTML = `
+                <span class="font-semibold">${filteredCourses.length}</span> 
+                cours trouvés sur 
+                <span class="font-semibold">${allCourses.length}</span>
+            `;
+        } else {
+            infoElement.innerHTML = `
+                <span class="font-semibold">${allCourses.length}</span> 
+                cours disponibles
+            `;
+        }
+    }
+}
+
+function updateActiveFiltersDisplay() {
+    const activeFiltersElement = document.getElementById('active-filters');
+    if (!activeFiltersElement) return;
+    
+    activeFiltersElement.innerHTML = '';
+    
+    // Afficher les filtres actifs
+    const activeFilters = [];
+    
+    if (currentFilters.search.trim() !== '') {
+        activeFilters.push({
+            type: 'search',
+            label: `Recherche: "${currentFilters.search}"`,
+            clearFn: () => {
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) searchInput.value = '';
+                currentFilters.search = '';
+                applyFilters();
+            }
+        });
+    }
+    
+    if (currentFilters.category !== 'all') {
+        activeFilters.push({
+            type: 'category',
+            label: `Catégorie: ${currentFilters.category}`,
+            clearFn: () => {
+                const filter = document.getElementById('filter-category');
+                if (filter) filter.value = 'all';
+                currentFilters.category = 'all';
+                applyFilters();
+            }
+        });
+    }
+    
+    if (currentFilters.level !== 'all') {
+        activeFilters.push({
+            type: 'level',
+            label: `Niveau: ${currentFilters.level}`,
+            clearFn: () => {
+                const filter = document.getElementById('filter-level');
+                if (filter) filter.value = 'all';
+                currentFilters.level = 'all';
+                applyFilters();
+            }
+        });
+    }
+    
+    if (currentFilters.price !== 'all') {
+        activeFilters.push({
+            type: 'price',
+            label: `Prix: ${currentFilters.price}`,
+            clearFn: () => {
+                const filter = document.getElementById('filter-price');
+                if (filter) filter.value = 'all';
+                currentFilters.price = 'all';
+                applyFilters();
+            }
+        });
+    }
+    
+    if (currentFilters.status !== 'all') {
+        const statusLabel = currentFilters.status === 'approved' ? 'Débloqués' : 'Verrouillés';
+        activeFilters.push({
+            type: 'status',
+            label: `Statut: ${statusLabel}`,
+            clearFn: () => {
+                const filter = document.getElementById('filter-status');
+                if (filter) filter.value = 'all';
+                currentFilters.status = 'all';
+                applyFilters();
+            }
+        });
+    }
+    
+    // Afficher les badges des filtres actifs
+    activeFilters.forEach(filter => {
+        const badge = document.createElement('div');
+        badge.className = 'inline-flex items-center bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full';
+        badge.innerHTML = `
+            ${filter.label}
+            <button onclick="${filter.clearFn.toString().replace(/"/g, '&quot;')}" 
+                    class="ml-2 text-green-600 hover:text-green-800">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        activeFiltersElement.appendChild(badge);
+    });
+}
+
+function resetFilters() {
+    // Réinitialiser les champs
+    const searchInput = document.getElementById('search-input');
+    const filterCategory = document.getElementById('filter-category');
+    const filterLevel = document.getElementById('filter-level');
+    const filterPrice = document.getElementById('filter-price');
+    const filterStatus = document.getElementById('filter-status');
+    const sortBy = document.getElementById('sort-by');
+    
+    if (searchInput) searchInput.value = '';
+    if (filterCategory) filterCategory.value = 'all';
+    if (filterLevel) filterLevel.value = 'all';
+    if (filterPrice) filterPrice.value = 'all';
+    if (filterStatus) filterStatus.value = 'all';
+    if (sortBy) sortBy.value = 'newest';
+    
+    // Réinitialiser les filtres
+    currentFilters = {
+        search: '',
+        category: 'all',
+        level: 'all',
+        price: 'all',
+        status: 'all',
+        sort: 'newest'
+    };
+    
+    // Réappliquer les filtres
+    applyFilters();
+    
+    // Masquer le bouton de nettoyage de recherche
+    const clearSearchBtn = document.getElementById('clear-search');
+    if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+}
+
+function populateCategoriesFilter() {
+    const filterCategory = document.getElementById('filter-category');
+    if (!filterCategory) return;
+    
+    // Garder l'option "Toutes les catégories"
+    filterCategory.innerHTML = '<option value="all">Toutes les catégories</option>';
+    
+    // Ajouter chaque catégorie unique
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        filterCategory.appendChild(option);
+    });
+}
+    // ============================================
+    // GESTION DU HEADER
+    // ============================================
+
+    function setupHeaderEventListeners() {
+        // Menu mobile
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+        
+        // Dropdown menu utilisateur (desktop)
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        if (userMenuButton && userDropdown) {
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+            
+            // Fermer le dropdown en cliquant ailleurs
+            document.addEventListener('click', () => {
+                userDropdown.classList.add('hidden');
+            });
+            
+            // Empêcher la fermeture quand on clique dans le dropdown
+            userDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        
+        // Boutons de déconnexion
+        const logoutButton = document.getElementById('logout-button');
+        const logoutButtonMobile = document.getElementById('logout-button-mobile');
+        
+        if (logoutButton) {
+            logoutButton.addEventListener('click', handleLogout);
+        }
+        
+        if (logoutButtonMobile) {
+            logoutButtonMobile.addEventListener('click', handleLogout);
+        }
+    }
+
+    function updateHeaderForAuthState(user) {
+        const authButtonsDesktop = document.getElementById('auth-buttons-desktop');
+        const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+        const userMenuDesktop = document.getElementById('user-menu-desktop');
+        const userMenuMobile = document.getElementById('user-menu-mobile');
+        
+        if (user) {
+            // Utilisateur connecté
+            if (authButtonsDesktop) authButtonsDesktop.classList.add('auth-buttons-hidden');
+            if (authButtonsMobile) authButtonsMobile.classList.add('auth-buttons-hidden');
+            if (userMenuDesktop) userMenuDesktop.classList.remove('user-menu-hidden');
+            if (userMenuMobile) userMenuMobile.classList.remove('user-menu-hidden');
+        } else {
+            // Utilisateur non connecté
+            if (authButtonsDesktop) authButtonsDesktop.classList.remove('auth-buttons-hidden');
+            if (authButtonsMobile) authButtonsMobile.classList.remove('auth-buttons-hidden');
+            if (userMenuDesktop) userMenuDesktop.classList.add('user-menu-hidden');
+            if (userMenuMobile) userMenuMobile.classList.add('user-menu-hidden');
+        }
+    }
+
+    // ============================================
+    // FONCTIONS PRINCIPALES
+    // ============================================
+
+    async function initApp() {
+    try {
+        setupHeaderEventListeners();
+        checkAuthState();
+        setupEventListeners();
+        // setupSearchAndFilters() sera appelé dans loadCourses()
+    } catch (error) {
+        console.error("Erreur d'initialisation:", error);
+    }
+}
+
+    function checkAuthState() {
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            updateHeaderForAuthState(user);
+            updateUIForAuthState();
+            
+            if (user) {
+                await loadCourses();
+            } else {
+                await showGuestCourses();
+            }
+        });
+    }
+
+    function updateUIForAuthState() {
+        const greetingElement = document.getElementById('user-greeting');
+        if (greetingElement) {
+            if (currentUser) {
+                greetingElement.textContent = `Bonjour, ${currentUser.email}`;
+            } else {
+                greetingElement.textContent = 'Veuillez vous connecter pour accéder aux cours';
+            }
+        }
+    }
+
+    async function handleLogout() {
+        try {
+            await signOut(auth);
+            showView('catalogue-view');
+            await showGuestCourses();
+        } catch (error) {
+            console.error("Erreur lors de la déconnexion:", error);
+            alert("Erreur lors de la déconnexion");
+        }
+    }
+
+    // ============================================
+    // GESTION DES VUES SPA
+    // ============================================
+
+    function showView(viewId) {
+        document.querySelectorAll('.spa-view').forEach(view => {
+            view.classList.remove('active');
+        });
+        
+        const targetView = document.getElementById(viewId);
+        if (targetView) {
+            targetView.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'back-to-catalogue' || e.target.closest('#back-to-catalogue')) {
+                showView('catalogue-view');
+                loadCourses();
+            }
+            
+            if (e.target.id === 'back-to-modules' || e.target.closest('#back-to-modules')) {
+                if (currentCourseId) {
+                    showCourseModules(currentCourseId);
+                }
+            }
+            
+            if (e.target.id === 'back-to-modules-from-exam' || e.target.closest('#back-to-modules-from-exam')) {
+                if (currentCourseId) {
+                    showCourseModules(currentCourseId);
+                }
+            }
+            
+            if (e.target.id === 'back-to-catalogue-from-cert' || e.target.closest('#back-to-catalogue-from-cert')) {
+                showView('catalogue-view');
+                loadCourses();
+            }
+        });
+    }
+
+    // ============================================
+    // GESTION DES COURS
+    // ============================================
+async function loadCourses() {
+    const coursesContainer = document.getElementById('courses-container');
+    
+    coursesContainer.innerHTML = `
+        <div class="col-span-3 text-center py-10">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+            <p class="mt-2 text-gray-600">Chargement des cours...</p>
+        </div>
+    `;
+    
+    try {
+        const [coursesSnapshot, userCourses] = await Promise.all([
+            getDocs(collection(db, "courses")),
+            currentUser ? getUserCourses(currentUser.uid) : Promise.resolve({})
+        ]);
+        
+        // Réinitialiser les catégories
+        categories.clear();
+        
+        // Récupérer tous les cours
+        allCourses = Array.from(coursesSnapshot.docs).map(courseDoc => {
+            const courseId = courseDoc.id;
+            const courseData = courseDoc.data();
+            const courseApproved = userCourses[courseId]?.status === 'approved';
+            
+            // Ajouter la catégorie à l'ensemble
+            if (courseData.category) {
+                categories.add(courseData.category);
+            }
+            
+            return {
+                id: courseId,
+                ...courseData,
+                isApproved: courseApproved,
+                enrollmentData: userCourses[courseId] || null
+            };
+        });
+        
+        // Initialiser filteredCourses avec tous les cours
+        filteredCourses = [...allCourses];
+        
+        // Peupler les catégories dans le filtre
+        populateCategoriesFilter();
+        
+        // Appliquer les filtres par défaut
+        applyFilters();
+        
+        // Initialiser la recherche et les filtres
+        setupSearchAndFilters();
+        
+    } catch (error) {
+        console.error("loadCourses error:", error);
+        coursesContainer.innerHTML = `
+            <div class="col-span-3 text-center py-10 text-red-600">
+                <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                <p class="font-medium">Erreur de chargement</p>
+                <p class="text-sm text-gray-600 mt-2">Impossible de charger les cours</p>
+                <button onclick="loadCourses()" 
+                        class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Réessayer
+                </button>
+            </div>
+        `;
+    }
+}
+    async function getUserCourses(userId) {
+        try {
+            const userDoc = await getDoc(doc(db, "users", userId));
+            return userDoc.exists() ? (userDoc.data().courses || {}) : {};
+        } catch {
+            return {};
+        }
+    }
+
+    async function showGuestCourses() {
+        try {
+            const coursesQuery = query(collection(db, "courses"));
+            const coursesSnapshot = await getDocs(coursesQuery);
+            const courses = [];
+            
+            coursesSnapshot.forEach(doc => {
+                courses.push({
+                    id: doc.id,
+                    ...doc.data(),
+                    isApproved: false
+                });
+            });
+            
+            displayCourses(courses);
+        } catch (error) {
+            console.error("Erreur lors du chargement des cours invités:", error);
+        }
+    }
+
+ function displayCourses(courses) {
+    const coursesContainer = document.getElementById('courses-container');
+    coursesContainer.innerHTML = '';
+    
+    // Si aucun cours ne correspond aux filtres
+    if (courses.length === 0) {
+        coursesContainer.innerHTML = `
+            <div class="col-span-3 text-center py-12">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <i class="fas fa-search text-2xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Aucun cours ne correspond à vos critères</h3>
+                <p class="text-gray-500 mb-6 max-w-md mx-auto">
+                    ${currentFilters.search ? 
+                        `Aucun résultat pour "${currentFilters.search}"` : 
+                        'Aucun cours ne correspond aux filtres sélectionnés'
+                    }
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="resetFilters()" 
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center">
+                        <i class="fas fa-redo mr-2"></i>Réinitialiser les filtres
+                    </button>
+                    <button onclick="loadCourses()" 
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center">
+                        <i class="fas fa-sync-alt mr-2"></i>Rafraîchir la liste
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    // Afficher tous les cours filtrés
+    courses.forEach(course => {
+        const courseCard = document.createElement('div');
+        courseCard.className = 'bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1';
+        
+        // Mettre en évidence le texte recherché si applicable
+        let highlightedTitle = course.title || 'Sans titre';
+        let highlightedDescription = course.description || 'Aucune description disponible';
+        
+        if (currentFilters.search) {
+            const searchRegex = new RegExp(`(${currentFilters.search})`, 'gi');
+            highlightedTitle = highlightedTitle.replace(searchRegex, '<span class="bg-yellow-200 px-1 rounded">$1</span>');
+            highlightedDescription = highlightedDescription.replace(searchRegex, '<span class="bg-yellow-100 px-1 rounded">$1</span>');
+        }
+        
+        // Déterminer le badge de niveau
+        let levelBadge = '';
+        if (course.level) {
+            let levelColor = 'gray';
+            let levelIcon = 'fas fa-chart-line';
+            
+            switch(course.level.toLowerCase()) {
+                case 'débutant':
+                    levelColor = 'green';
+                    levelIcon = 'fas fa-seedling';
+                    break;
+                case 'intermédiaire':
+                    levelColor = 'green';
+                    levelIcon = 'fas fa-chart-line';
+                    break;
+                case 'avancé':
+                    levelColor = 'orange';
+                    levelIcon = 'fas fa-rocket';
+                    break;
+                case 'expert':
+                    levelColor = 'red';
+                    levelIcon = 'fas fa-crown';
+                    break;
+            }
+            
+            levelBadge = `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-${levelColor}-100 text-${levelColor}-800">
+                    <i class="${levelIcon} mr-1 text-xs"></i>${course.level}
+                </span>
+            `;
+        }
+        
+        // Déterminer le badge de prix
+        let priceBadge = '';
+        const coursePrice = parseFloat(course.price) || 0;
+        if (coursePrice === 0) {
+            priceBadge = `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-gift mr-1"></i>Gratuit
+                </span>
+            `;
+        } else if (coursePrice <= 50) {
+            priceBadge = `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-tag mr-1"></i>${coursePrice}Gdes
+                </span>
+            `;
+        } else {
+            priceBadge = `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <i class="fas fa-tags mr-1"></i>${coursePrice}Gdes
+                </span>
+            `;
+        }
+        
+        // Déterminer le badge de catégorie
+        let categoryBadge = '';
+        if (course.category) {
+            const categoryColors = {
+                'développement': 'bg-green-100 text-green-800',
+                'design': 'bg-pink-100 text-pink-800',
+                'marketing': 'bg-green-100 text-green-800',
+                'business': 'bg-purple-100 text-purple-800',
+                'informatique': 'bg-gray-100 text-gray-800',
+                'langues': 'bg-red-100 text-red-800',
+                'sciences': 'bg-indigo-100 text-indigo-800',
+                'art': 'bg-yellow-100 text-yellow-800'
+            };
+            
+            const categoryClass = categoryColors[course.category.toLowerCase()] || 'bg-gray-100 text-gray-800';
+            
+            categoryBadge = `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${categoryClass}">
+                    <i class="fas fa-folder mr-1"></i>${course.category}
+                </span>
+            `;
+        }
+        
+        // Déterminer le statut (progression)
+        let progressBadge = '';
+        let progressBar = '';
+        let continueButton = '';
+        
+        if (course.isApproved && course.enrollmentData) {
+            const progress = course.enrollmentData.progress || 0;
+            
+            progressBar = `
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs text-gray-600 mb-1">
+                        <span>Progression</span>
+                        <span>${progress}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+            `;
+            
+            if (progress === 100) {
+                progressBadge = `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-award mr-1"></i>Terminé
+                    </span>
+                `;
+                continueButton = `
+                    <button onclick="showCertificate()" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                        <i class="fas fa-award mr-2"></i>Voir certificat
+                    </button>
+                `;
+            } else if (progress > 0) {
+                progressBadge = `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-play-circle mr-1"></i>En cours (${progress}%)
+                    </span>
+                `;
+                continueButton = `
+                    <button onclick="showCourseModules('${course.id}')" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                        <i class="fas fa-play-circle mr-2"></i>Continuer
+                    </button>
+                `;
+            } else {
+                continueButton = `
+                    <button onclick="showCourseModules('${course.id}')" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                        <i class="fas fa-play mr-2"></i>Commencer
+                    </button>
+                `;
+            }
+        }
+        
+        // Image de cours par défaut si aucune n'est fournie
+        const thumbnail = course.thumbnail || 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80';
+        
+        // Contenu de la carte de cours
+        courseCard.innerHTML = `
+            <div class="relative">
+                <img src="${thumbnail}" 
+                     alt="${course.title || 'Cours'}" 
+                     class="w-full h-48 object-cover"
+                     loading="lazy">
+                
+                <!-- Badges superposés -->
+                <div class="absolute top-2 left-2 flex flex-col gap-1">
+                    ${levelBadge}
+                    ${priceBadge}
+                </div>
+                
+                <div class="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                    ${categoryBadge}
+                    ${progressBadge}
+                </div>
+                
+                <!-- Statut d'accès -->
+                <div class="absolute bottom-2 right-2">
+                    ${course.isApproved ? 
+                        '<div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center"><i class="fas fa-unlock text-sm"></i></div>' : 
+                        '<div class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center"><i class="fas fa-lock text-sm"></i></div>'
+                    }
+                </div>
+            </div>
+            
+            <div class="p-5">
+                <!-- Titre et durée -->
+                <div class="mb-3">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 leading-tight" style="min-height: 3.5rem;">
+                        ${highlightedTitle}
+                    </h3>
+                    
+                    <div class="flex items-center text-gray-500 text-sm mb-2">
+                   
+                        <span>${course.totalModules || 0} modules</span>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div class="mb-4">
+                    <p class="text-gray-600 text-sm line-clamp-2" style="min-height: 2.5rem;">
+                        ${highlightedDescription}
+                    </p>
+                </div>
+                
+                <!-- Tags -->
+                <div class="mb-4">
+                    <div class="flex flex-wrap gap-1">
+                        ${course.tags && Array.isArray(course.tags) ? 
+                            course.tags.slice(0, 3).map(tag => `
+                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                    #${tag}
+                                </span>
+                            `).join('') : ''
+                        }
+                        ${course.tags && course.tags.length > 3 ? 
+                            `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                +${course.tags.length - 3}
+                            </span>` : ''
+                        }
+                    </div>
+                </div>
+                
+                <!-- Barre de progression (si cours débloqué) -->
+                ${progressBar}
+                
+                <!-- Note/Évaluation -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="flex text-yellow-400">
+                            ${[1,2,3,4,5].map(i => `
+                                <i class="fas fa-star${i <= (course.rating || 0) ? '' : '-empty'} text-sm"></i>
+                            `).join('')}
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">${course.rating || '0.0'}</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="space-y-2">
+                    ${continueButton || `
+                        ${course.isApproved ? 
+                            `<button onclick="showCourseModules('${course.id}')" 
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                                <i class="fas fa-play mr-2"></i>Accéder au cours
+                            </button>` : 
+                            `<button onclick="accessCourse('${course.id}')" 
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                                <i class="fas fa-shopping-cart mr-2"></i> 
+                            </button>
+                            <button class="w-full border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-300 flex items-center justify-center">
+                                <i class="fas fa-eye mr-2"></i>Voir
+                            </button>`
+                        }
+                    `}
+                </div>
+            </div>
+        `;
+        
+        coursesContainer.appendChild(courseCard);
+    });
+    
+    // Ajouter un effet de pagination visuelle
+    if (courses.length > 0) {
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'col-span-3 text-center py-6';
+        loadingIndicator.innerHTML = `
+            <p class="text-gray-500 text-sm">
+                Affichage de ${courses.length} cours
+                ${currentFilters.search ? `pour "${currentFilters.search}"` : ''}
+            </p>
+        `;
+        coursesContainer.appendChild(loadingIndicator);
+    }
+}
+    function accessCourse(courseId) {
+        if (!currentUser) {
+            alert("Veuillez vous connecter pour acheter ce cours");
+            return;
+        }
+        window.location.href = `admission.html?courseId=${courseId}`;
+    }
+
+    // ============================================
+    // GESTION DES MODULES
+    // ============================================
+
+    async function showCourseModules(courseId) {
+        try {
+            currentCourseId = courseId;
+            
+            const courseRef = doc(db, "courses", courseId);
+            const courseSnap = await getDoc(courseRef);
+            
+            if (!courseSnap.exists()) {
+                alert("Cours non trouvé");
+                showView('catalogue-view');
+                return;
+            }
+            
+            currentCourseData = courseSnap.data();
+            
+            if (currentUser) {
+                try {
+                    const userDocRef = doc(db, "users", currentUser.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    
+                    if (!userDocSnap.exists()) {
+                        alert("Profil utilisateur non trouvé");
+                        showView('catalogue-view');
+                        return;
+                    }
+                    
+                    const userData = userDocSnap.data();
+                    const userCourses = userData.courses || {};
+                    
+                    if (!userCourses[courseId] || userCourses[courseId].status !== 'approved') {
+                        alert("Vous n'avez pas accès à ce cours. Veuillez d'abord acheter le cours.");
+                        showView('catalogue-view');
+                        return;
+                    }
+                    
+                    userEnrollment = userCourses[courseId];
+                    
+                    const progressRef = doc(db, "progress", `${currentUser.uid}_${courseId}`);
+                    const progressSnap = await getDoc(progressRef);
+                    
+                    if (progressSnap.exists()) {
+                        userProgress = progressSnap.data();
+                    } else {
+                        userProgress = {
+                            completedModules: [],
+                            finalExamPassed: false,
+                            userId: currentUser.uid,
+                            courseId: courseId
+                        };
+                    }
+                    
+                } catch (error) {
+                    console.error("Erreur vérification accès:", error);
+                    alert("Erreur lors de la vérification de l'accès au cours");
+                    showView('catalogue-view');
+                    return;
+                }
+            } else {
+                alert("Veuillez vous connecter pour accéder à ce cours");
+                showView('catalogue-view');
+                return;
+            }
+            
+            document.getElementById('course-title').textContent = currentCourseData.title;
+            document.getElementById('course-description').textContent = currentCourseData.description || '';
+            
+            const modulesQuery = query(
+                collection(db, "courses", courseId, "modules"),
+                orderBy("order", "asc")
+            );
+            
+            const modulesSnapshot = await getDocs(modulesQuery);
+            courseModules = [];
+            
+            modulesSnapshot.forEach(doc => {
+                courseModules.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            displayModules();
+            updateProgressBar();
+            checkExamAccessibility();
+            showView('modules-view');
+            
+        } catch (error) {
+            console.error("Erreur lors du chargement des modules:", error);
+            alert("Erreur lors du chargement des modules du cours");
+            showView('catalogue-view');
+        }
+    }
+
+    function displayModules() {
+        const modulesList = document.getElementById('modules-list');
+        modulesList.innerHTML = '';
+        
+        if (courseModules.length === 0) {
+            modulesList.innerHTML = `
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-layer-group text-3xl mb-4"></i>
+                    <p>Aucun module disponible pour ce cours</p>
+                </div>
+            `;
+            return;
+        }
+        
+        courseModules.forEach((module, index) => {
+            const isCompleted = userProgress.completedModules.includes(module.order);
+            let isLocked = false;
+            
+            if (index === 0) {
+                isLocked = false;
+            } else {
+                const previousModule = courseModules[index - 1];
+                isLocked = !userProgress.completedModules.includes(previousModule.order);
+            }
+            
+            const hasContent = module.video || false;
+            
+            const moduleElement = document.createElement('div');
+            moduleElement.className = `p-4 rounded-lg border ${isCompleted ? 'module-completed' : 'bg-white'} ${isLocked ? 'locked border-gray-300' : 'border-gray-200 hover:border-green-300 cursor-pointer'}`;
+            moduleElement.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full ${isCompleted ? 'bg-green-100 text-green-600' : isLocked ? 'bg-gray-100 text-gray-400' : 'bg-green-100 text-green-600'} flex items-center justify-center mr-4">
+                            ${isCompleted ? '<i class="fas fa-check"></i>' : module.order}
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${module.title}</h4>
+                            <div class="flex items-center text-sm text-gray-600 mt-1">
+                                ${hasContent ? '<i class="fas fa-video mr-2 text-green-500"></i>' : ''}
+                                <span class="text-xs">${isLocked ? 'Verrouillé' : isCompleted ? 'Terminé' : 'À faire'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        ${isCompleted ? 
+                            '<span class="text-green-600 text-sm font-medium"><i class="fas fa-check-circle mr-1"></i>Terminé</span>' : 
+                            (isLocked ? 
+                                '<span class="text-gray-500 text-sm"><i class="fas fa-lock mr-1"></i>Verrouillé</span>' : 
+                                '<button class="text-green-600 hover:text-green-800 text-sm font-medium" onclick="openModule(' + module.order + ')"><i class="fas fa-play-circle mr-1"></i>Commencer</button>'
+                            )
+                        }
+                    </div>
+                </div>
+            `;
+            
+            if (!isLocked) {
+                moduleElement.addEventListener('click', () => openModule(module.order));
+            }
+            
+            modulesList.appendChild(moduleElement);
+        });
+    }
+
+    function updateProgressBar() {
+        const completedCount = userProgress.completedModules.length;
+        const totalCount = courseModules.length;
+        const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+        
+        document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+        document.getElementById('progress-text').textContent = `${progressPercent}% complet (${completedCount}/${totalCount} modules)`;
+    }
+
+    function checkExamAccessibility() {
+        const completedCount = userProgress.completedModules.length;
+        const totalCount = courseModules.length;
+        const isExamAccessible = completedCount === totalCount && !userProgress.finalExamPassed;
+        const startExamBtn = document.getElementById('start-exam-btn');
+        
+        if (isExamAccessible) {
+            startExamBtn.disabled = false;
+            startExamBtn.onclick = () => startFinalExam();
+            document.getElementById('final-exam-card').innerHTML = `
+                <p class="text-gray-700 mb-4">Tous les modules sont terminés ! Vous pouvez maintenant passer l'examen final.</p>
+                <button id="start-exam-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-graduation-cap mr-2"></i>Commencer l'examen
+                </button>
+            `;
+        } else if (userProgress.finalExamPassed) {
+            document.getElementById('final-exam-card').innerHTML = `
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-green-700 mb-2"><i class="fas fa-check-circle mr-2"></i>Examen final réussi !</p>
+                    <button onclick="showCertificate()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                        <i class="fas fa-award mr-2"></i>Voir le certificat
+                    </button>
+                </div>
+            `;
+        } else {
+            startExamBtn.disabled = true;
+            document.getElementById('final-exam-card').innerHTML = `
+                <p class="text-gray-700 mb-4">L'examen final sera disponible une fois tous les modules terminés.</p>
+                <button id="start-exam-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-graduation-cap mr-2"></i>Commencer l'examen
+                </button>
+            `;
+        }
+    }
+
+    // ============================================
+    // GESTION D'UN MODULE
+    // ============================================
+
+    async function openModule(moduleOrder) {
+        try {
+            currentModuleOrder = moduleOrder;
+            
+            const module = courseModules.find(m => m.order === moduleOrder);
+            if (!module) {
+                alert("Module non trouvé");
+                return;
+            }
+            
+            document.getElementById('module-title').textContent = module.title;
+            document.getElementById('module-order-text').textContent = `Module ${module.order}`;
+            
+            const videoElement = document.getElementById('module-video');
+            const videoPlaceholder = document.getElementById('video-placeholder');
+            
+            if (module.video) {
+                videoPlaceholder.classList.add('hidden');
+                videoElement.classList.remove('hidden');
+                videoElement.src = module.video;
+                videoElement.load();
+            } else {
+                videoPlaceholder.classList.remove('hidden');
+                videoElement.classList.add('hidden');
+            }
+            
+            await loadQuizForModule(moduleOrder);
+            await loadAssignmentForModule(moduleOrder);
+            
+            document.getElementById('mark-complete-btn').onclick = () => markModuleAsDone(moduleOrder);
+            showView('module-view');
+        } catch (error) {
+            console.error("Erreur lors de l'ouverture du module:", error);
+            alert("Erreur lors du chargement du module");
+        }
+    }
+
+    async function loadQuizForModule(moduleOrder) {
+        try {
+            const quizSection = document.getElementById('quiz-section');
+            const quizzesQuery = query(
+                collection(db, "courses", currentCourseId, "quizzes"),
+                where("moduleOrder", "==", moduleOrder)
+            );
+            
+            const quizSnapshot = await getDocs(quizzesQuery);
+            
+            if (!quizSnapshot.empty) {
+                const quizData = quizSnapshot.docs[0].data();
+                const quizContainer = document.getElementById('quiz-questions');
+                quizContainer.innerHTML = '';
+                
+                quizData.questions.forEach((question, index) => {
+                    const questionElement = document.createElement('div');
+                    questionElement.className = 'mb-6 p-4 bg-gray-50 rounded-lg';
+                    questionElement.innerHTML = `
+                        <h4 class="font-semibold text-gray-800 mb-3">Question ${index + 1}: ${question.question}</h4>
+                        <div class="space-y-2">
+                            ${question.options.map((option, optIndex) => `
+                                <label class="flex items-center p-2 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer">
+                                    <input type="radio" name="quiz_q${index}" value="${optIndex}" class="mr-3">
+                                    <span>${option}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    `;
+                    quizContainer.appendChild(questionElement);
+                });
+                
+                document.getElementById('submit-quiz-btn').onclick = () => submitQuiz(quizData);
+                quizSection.classList.remove('hidden');
+            } else {
+                quizSection.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement du quiz:", error);
+            document.getElementById('quiz-section').classList.add('hidden');
+        }
+    }
+
+    function submitQuiz(quizData) {
+        let score = 0;
+        const totalQuestions = quizData.questions.length;
+        
+        quizData.questions.forEach((question, index) => {
+            const selectedOption = document.querySelector(`input[name="quiz_q${index}"]:checked`);
+            
+            if (selectedOption && parseInt(selectedOption.value) === question.answer) {
+                score++;
+            }
+        });
+        
+        const percentage = Math.round((score / totalQuestions) * 100);
+        const resultElement = document.getElementById('quiz-result');
+        resultElement.innerHTML = `
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 class="font-semibold text-green-800 mb-2">Résultat du quiz</h4>
+                <p class="text-green-700">Vous avez obtenu ${score}/${totalQuestions} (${percentage}%)</p>
+                ${percentage >= 70 ? 
+                    '<p class="text-green-600 mt-2"><i class="fas fa-check-circle mr-2"></i>Quiz réussi !</p>' : 
+                    '<p class="text-yellow-600 mt-2"><i class="fas fa-exclamation-triangle mr-2"></i>Quiz échoué. Réessayez !</p>'
+                }
+            </div>
+        `;
+        resultElement.classList.remove('hidden');
+    }
+
+    async function loadAssignmentForModule(moduleOrder) {
+        try {
+            const assignmentSection = document.getElementById('assignment-section');
+            const assignmentsQuery = query(
+                collection(db, "courses", currentCourseId, "assignments"),
+                where("moduleOrder", "==", moduleOrder)
+            );
+            
+            const assignmentSnapshot = await getDocs(assignmentsQuery);
+            
+            if (!assignmentSnapshot.empty) {
+                const assignmentData = assignmentSnapshot.docs[0].data();
+                document.getElementById('assignment-description').textContent = assignmentData.description || 'Aucune description disponible';
+                
+                document.getElementById('submit-assignment-btn').onclick = () => submitAssignment();
+                assignmentSection.classList.remove('hidden');
+            } else {
+                assignmentSection.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement du devoir:", error);
+            document.getElementById('assignment-section').classList.add('hidden');
+        }
+    }
+
+    function submitAssignment() {
+        const fileInput = document.getElementById('assignment-file');
+        if (!fileInput.files.length) {
+            alert("Veuillez sélectionner un fichier à soumettre");
+            return;
+        }
+        
+        alert("Devoir soumis avec succès ! Le formateur vérifiera votre travail.");
+    }
+
+    async function markModuleAsDone(moduleOrder) {
+        try {
+            if (!currentUser) {
+                alert("Veuillez vous connecter");
+                return;
+            }
+            
+            if (userProgress.completedModules.includes(moduleOrder)) {
+                alert("Ce module est déjà marqué comme terminé");
+                return;
+            }
+            
+            const updatedCompletedModules = [...userProgress.completedModules, moduleOrder];
+            
+            const progressRef = doc(db, "progress", `${currentUser.uid}_${currentCourseId}`);
+            
+            await setDoc(progressRef, {
+                ...userProgress,
+                completedModules: updatedCompletedModules,
+                lastUpdated: new Date()
+            }, { merge: true });
+            
+            userProgress.completedModules = updatedCompletedModules;
+            
+            alert("Module marqué comme terminé !");
+            showCourseModules(currentCourseId);
+        } catch (error) {
+            console.error("Erreur lors du marquage du module:", error);
+            alert("Erreur lors de la sauvegarde de la progression");
+        }
+    }
+
+    // ============================================
+    // GESTION DE L'EXAMEN FINAL
+    // ============================================
+
+    async function startFinalExam() {
+        try {
+            if (userProgress.completedModules.length !== courseModules.length) {
+                alert("Vous devez terminer tous les modules avant de passer l'examen final");
+                return;
+            }
+            
+            let examData = null;
+            
+            try {
+                const examRef = doc(db, "courses", currentCourseId, "finalExam");
+                const examSnap = await getDoc(examRef);
+                if (examSnap.exists()) {
+                    examData = examSnap.data();
+                }
+            } catch (error) {
+                console.log("Pas d'examen dans sous-collection");
+            }
+            
+            if (!examData) {
+                const courseRef = doc(db, "courses", currentCourseId);
+                const courseSnap = await getDoc(courseRef);
+                if (courseSnap.exists() && courseSnap.data().finalExam) {
+                    examData = courseSnap.data().finalExam;
+                }
+            }
+            
+            if (!examData || !examData.questions || examData.questions.length === 0) {
+                alert("Examen final non disponible pour ce cours");
+                return;
+            }
+            
+            document.getElementById('exam-course-title').textContent = currentCourseData.title;
+            document.getElementById('pass-score').textContent = `${examData.passScore || 70}%`;
+            
+            displayExamQuestions(examData.questions);
+            document.getElementById('submit-exam-btn').onclick = () => submitFinalExam(examData);
+            showView('exam-view');
+        } catch (error) {
+            console.error("Erreur lors du chargement de l'examen:", error);
+            alert("Erreur lors du chargement de l'examen final");
+        }
+    }
+
+    function displayExamQuestions(questions) {
+        const container = document.getElementById('exam-questions-container');
+        container.innerHTML = '';
+        
+        questions.forEach((question, index) => {
+            const questionElement = document.createElement('div');
+            questionElement.className = 'p-6 bg-gray-50 rounded-lg';
+            questionElement.innerHTML = `
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">Question ${index + 1}: ${question.question}</h4>
+                <div class="space-y-3">
+                    ${question.options.map((option, optIndex) => `
+                        <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors duration-200">
+                            <input type="radio" name="exam_q${index}" value="${optIndex}" class="mr-3 h-5 w-5">
+                            <span class="text-gray-700">${option}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(questionElement);
+        });
+    }
+
+    async function submitFinalExam(examData) {
+        try {
+            if (!currentUser) {
+                alert("Veuillez vous connecter");
+                return;
+            }
+            
+            const totalQuestions = examData.questions.length;
+            let answeredQuestions = 0;
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                if (document.querySelector(`input[name="exam_q${i}"]:checked`)) {
+                    answeredQuestions++;
+                }
+            }
+            
+            if (answeredQuestions < totalQuestions) {
+                alert(`Veuillez répondre à toutes les questions. Vous avez répondu à ${answeredQuestions}/${totalQuestions} questions.`);
+                return;
+            }
+            
+            let score = 0;
+            
+            examData.questions.forEach((question, index) => {
+                const selectedOption = document.querySelector(`input[name="exam_q${index}"]:checked`);
+                
+                if (selectedOption && parseInt(selectedOption.value) === question.answer) {
+                    score++;
+                }
+            });
+            
+            const percentage = Math.round((score / totalQuestions) * 100);
+            const isPassed = percentage >= (examData.passScore || 70);
+            
+            const progressRef = doc(db, "progress", `${currentUser.uid}_${currentCourseId}`);
+            
+            await updateDoc(progressRef, {
+                finalExamPassed: isPassed,
+                examScore: percentage,
+                examCompletedAt: new Date(),
+                lastUpdated: new Date()
+            });
+            
+            userProgress.finalExamPassed = isPassed;
+            
+            if (isPassed) {
+                alert(`Félicitations ! Vous avez réussi l'examen avec un score de ${percentage}%`);
+                showCertificate();
+            } else {
+                alert(`Désolé, vous avez obtenu ${percentage}%. Le score minimum requis est ${examData.passScore || 70}%. Vous pouvez réessayer plus tard.`);
+                showCourseModules(currentCourseId);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la soumission de l'examen:", error);
+            alert("Erreur lors de la soumission de l'examen");
+        }
+    }
+
+    // ============================================
+    // GESTION DU CERTIFICAT
+    // ============================================
+
+    async function showCertificate() {
+        try {
+            if (!userProgress.finalExamPassed) {
+                alert("Vous devez réussir l'examen final pour obtenir le certificat");
+                showCourseModules(currentCourseId);
+                return;
+            }
+            
+            document.getElementById('cert-course-title').textContent = currentCourseData.title;
+            document.getElementById('certificate-course-name').textContent = currentCourseData.title;
+            document.getElementById('certificate-student-name').textContent = currentUser.email;
+            
+            const now = new Date();
+            document.getElementById('certificate-date').textContent = now.toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            try {
+                const certRef = doc(db, "courses", currentCourseId, "certificate");
+                const certSnap = await getDoc(certRef);
+                
+                if (certSnap.exists()) {
+                    const certData = certSnap.data();
+                    document.getElementById('certificate-type').textContent = 
+                        certData.type === 'diplome' ? 'Diplôme' : 'Certificat de Réussite';
+                } else {
+                    document.getElementById('certificate-type').textContent = 'Certificat de Réussite';
+                }
+            } catch (error) {
+                document.getElementById('certificate-type').textContent = 'Certificat de Réussite';
+            }
+            
+            document.getElementById('download-cert-btn').onclick = downloadCertificate;
+            document.getElementById('share-cert-btn').onclick = shareCertificate;
+            showView('certificate-view');
+        } catch (error) {
+            console.error("Erreur lors du chargement du certificat:", error);
+            alert("Erreur lors du chargement du certificat");
+        }
+    }
+
+    function downloadCertificate() {
+        const certificateContent = `
+            CERTIFICAT DE RÉUSSITE
+            
+            Félicitations !
+            
+            ${currentUser.email}
+            
+            a réussi avec succès le cours
+            
+            "${currentCourseData.title}"
+            
+            Délivré le ${new Date().toLocaleDateString('fr-FR')}
+        `;
+        
+        const blob = new Blob([certificateContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `certificat-${currentCourseData.title.replace(/\s+/g, '-').toLowerCase()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert("Certificat téléchargé !");
+    }
+
+    function shareCertificate() {
+        if (navigator.share) {
+            navigator.share({
+                title: `Certificat - ${currentCourseData.title}`,
+                text: `J'ai réussi le cours "${currentCourseData.title}" !`,
+                url: window.location.href
+            }).catch(error => console.log('Erreur de partage:', error));
+        } else {
+            alert("Partage non supporté sur ce navigateur. Vous pouvez copier le lien manuellement.");
+        }
+    }
+
+    // ============================================
+    // EXPOSITION DES FONCTIONS GLOBALES
+    // ============================================
+    window.showCourseModules = showCourseModules;
+    window.openModule = openModule;
+    window.markModuleAsDone = markModuleAsDone;
+    window.startFinalExam = startFinalExam;
+    window.showCertificate = showCertificate;
+    window.accessCourse = accessCourse;
+    window.loadCourses = loadCourses;
+
+    document.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>

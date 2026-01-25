@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestion Page Contact</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Mobile First Styles */
+        .mobile-menu-btn {
+            display: block;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 100;
+            background: #1e40af;
+            color: white;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100vh;
+            z-index: 50;
+            transition: all 0.3s ease-in-out;
+            overflow-y: auto;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            display: none;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        .page-content {
+            display: none;
+        }
+        
+        .page-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-item.active {
+            background-color: #1e40af;
+            color: white;
+        }
+        
+        .menu-item.active:hover {
+            background-color: #1e3a8a;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Touch-friendly elements */
+        button, 
+        .menu-item,
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            min-height: 44px; /* Minimum touch target size */
+        }
+        
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Responsive typography */
+        .text-responsive-xl {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+        
+        .text-responsive-lg {
+            font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+        }
+        
+        .text-responsive-md {
+            font-size: clamp(1rem, 3vw, 1.25rem);
+        }
+        
+        /* Responsive grids */
+        .grid-responsive {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .grid-responsive {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .hide-on-mobile {
+                display: none;
+            }
+            
+            .mobile-stack {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .mobile-full-width {
+                width: 100%;
+            }
+            
+            .mobile-text-center {
+                text-align: center;
+            }
+            
+            .mobile-p-4 {
+                padding: 1rem;
+            }
+            
+            .mobile-mb-4 {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Tablet optimizations */
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .tablet-grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tablet-p-6 {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Desktop optimizations */
+        @media (min-width: 1025px) {
+            .desktop-sidebar {
+                width: 16rem;
+                left: 0;
+            }
+            
+            .desktop-main {
+                margin-left: 16rem;
+            }
+            
+            .desktop-grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .desktop-grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn md:hidden touch-target" id="mobile-menu-toggle">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar bg-gray-900 text-white h-screen w-full md:w-64 md:desktop-sidebar md:block">
+        <!-- Logo and Close Button for Mobile -->
+        <div class="p-4 md:p-6 border-b border-gray-800 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-address-book text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold">Gestion Contact</h1>
+                    <p class="text-gray-400 text-xs md:text-sm">URH HAITI</p>
+                </div>
+            </div>
+            <button class="md:hidden text-white touch-target" id="close-sidebar">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Menu de navigation -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" data-page="hero" class="menu-item active flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-white touch-target">
+                        <i class="fas fa-home w-6 text-center"></i>
+                        <span>Section Hero</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="stats" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-chart-bar w-6 text-center"></i>
+                        <span>Statistiques</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="contact-info" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-info-circle w-6 text-center"></i>
+                        <span>Infos Contact</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="hours" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-clock w-6 text-center"></i>
+                        <span>Horaires</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="form" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-form w-6 text-center"></i>
+                        <span>Formulaire</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="map" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-map w-6 text-center"></i>
+                        <span>Carte</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="faq" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-question-circle w-6 text-center"></i>
+                        <span>FAQ</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="cta" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-bullhorn w-6 text-center"></i>
+                        <span>Section CTA</span>
+                    </a>
+                </li>
+                <li class="pt-6 md:pt-8 border-t border-gray-800">
+                    <a href="contct.html" target="_blank" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300 touch-target">
+                        <i class="fas fa-external-link-alt w-6 text-center"></i>
+                        <span>Voir la page</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Contenu principal -->
+    <main class="md:desktop-main min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b mobile-p-4 md:px-6 md:py-4">
+            <div class="mobile-stack md:flex md:justify-between md:items-center">
+                <div class="mobile-mb-4 md:mb-0">
+                    <h1 class="text-responsive-xl font-bold text-gray-800" id="page-title">Section Hero</h1>
+                    <p class="text-gray-600 text-sm md:text-base" id="page-subtitle">Gérez le contenu de la section hero de la page Contact</p>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-4">
+                    <div id="status-message" class="hidden px-3 md:px-4 py-2 rounded-lg text-sm font-medium w-full sm:w-auto"></div>
+                    <button id="save-all" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 md:py-2 md:px-4 rounded-lg transition duration-300 touch-target mobile-full-width">
+                        <i class="fas fa-save mr-2"></i> Sauvegarder tout
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Contenu des pages -->
+        <div class="p-4 md:p-6" id="page-content">
+            <!-- Page Hero -->
+            <div id="hero-page" class="page-content active">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Section Hero - Page Contact</h2>
+                    
+                    <form id="hero-form" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Titre principal *</label>
+                            <textarea id="hero-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Contactez-nous"></textarea>
+                            <p class="text-gray-500 text-xs md:text-sm mt-2">Utilisez <code>&lt;span class="text-yellow-300"&gt;...&lt;/span&gt;</code> pour du texte en jaune</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Sous-titre *</label>
+                            <textarea id="hero-subtitle" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Description de la section hero..."></textarea>
+                        </div>
+                        
+                        <div class="grid-responsive md:grid md:grid-cols-2 md:gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Texte bouton 1 *</label>
+                                <input type="text" id="hero-button1" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Écrire un message">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Numéro de téléphone *</label>
+                                <input type="text" id="hero-phone" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: +509 A definir">
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-hero" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page Statistiques -->
+            <div id="stats-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Statistiques de Contact</h2>
+                    
+                    <div class="space-y-6">
+                        <div id="stats-container" class="space-y-4">
+                            <!-- Les statistiques seront ajoutées dynamiquement -->
+                            <div class="border border-gray-300 rounded-lg p-4">
+                                <p class="text-gray-600 text-center">Aucune statistique ajoutée</p>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="add-stat" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg touch-target w-full md:w-auto">
+                            <i class="fas fa-plus mr-2"></i> Ajouter une statistique
+                        </button>
+                        
+                        <div class="flex justify-end mt-6">
+                            <button type="button" id="save-stats" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page Infos Contact -->
+            <div id="contact-info-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Informations de Contact</h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Titre de la section *</label>
+                            <input type="text" id="contact-info-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Nos coordonnées">
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-responsive-md font-bold text-gray-800 mb-4">Éléments de contact</h3>
+                            <div id="contact-items-container" class="space-y-6">
+                                <!-- Les éléments de contact seront ajoutés dynamiquement -->
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center">Aucun élément de contact ajouté</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-contact-item" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg touch-target w-full md:w-auto">
+                                <i class="fas fa-plus mr-2"></i> Ajouter un élément
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-contact-info" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page Horaires -->
+            <div id="hours-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Horaires d'Ouverture</h2>
+                    
+                    <form id="hours-form" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Titre *</label>
+                            <input type="text" id="hours-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Horaires d'ouverture">
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-responsive-md font-bold text-gray-800 mb-4">Jours et horaires</h3>
+                            <div id="schedule-container" class="space-y-4">
+                                <!-- Les horaires seront ajoutés dynamiquement -->
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center">Aucun horaire ajouté</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-schedule" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg touch-target w-full md:w-auto">
+                                <i class="fas fa-plus mr-2"></i> Ajouter un horaire
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Note supplémentaire *</label>
+                            <input type="text" id="hours-note" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Visites guidées sur rendez-vous uniquement">
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-hours" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page Formulaire -->
+            <div id="form-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Formulaire de Contact</h2>
+                    
+                    <form id="contact-form-settings" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Titre du formulaire *</label>
+                            <input type="text" id="form-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Envoyez-nous un message">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Sous-titre *</label>
+                            <input type="text" id="form-subtitle" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Nous vous répondons généralement dans les 2 heures ouvrables">
+                        </div>
+                        
+                        <div class="grid-responsive md:grid md:grid-cols-2 md:gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Texte du badge *</label>
+                                <input type="text" id="form-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Réponse rapide garantie">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Icône du badge *</label>
+                                <input type="text" id="form-badge-icon" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: bolt">
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-responsive-md font-bold text-gray-800 mb-4">Options de sujet</h3>
+                            <div id="subjects-container" class="space-y-4">
+                                <!-- Les sujets seront ajoutés dynamiquement -->
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center">Aucun sujet ajouté</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-subject" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg touch-target w-full md:w-auto">
+                                <i class="fas fa-plus mr-2"></i> Ajouter un sujet
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-form" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page Carte -->
+            <div id="map-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Carte et Localisation</h2>
+                    
+                    <form id="map-form" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Titre de la section *</label>
+                            <input type="text" id="map-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Notre localisation">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Adresse *</label>
+                            <input type="text" id="map-address" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: A definir">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Description *</label>
+                            <input type="text" id="map-description" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: URH HAITI - Campus Delmas">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">URL de la carte Google Maps *</label>
+                            <textarea id="map-url" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Collez ici l'URL embed de Google Maps"></textarea>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-responsive-md font-bold text-gray-800 mb-4">Caractéristiques</h3>
+                            <div id="features-container" class="space-y-4">
+                                <!-- Les caractéristiques seront ajoutées dynamiquement -->
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center">Aucune caractéristique ajoutée</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-feature" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg touch-target w-full md:w-auto">
+                                <i class="fas fa-plus mr-2"></i> Ajouter une caractéristique
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-map" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page FAQ -->
+            <div id="faq-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Questions Fréquentes (FAQ)</h2>
+                    
+                    <form id="faq-form" class="space-y-6">
+                        <div class="grid-responsive md:grid md:grid-cols-2 md:gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Texte du badge *</label>
+                                <input type="text" id="faq-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Questions fréquentes">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Couleur du badge *</label>
+                                <select id="faq-badge-color" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base">
+                                    <option value="orange">Orange</option>
+                                    <option value="blue">Bleu</option>
+                                    <option value="green">Vert</option>
+                                    <option value="purple">Violet</option>
+                                    <option value="red">Rouge</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Titre *</label>
+                            <textarea id="faq-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Vous avez des questions ?"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Sous-titre *</label>
+                            <input type="text" id="faq-subtitle" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Trouvez rapidement des réponses à vos interrogations">
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-responsive-md font-bold text-gray-800 mb-4">Questions</h3>
+                            <div id="faq-items-container" class="space-y-4">
+                                <!-- Les questions FAQ seront ajoutées dynamiquement -->
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center">Aucune question FAQ ajoutée</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-faq-item" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg touch-target w-full md:w-auto">
+                                <i class="fas fa-plus mr-2"></i> Ajouter une question
+                            </button>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-responsive-md font-bold text-gray-800 mb-4">Lien de footer</h3>
+                            <div class="grid-responsive md:grid md:grid-cols-2 md:gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Texte du lien *</label>
+                                    <input type="text" id="faq-footer-text" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Voir toutes les questions fréquentes">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">URL du lien *</label>
+                                    <input type="text" id="faq-footer-link" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: faq.html">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-faq" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page CTA -->
+            <div id="cta-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 md:p-6 mb-6">
+                    <h2 class="text-responsive-lg font-bold text-gray-800 mb-6">Section CTA (Call to Action)</h2>
+                    
+                    <form id="cta-form" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Titre *</label>
+                            <input type="text" id="cta-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Prêt à démarrer votre formation ?">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Texte *</label>
+                            <textarea id="cta-text" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm md:text-base" placeholder="Ex: Rejoignez l'URH HAITI et transformez votre avenir..."></textarea>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-responsive-md font-bold text-gray-800 mb-4">Boutons CTA</h3>
+                            <div id="cta-buttons-container" class="space-y-4">
+                                <!-- Les boutons CTA seront ajoutés dynamiquement -->
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center">Aucun bouton CTA ajouté</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-cta-button" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg touch-target w-full md:w-auto">
+                                <i class="fas fa-plus mr-2"></i> Ajouter un bouton
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-cta" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 touch-target">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="navBulleContainer" class="fixed z-50">
+  <!-- Bulle principale -->
+  <button 
+    id="navBulleBtn" 
+    class="flex items-center justify-center w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white transition-all duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300/50"
+    aria-label="Ouvrir le menu de navigation"
+  >
+    <i id="navBulleIcon" class="fas fa-compass text-xl"></i>
+  </button>
+  
+  <!-- Fenêtre de navigation -->
+  <div 
+    id="navBulleWindow" 
+    class="absolute bottom-16 right-0 w-72 bg-white rounded-2xl shadow-2xl p-4 transform -translate-y-2 opacity-0 invisible transition-all duration-300"
+  >
+    <!-- En-tête de la fenêtre -->
+    <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800">Navigation rapide</h2>
+      <button 
+        id="navBulleCloseBtn" 
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+        aria-label="Fermer le menu"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Liste des liens -->
+    <ul class="space-y-2" id="navBulleLinks">
+      <!-- Les liens seront injectés par JavaScript -->
+    </ul>
+    
+    <!-- Indicateur de position (flèche) -->
+    <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white transform rotate-45"></div>
+  </div>
+</div>
+
+<script>
+// Configuration unique pour éviter les conflits
+const navBulleConfig = {
+  containerId: 'navBulleContainer',
+  buttonId: 'navBulleBtn',
+  windowId: 'navBulleWindow',
+  closeButtonId: 'navBulleCloseBtn',
+  linksContainerId: 'navBulleLinks',
+  iconId: 'navBulleIcon',
+  isOpen: false,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initialX: 0,
+  initialY: 0,
+  touchStartTime: 0,
+  touchMoved: false,
+  
+  // Liens de navigation
+  navLinks: [
+    {
+      id: 'navLinkAccueil',
+      title: 'Dashboard Accueil',
+      url: 'dashacceuil.html',
+      icon: 'fas fa-home',
+      color: 'text-blue-600'
+    },
+    {
+      id: 'navLinkActualites',
+      title: 'Dashboard Actualités',
+      url: 'dashacctualites.html',
+      icon: 'fas fa-newspaper',
+      color: 'text-green-600'
+    },
+    {
+      id: 'navLinkApropos',
+      title: 'Dashboard À propos',
+      url: 'dashapropo.html',
+      icon: 'fas fa-info-circle',
+      color: 'text-purple-600'
+    },
+    {
+      id: 'navLinkCours',
+      title: 'Dashboard Cours',
+      url: 'dashboardcours.html',
+      icon: 'fas fa-book-open',
+      color: 'text-amber-600'
+    },
+    {
+      id: 'navLinkContact',
+      title: 'Dashboard Contact',
+      url: 'dashcontact.html',
+      icon: 'fas fa-envelope',
+      color: 'text-red-600'
+    },
+    {
+      id: 'navLinkSoumissions',
+      title: 'Dashboard Soumissions',
+      url: 'dashboardsoumissions.html',
+      icon: 'fas fa-paper-plane',
+      color: 'text-indigo-600'
+    }
+  ],
+  
+  // Initialisation
+  init: function() {
+    this.setupElements();
+    this.renderLinks();
+    this.setupEventListeners();
+    this.positionBulleOnLoad();
+  },
+  
+  // Configuration des éléments DOM
+  setupElements: function() {
+    this.container = document.getElementById(this.containerId);
+    this.button = document.getElementById(this.buttonId);
+    this.window = document.getElementById(this.windowId);
+    this.closeButton = document.getElementById(this.closeButtonId);
+    this.linksContainer = document.getElementById(this.linksContainerId);
+    this.icon = document.getElementById(this.iconId);
+  },
+  
+  // Rendu des liens de navigation
+  renderLinks: function() {
+    this.linksContainer.innerHTML = '';
+    
+    this.navLinks.forEach(link => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a 
+          href="${link.url}" 
+          id="${link.id}"
+          class="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-colors group"
+        >
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg ${link.color} bg-opacity-10 group-hover:bg-opacity-20 mr-3">
+            <i class="${link.icon}"></i>
+          </div>
+          <span class="font-medium text-gray-800">${link.title}</span>
+        </a>
+      `;
+      this.linksContainer.appendChild(li);
+    });
+  },
+  
+  // Configuration des écouteurs d'événements
+  setupEventListeners: function() {
+    // Clic sur la bulle (ouvrir/fermer) - pour desktop
+    this.button.addEventListener('click', (e) => {
+      // Vérifier si ce n'était pas un drag
+      if (!this.isDragging && !this.touchMoved) {
+        e.stopPropagation();
+        this.toggleWindow();
+      }
+      this.touchMoved = false;
+    });
+    
+    // Clic sur le bouton de fermeture
+    this.closeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeWindow();
+    });
+    
+    // Fermer la fenêtre en cliquant à l'extérieur
+    document.addEventListener('click', (e) => {
+      if (this.isOpen && !this.window.contains(e.target) && !this.button.contains(e.target)) {
+        this.closeWindow();
+      }
+    });
+    
+    // Gestion du déplacement sur desktop (drag)
+    this.button.addEventListener('mousedown', this.startDrag.bind(this));
+    document.addEventListener('mousemove', this.drag.bind(this));
+    document.addEventListener('mouseup', this.stopDrag.bind(this));
+    
+    // Gestion des événements tactiles pour mobile - APPROCHE SIMPLIFIÉE
+    this.button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    this.button.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    this.button.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+    
+    // Fermer la fenêtre avec la touche Échap
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.closeWindow();
+      }
+    });
+    
+    // Ajuster la position lors du redimensionnement
+    window.addEventListener('resize', this.adjustPositionOnResize.bind(this));
+  },
+  
+  // Gestion du touchstart (mobile)
+  handleTouchStart: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    this.startX = touch.clientX;
+    this.startY = touch.clientY;
+    this.initialX = this.container.offsetLeft;
+    this.initialY = this.container.offsetTop;
+    this.touchStartTime = Date.now();
+    this.touchMoved = false;
+    this.isDragging = false;
+    
+    // Timer pour détecter un appui long (drag)
+    this.dragTimer = setTimeout(() => {
+      this.isDragging = true;
+      this.button.classList.add('cursor-grabbing', 'scale-105');
+    }, 300);
+  },
+  
+  // Gestion du touchmove (mobile)
+  handleTouchMove: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.startX;
+    const deltaY = touch.clientY - this.startY;
+    
+    // Si le mouvement est suffisant, c'est un drag
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      this.touchMoved = true;
+      clearTimeout(this.dragTimer);
+      
+      // Si ce n'était pas déjà un drag, le devenir
+      if (!this.isDragging) {
+        this.isDragging = true;
+        this.button.classList.add('cursor-grabbing', 'scale-105');
+      }
+      
+      // Calculer la nouvelle position
+      let newX = this.initialX + deltaX;
+      let newY = this.initialY + deltaY;
+      
+      // Limites de la fenêtre
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const buttonSize = 56; // w-14 = 56px
+      
+      // S'assurer que la bulle reste dans les limites
+      newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+      newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+      
+      // Appliquer la nouvelle position
+      this.container.style.left = `${newX}px`;
+      this.container.style.top = `${newY}px`;
+      this.container.style.right = 'auto';
+      this.container.style.bottom = 'auto';
+      
+      // Fermer la fenêtre si elle est ouverte pendant le drag
+      if (this.isOpen) {
+        this.closeWindow();
+      }
+    }
+  },
+  
+  // Gestion du touchend (mobile)
+  handleTouchEnd: function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    clearTimeout(this.dragTimer);
+    
+    // Si ce n'était pas un drag, c'est un clic
+    if (!this.isDragging && !this.touchMoved) {
+      const touchDuration = Date.now() - this.touchStartTime;
+      
+      // Si le touch était court (< 300ms), c'est un clic
+      if (touchDuration < 300) {
+        this.toggleWindow();
+      }
+    }
+    
+    // Nettoyer l'état de drag
+    if (this.isDragging) {
+      this.isDragging = false;
+      this.button.classList.remove('cursor-grabbing', 'scale-105');
+      
+      // Animation de retour
+      this.button.classList.add('scale-95');
+      setTimeout(() => {
+        this.button.classList.remove('scale-95');
+      }, 200);
+    }
+    
+    // Réinitialiser
+    this.touchMoved = false;
+  },
+  
+  // Ouvrir/fermer la fenêtre
+  toggleWindow: function() {
+    if (this.isOpen) {
+      this.closeWindow();
+    } else {
+      this.openWindow();
+    }
+  },
+  
+  // Ouvrir la fenêtre
+  openWindow: function() {
+    this.window.classList.remove('opacity-0', 'invisible', 'translate-y-2');
+    this.window.classList.add('opacity-100', 'visible', 'translate-y-0');
+    this.icon.classList.remove('fa-compass');
+    this.icon.classList.add('fa-times');
+    this.button.setAttribute('aria-expanded', 'true');
+    this.isOpen = true;
+    
+    // Animation de micro-interaction
+    this.button.classList.add('scale-110');
+    setTimeout(() => {
+      this.button.classList.remove('scale-110');
+    }, 300);
+  },
+  
+  // Fermer la fenêtre
+  closeWindow: function() {
+    this.window.classList.remove('opacity-100', 'visible', 'translate-y-0');
+    this.window.classList.add('opacity-0', 'invisible', 'translate-y-2');
+    this.icon.classList.remove('fa-times');
+    this.icon.classList.add('fa-compass');
+    this.button.setAttribute('aria-expanded', 'false');
+    this.isOpen = false;
+  },
+  
+  // Position initiale de la bulle
+  positionBulleOnLoad: function() {
+    // Position par défaut en bas à droite
+    this.container.style.bottom = '20px';
+    this.container.style.right = '20px';
+  },
+  
+  // Ajuster la position lors du redimensionnement
+  adjustPositionOnResize: function() {
+    const rect = this.container.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    // S'assurer que la bulle reste dans les limites de la fenêtre
+    if (rect.left < 0) {
+      this.container.style.left = '10px';
+      this.container.style.right = 'auto';
+    }
+    
+    if (rect.top < 0) {
+      this.container.style.top = '10px';
+      this.container.style.bottom = 'auto';
+    }
+    
+    if (rect.right > windowWidth) {
+      this.container.style.right = '10px';
+      this.container.style.left = 'auto';
+    }
+    
+    if (rect.bottom > windowHeight) {
+      this.container.style.bottom = '10px';
+      this.container.style.top = 'auto';
+    }
+  },
+  
+  // Début du drag (souris) - pour desktop
+  startDrag: function(e) {
+    e.preventDefault();
+    this.isDragging = true;
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    
+    // Enregistrer la position initiale
+    const rect = this.container.getBoundingClientRect();
+    this.initialX = rect.left;
+    this.initialY = rect.top;
+    
+    // Changer l'apparence pendant le drag
+    this.button.classList.add('cursor-grabbing', 'scale-105');
+  },
+  
+  // Déplacement (souris) - pour desktop
+  drag: function(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    
+    // Calculer le déplacement
+    const deltaX = e.clientX - this.startX;
+    const deltaY = e.clientY - this.startY;
+    
+    // Calculer la nouvelle position
+    let newX = this.initialX + deltaX;
+    let newY = this.initialY + deltaY;
+    
+    // Limites de la fenêtre
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const buttonSize = 56; // w-14 = 56px
+    
+    // S'assurer que la bulle reste dans les limites
+    newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+    newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+    
+    // Appliquer la nouvelle position
+    this.container.style.left = `${newX}px`;
+    this.container.style.top = `${newY}px`;
+    this.container.style.right = 'auto';
+    this.container.style.bottom = 'auto';
+    
+    // Fermer la fenêtre si elle est ouverte pendant le drag
+    if (this.isOpen) {
+      this.closeWindow();
+    }
+  },
+  
+  // Fin du drag (souris) - pour desktop
+  stopDrag: function() {
+    if (!this.isDragging) return;
+    
+    this.isDragging = false;
+    this.button.classList.remove('cursor-grabbing', 'scale-105');
+    
+    // Animation de retour
+    this.button.classList.add('scale-95');
+    setTimeout(() => {
+      this.button.classList.remove('scale-95');
+    }, 200);
+  }
+};
+
+// Initialiser la bulle de navigation quand le DOM est chargé
+document.addEventListener('DOMContentLoaded', () => {
+  navBulleConfig.init();
+});
+</script>
+
+<!-- Styles additionnels pour une meilleure expérience mobile -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+#navBulleContainer {
+  touch-action: none; /* Empêche le défilement pendant le drag sur mobile */
+}
+
+#navBulleBtn {
+  cursor: grab;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+#navBulleBtn:active {
+  cursor: grabbing;
+}
+
+#navBulleWindow {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: white; /* Assure un fond blanc */
+}
+
+/* Correction des couleurs des textes et liens */
+#navBulleWindow h2 {
+  color: #1f2937 !important; /* Couleur foncée pour le titre */
+}
+
+#navBulleLinks a {
+  color: #374151 !important; /* Couleur gris foncé pour les liens */
+}
+
+#navBulleLinks a span {
+  color: #374151 !important; /* Assure la couleur du texte des liens */
+}
+
+#navBulleCloseBtn {
+  color: #6b7280 !important; /* Couleur grise pour l'icône de fermeture */
+}
+
+#navBulleCloseBtn:hover {
+  color: #374151 !important;
+}
+
+/* Animation d'entrée pour les liens */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#navBulleLinks li {
+  animation: fadeInUp 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+#navBulleLinks li:nth-child(1) { animation-delay: 0.05s; }
+#navBulleLinks li:nth-child(2) { animation-delay: 0.1s; }
+#navBulleLinks li:nth-child(3) { animation-delay: 0.15s; }
+#navBulleLinks li:nth-child(4) { animation-delay: 0.2s; }
+#navBulleLinks li:nth-child(5) { animation-delay: 0.25s; }
+#navBulleLinks li:nth-child(6) { animation-delay: 0.3s; }
+
+/* Assurer la visibilité des icônes dans les cercles colorés */
+#navBulleLinks a div i {
+  color: inherit !important; /* Hérite la couleur définie par la classe */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #navBulleWindow {
+    width: calc(100vw - 40px);
+    max-width: 300px;
+    right: 0;
+    bottom: 70px;
+  }
+  
+  #navBulleWindow > div:last-child {
+    right: 20px;
+  }
+}
+
+/* Dark mode support - corrigé pour garder la lisibilité */
+@media (prefers-color-scheme: dark) {
+  #navBulleWindow {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  #navBulleWindow h2 {
+    color: #f9fafb !important; /* Blanc pour le titre en dark mode */
+  }
+  
+  #navBulleLinks a {
+    color: #e5e7eb !important; /* Gris clair pour les liens */
+  }
+  
+  #navBulleLinks a span {
+    color: #e5e7eb !important; /* Gris clair pour le texte */
+  }
+  
+  #navBulleLinks a:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  #navBulleCloseBtn {
+    color: #9ca3af !important;
+  }
+  
+  #navBulleCloseBtn:hover {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+  
+  #navBulleWindow > div:last-child {
+    background-color: #1f2937 !important;
+  }
+}
+
+/* Force la visibilité des éléments pendant les animations */
+#navBulleWindow.opacity-100.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Correction spécifique pour les couleurs des icônes dans les cercles */
+.bg-opacity-10 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.text-blue-600 { color: #2563eb !important; }
+.text-green-600 { color: #16a34a !important; }
+.text-purple-600 { color: #9333ea !important; }
+.text-amber-600 { color: #d97706 !important; }
+.text-red-600 { color: #dc2626 !important; }
+.text-indigo-600 { color: #4f46e5 !important; }
+</style>
+    <!-- JavaScript -->
+    <script>
+        // Configuration Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Données par défaut
+        const defaultData = {
+            hero: {
+                title: "Contactez-<span class='text-yellow-300'>nous</span>",
+                subtitle: "Nous sommes là pour répondre à toutes vos questions et vous accompagner dans votre parcours",
+                button1: "Écrire un message",
+                phone: "+509 A definir"
+            },
+            stats: [
+                {
+                    number: "24/7",
+                    label: "Support en ligne",
+                    color: "blue"
+                },
+                {
+                    number: "2h",
+                    label: "Réponse moyenne",
+                    color: "emerald"
+                },
+                {
+                    number: "98%",
+                    label: "Satisfaction client",
+                    color: "purple"
+                },
+                {
+                    number: "500+",
+                    label: "Étudiants aidés",
+                    color: "orange"
+                }
+            ],
+            contactInfo: {
+                title: "Nos coordonnées",
+                items: [
+                    {
+                        type: "address",
+                        icon: "map-marker-alt",
+                        color: "blue",
+                        title: "Adresse principale",
+                        text: "A definir",
+                        details: "Port-au-Prince, Haïti",
+                        link: "https://maps.google.com/?q=24+Puits+Blain+prolongée+Delmas+75",
+                        linkText: "Voir sur Google Maps"
+                    },
+                    {
+                        type: "phone",
+                        icon: "phone-alt",
+                        color: "emerald",
+                        title: "Téléphone & WhatsApp",
+                        text: "+509 A definir",
+                        buttons: [
+                            {
+                                text: "Appeler",
+                                icon: "phone",
+                                color: "emerald",
+                                link: "tel:+50934459737"
+                            },
+                            {
+                                text: "WhatsApp",
+                                icon: "whatsapp",
+                                color: "green",
+                                link: "https://wa.me/50934459737"
+                            }
+                        ]
+                    },
+                    {
+                        type: "email",
+                        icon: "envelope",
+                        color: "purple",
+                        title: "Adresse email",
+                        text: "ifep.educ@gmail.com",
+                        link: "mailto:ifep.educ@gmail.com",
+                        linkText: "Envoyer un email"
+                    },
+                    {
+                        type: "social",
+                        icon: "share-alt",
+                        color: "red",
+                        title: "Réseaux sociaux",
+                        text: "Suivez-nous pour les dernières actualités",
+                        socials: [
+                            {
+                                icon: "facebook-f",
+                                color: "blue",
+                                link: "https://www.facebook.com/share/1FeUqFu3WX/"
+                            },
+                            {
+                                icon: "instagram",
+                                gradient: "from-purple-600 to-pink-600",
+                                link: "#"
+                            }
+                        ]
+                    }
+                ]
+            },
+            openingHours: {
+                title: "Horaires d'ouverture",
+                schedule: [
+                    {
+                        day: "Lundi - Vendredi",
+                        hours: "8:00 - 18:00"
+                    },
+                    {
+                        day: "Samedi",
+                        hours: "9:00 - 14:00"
+                    },
+                    {
+                        day: "Dimanche",
+                        hours: "Fermé",
+                        highlight: true
+                    }
+                ],
+                note: "Visites guidées sur rendez-vous uniquement"
+            },
+            form: {
+                title: "Envoyez-nous un message",
+                subtitle: "Nous vous répondons généralement dans les 2 heures ouvrables",
+                badge: "Réponse rapide garantie",
+                badgeIcon: "bolt",
+                subjects: [
+                    "Demande d'admission",
+                    "Information sur les formations",
+                    "Visite guidée de l'institut",
+                    "Partenariat professionnel",
+                    "Offre d'emploi",
+                    "Autre demande"
+                ]
+            },
+            map: {
+                title: "Notre localisation",
+                address: "A definir",
+                description: "URH HAITI - Campus Delmas",
+                mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.028043844441!2d-72.3024670242704!3d18.476287971800397!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8eb9e7b5c5c5c5c5%3A0x5c5c5c5c5c5c5c5c!2sDelmas%2075%2C%20Port-au-Prince%2C%20Ha%C3%AFti!5e0!3m2!1sfr!2sht!4v1681234567890!5m2!1sfr!2sht",
+                features: [
+                    {
+                        icon: "bus",
+                        title: "Accessible en transport",
+                        description: "Tap-tap, moto-taxi",
+                        color: "blue"
+                    },
+                    {
+                        icon: "parking",
+                        title: "Parking gratuit",
+                        description: "Pour étudiants et visiteurs",
+                        color: "emerald"
+                    },
+                    {
+                        icon: "wheelchair",
+                        title: "Accessible PMR",
+                        description: "Installations adaptées",
+                        color: "purple"
+                    }
+                ]
+            },
+            faq: {
+                badge: "Questions fréquentes",
+                badgeColor: "orange",
+                title: "Vous avez des <span class='gradient-text'>questions</span> ?",
+                subtitle: "Trouvez rapidement des réponses à vos interrogations les plus courantes",
+                items: [
+                    {
+                        icon: "graduation-cap",
+                        color: "blue",
+                        question: "Quand puis-je m'inscrire ?",
+                        answer: "Les inscriptions sont ouvertes toute l'année pour différentes sessions. Contactez-nous pour connaître les dates exactes de la prochaine rentrée."
+                    },
+                    {
+                        icon: "money-bill-wave",
+                        color: "emerald",
+                        question: "Y a-t-il des frais d'inscription ?",
+                        answer: "Oui, des frais d'inscription modiques sont requis. Des facilités de paiement et bourses sont disponibles pour les étudiants éligibles."
+                    },
+                    {
+                        icon: "file-alt",
+                        color: "purple",
+                        question: "Quels documents fournir ?",
+                        answer: "Copie du diplôme, photos d'identité, photocopie de la CIN, certificat de naissance et fiche d'inscription remplie."
+                    },
+                    {
+                        icon: "clock",
+                        color: "red",
+                        question: "Quels sont les horaires des cours ?",
+                        answer: "Nous proposons des cours en journée, en soirée et le samedi pour s'adapter à tous les emplois du temps."
+                    }
+                ],
+                footer: {
+                    text: "Voir toutes les questions fréquentes",
+                    link: "faq.html"
+                }
+            },
+            cta: {
+                title: "Prêt à démarrer votre formation ?",
+                text: "Rejoignez l'URH HAITI et transformez votre avenir avec une formation professionnelle d'excellence.",
+                buttons: [
+                    {
+                        text: "S'inscrire maintenant",
+                        icon: "user-plus",
+                        link: "inscription.html",
+                        style: "primary"
+                    },
+                    {
+                        text: "Appeler maintenant",
+                        icon: "phone-alt",
+                        link: "tel:+50934459737",
+                        style: "secondary"
+                    }
+                ]
+            }
+        };
+        
+        // Variables globales
+        let currentData = JSON.parse(JSON.stringify(defaultData));
+        
+        // Fonction pour gérer le menu mobile
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const closeSidebar = document.getElementById('close-sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const sidebar = document.querySelector('.sidebar');
+            
+            function openSidebar() {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeSidebarMenu() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            mobileMenuToggle.addEventListener('click', openSidebar);
+            closeSidebar.addEventListener('click', closeSidebarMenu);
+            sidebarOverlay.addEventListener('click', closeSidebarMenu);
+            
+            // Fermer le sidebar en cliquant sur un lien (mobile)
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 768) {
+                        closeSidebarMenu();
+                    }
+                });
+            });
+            
+            // Gérer le redimensionnement de la fenêtre
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+        
+        // Fonction pour afficher un message de statut
+        function showStatus(message, type = 'success') {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = '';
+            
+            if (type === 'success') {
+                statusElement.classList.add('bg-green-100', 'text-green-800');
+            } else if (type === 'error') {
+                statusElement.classList.add('bg-red-100', 'text-red-800');
+            } else if (type === 'warning') {
+                statusElement.classList.add('bg-yellow-100', 'text-yellow-800');
+            }
+            
+            statusElement.classList.remove('hidden');
+            
+            // Masquer le message après 3 secondes
+            setTimeout(() => {
+                statusElement.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Fonction pour charger les données depuis Firebase
+        async function loadData() {
+            try {
+                console.log("Chargement des données depuis Firebase...");
+                
+                const docRef = db.collection('contact').doc('content');
+                const doc = await docRef.get();
+                
+                if (doc.exists) {
+                    currentData = doc.data();
+                    console.log("Données chargées depuis Firebase");
+                    showStatus('Données chargées avec succès', 'success');
+                } else {
+                    console.log("Aucune donnée trouvée, utilisation des valeurs par défaut");
+                    showStatus('Utilisation des données par défaut', 'warning');
+                }
+                
+                // Mettre à jour l'interface
+                updateAllForms();
+                
+            } catch (error) {
+                console.error("Erreur lors du chargement:", error);
+                showStatus('Erreur lors du chargement des données', 'error');
+            }
+        }
+        
+        // Fonction pour sauvegarder toutes les données
+        async function saveAllData() {
+            try {
+                console.log("Sauvegarde de toutes les données...");
+                
+                // Collecter toutes les données des formulaires
+                collectHeroData();
+                collectStatsData();
+                collectContactInfoData();
+                collectHoursData();
+                collectFormData();
+                collectMapData();
+                collectFAQData();
+                collectCTAData();
+                
+                // Sauvegarder dans Firebase
+                await db.collection('contact').doc('content').set(currentData);
+                
+                console.log("Données sauvegardées avec succès");
+                showStatus('Toutes les données ont été sauvegardées', 'success');
+                
+            } catch (error) {
+                console.error("Erreur lors de la sauvegarde:", error);
+                showStatus('Erreur lors de la sauvegarde', 'error');
+            }
+        }
+        
+        // Fonction pour mettre à jour tous les formulaires
+        function updateAllForms() {
+            // Hero
+            if (currentData.hero) {
+                document.getElementById('hero-title').value = currentData.hero.title;
+                document.getElementById('hero-subtitle').value = currentData.hero.subtitle;
+                document.getElementById('hero-button1').value = currentData.hero.button1;
+                document.getElementById('hero-phone').value = currentData.hero.phone;
+            }
+            
+            // Statistiques
+            updateStatsForm();
+            
+            // Infos contact
+            document.getElementById('contact-info-title').value = currentData.contactInfo?.title || '';
+            updateContactItemsForm();
+            
+            // Horaires
+            document.getElementById('hours-title').value = currentData.openingHours?.title || '';
+            document.getElementById('hours-note').value = currentData.openingHours?.note || '';
+            updateScheduleForm();
+            
+            // Formulaire
+            document.getElementById('form-title').value = currentData.form?.title || '';
+            document.getElementById('form-subtitle').value = currentData.form?.subtitle || '';
+            document.getElementById('form-badge').value = currentData.form?.badge || '';
+            document.getElementById('form-badge-icon').value = currentData.form?.badgeIcon || '';
+            updateSubjectsForm();
+            
+            // Carte
+            document.getElementById('map-title').value = currentData.map?.title || '';
+            document.getElementById('map-address').value = currentData.map?.address || '';
+            document.getElementById('map-description').value = currentData.map?.description || '';
+            document.getElementById('map-url').value = currentData.map?.mapUrl || '';
+            updateFeaturesForm();
+            
+            // FAQ
+            document.getElementById('faq-badge').value = currentData.faq?.badge || '';
+            document.getElementById('faq-badge-color').value = currentData.faq?.badgeColor || 'orange';
+            document.getElementById('faq-title').value = currentData.faq?.title || '';
+            document.getElementById('faq-subtitle').value = currentData.faq?.subtitle || '';
+            document.getElementById('faq-footer-text').value = currentData.faq?.footer?.text || '';
+            document.getElementById('faq-footer-link').value = currentData.faq?.footer?.link || '';
+            updateFAQItemsForm();
+            
+            // CTA
+            document.getElementById('cta-title').value = currentData.cta?.title || '';
+            document.getElementById('cta-text').value = currentData.cta?.text || '';
+            updateCTAButtonsForm();
+        }
+        
+        // Fonctions pour collecter les données des formulaires
+        function collectHeroData() {
+            currentData.hero = {
+                title: document.getElementById('hero-title').value,
+                subtitle: document.getElementById('hero-subtitle').value,
+                button1: document.getElementById('hero-button1').value,
+                phone: document.getElementById('hero-phone').value
+            };
+        }
+        
+        function collectStatsData() {
+            const stats = [];
+            document.querySelectorAll('#stats-container .stat-item').forEach(item => {
+                if (item.querySelector('.stat-number') && item.querySelector('.stat-label') && item.querySelector('.stat-color')) {
+                    stats.push({
+                        number: item.querySelector('.stat-number').value,
+                        label: item.querySelector('.stat-label').value,
+                        color: item.querySelector('.stat-color').value
+                    });
+                }
+            });
+            currentData.stats = stats;
+        }
+        
+        function collectContactInfoData() {
+            currentData.contactInfo = {
+                title: document.getElementById('contact-info-title').value,
+                items: []
+            };
+            
+            document.querySelectorAll('#contact-items-container .contact-item').forEach(item => {
+                const type = item.querySelector('.contact-type').value;
+                const contactItem = {
+                    type: type,
+                    icon: item.querySelector('.contact-icon').value,
+                    color: item.querySelector('.contact-color').value,
+                    title: item.querySelector('.contact-title').value,
+                    text: item.querySelector('.contact-text').value,
+                    details: item.querySelector('.contact-details')?.value || '',
+                    link: item.querySelector('.contact-link')?.value || '',
+                    linkText: item.querySelector('.contact-link-text')?.value || ''
+                };
+                
+                currentData.contactInfo.items.push(contactItem);
+            });
+        }
+        
+        function collectHoursData() {
+            currentData.openingHours = {
+                title: document.getElementById('hours-title').value,
+                note: document.getElementById('hours-note').value,
+                schedule: []
+            };
+            
+            document.querySelectorAll('#schedule-container .schedule-item').forEach(item => {
+                currentData.openingHours.schedule.push({
+                    day: item.querySelector('.schedule-day').value,
+                    hours: item.querySelector('.schedule-hours').value,
+                    highlight: item.querySelector('.schedule-highlight').checked
+                });
+            });
+        }
+        
+        function collectFormData() {
+            currentData.form = {
+                title: document.getElementById('form-title').value,
+                subtitle: document.getElementById('form-subtitle').value,
+                badge: document.getElementById('form-badge').value,
+                badgeIcon: document.getElementById('form-badge-icon').value,
+                subjects: []
+            };
+            
+            document.querySelectorAll('#subjects-container .subject-item').forEach(item => {
+                const subject = item.querySelector('.subject-text').value;
+                if (subject) {
+                    currentData.form.subjects.push(subject);
+                }
+            });
+        }
+        
+        function collectMapData() {
+            currentData.map = {
+                title: document.getElementById('map-title').value,
+                address: document.getElementById('map-address').value,
+                description: document.getElementById('map-description').value,
+                mapUrl: document.getElementById('map-url').value,
+                features: []
+            };
+            
+            document.querySelectorAll('#features-container .feature-item').forEach(item => {
+                currentData.map.features.push({
+                    icon: item.querySelector('.feature-icon').value,
+                    title: item.querySelector('.feature-title').value,
+                    description: item.querySelector('.feature-description').value,
+                    color: item.querySelector('.feature-color').value
+                });
+            });
+        }
+        
+        function collectFAQData() {
+            currentData.faq = {
+                badge: document.getElementById('faq-badge').value,
+                badgeColor: document.getElementById('faq-badge-color').value,
+                title: document.getElementById('faq-title').value,
+                subtitle: document.getElementById('faq-subtitle').value,
+                items: [],
+                footer: {
+                    text: document.getElementById('faq-footer-text').value,
+                    link: document.getElementById('faq-footer-link').value
+                }
+            };
+            
+            document.querySelectorAll('#faq-items-container .faq-item').forEach(item => {
+                currentData.faq.items.push({
+                    icon: item.querySelector('.faq-icon').value,
+                    color: item.querySelector('.faq-color').value,
+                    question: item.querySelector('.faq-question').value,
+                    answer: item.querySelector('.faq-answer').value
+                });
+            });
+        }
+        
+        function collectCTAData() {
+            currentData.cta = {
+                title: document.getElementById('cta-title').value,
+                text: document.getElementById('cta-text').value,
+                buttons: []
+            };
+            
+            document.querySelectorAll('#cta-buttons-container .cta-button-item').forEach(item => {
+                currentData.cta.buttons.push({
+                    text: item.querySelector('.cta-button-text').value,
+                    icon: item.querySelector('.cta-button-icon').value,
+                    link: item.querySelector('.cta-button-link').value,
+                    style: item.querySelector('.cta-button-style').value
+                });
+            });
+        }
+        
+        // Fonctions pour mettre à jour les formulaires dynamiques
+        function updateStatsForm() {
+            const container = document.getElementById('stats-container');
+            container.innerHTML = '';
+            
+            if (currentData.stats && currentData.stats.length > 0) {
+                currentData.stats.forEach((stat, index) => {
+                    const statElement = createStatElement(stat, index);
+                    container.appendChild(statElement);
+                });
+            } else {
+                container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucune statistique ajoutée</p></div>';
+            }
+        }
+        
+        function createStatElement(stat = {}, index) {
+            const div = document.createElement('div');
+            div.className = 'border border-gray-200 rounded-lg p-4 stat-item';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-medium text-gray-700">Statistique ${index + 1}</h4>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-stat touch-target">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-3 md:gap-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Nombre *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 stat-number" 
+                               value="${stat.number || ''}" placeholder="Ex: 24/7" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Label *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 stat-label" 
+                               value="${stat.label || ''}" placeholder="Ex: Support en ligne" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Couleur *</label>
+                        <select class="form-input w-full border border-gray-300 rounded p-2 stat-color" required>
+                            <option value="blue" ${stat.color === 'blue' ? 'selected' : ''}>Bleu</option>
+                            <option value="emerald" ${stat.color === 'emerald' ? 'selected' : ''}>Vert émeraude</option>
+                            <option value="purple" ${stat.color === 'purple' ? 'selected' : ''}>Violet</option>
+                            <option value="orange" ${stat.color === 'orange' ? 'selected' : ''}>Orange</option>
+                            <option value="red" ${stat.color === 'red' ? 'selected' : ''}>Rouge</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+        
+        function updateContactItemsForm() {
+            const container = document.getElementById('contact-items-container');
+            container.innerHTML = '';
+            
+            if (currentData.contactInfo?.items && currentData.contactInfo.items.length > 0) {
+                currentData.contactInfo.items.forEach((item, index) => {
+                    const itemElement = createContactItemElement(item, index);
+                    container.appendChild(itemElement);
+                });
+            } else {
+                container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun élément de contact ajouté</p></div>';
+            }
+        }
+        
+        function createContactItemElement(item = {}, index) {
+            const div = document.createElement('div');
+            div.className = 'border border-gray-200 rounded-lg p-4 contact-item';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-medium text-gray-700">Élément de contact ${index + 1}</h4>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-contact-item touch-target">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Type *</label>
+                        <select class="form-input w-full border border-gray-300 rounded p-2 contact-type" required>
+                            <option value="address" ${item.type === 'address' ? 'selected' : ''}>Adresse</option>
+                            <option value="phone" ${item.type === 'phone' ? 'selected' : ''}>Téléphone</option>
+                            <option value="email" ${item.type === 'email' ? 'selected' : ''}>Email</option>
+                            <option value="social" ${item.type === 'social' ? 'selected' : ''}>Réseaux sociaux</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Icône *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 contact-icon" 
+                               value="${item.icon || ''}" placeholder="Ex: map-marker-alt" required>
+                    </div>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Couleur *</label>
+                        <select class="form-input w-full border border-gray-300 rounded p-2 contact-color" required>
+                            <option value="blue" ${item.color === 'blue' ? 'selected' : ''}>Bleu</option>
+                            <option value="emerald" ${item.color === 'emerald' ? 'selected' : ''}>Vert émeraude</option>
+                            <option value="purple" ${item.color === 'purple' ? 'selected' : ''}>Violet</option>
+                            <option value="red" ${item.color === 'red' ? 'selected' : ''}>Rouge</option>
+                            <option value="orange" ${item.color === 'orange' ? 'selected' : ''}>Orange</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Titre *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 contact-title" 
+                               value="${item.title || ''}" placeholder="Ex: Adresse principale" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-600 text-sm mb-1">Texte principal *</label>
+                    <input type="text" class="form-input w-full border border-gray-300 rounded p-2 contact-text" 
+                           value="${item.text || ''}" placeholder="Ex: A definir" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-600 text-sm mb-1">Détails (optionnel)</label>
+                    <input type="text" class="form-input w-full border border-gray-300 rounded p-2 contact-details" 
+                           value="${item.details || ''}" placeholder="Ex: Port-au-Prince, Haïti">
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Lien (optionnel)</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 contact-link" 
+                               value="${item.link || ''}" placeholder="Ex: https://maps.google.com/...">
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Texte du lien (optionnel)</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 contact-link-text" 
+                               value="${item.linkText || ''}" placeholder="Ex: Voir sur Google Maps">
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+        
+        function updateScheduleForm() {
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = '';
+            
+            if (currentData.openingHours?.schedule && currentData.openingHours.schedule.length > 0) {
+                currentData.openingHours.schedule.forEach((schedule, index) => {
+                    const scheduleElement = createScheduleElement(schedule, index);
+                    container.appendChild(scheduleElement);
+                });
+            } else {
+                container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun horaire ajouté</p></div>';
+            }
+        }
+        
+        function createScheduleElement(schedule = {}, index) {
+            const div = document.createElement('div');
+            div.className = 'border border-gray-200 rounded-lg p-4 schedule-item';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-medium text-gray-700">Horaire ${index + 1}</h4>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-schedule touch-target">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Jour(s) *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 schedule-day" 
+                               value="${schedule.day || ''}" placeholder="Ex: Lundi - Vendredi" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Horaires *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 schedule-hours" 
+                               value="${schedule.hours || ''}" placeholder="Ex: 8:00 - 18:00" required>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="highlight-${index}" class="mr-2 schedule-highlight touch-target" ${schedule.highlight ? 'checked' : ''}>
+                    <label for="highlight-${index}" class="text-gray-600 text-sm">Mettre en évidence (ex: Fermé)</label>
+                </div>
+            `;
+            return div;
+        }
+        
+        function updateSubjectsForm() {
+            const container = document.getElementById('subjects-container');
+            container.innerHTML = '';
+            
+            if (currentData.form?.subjects && currentData.form.subjects.length > 0) {
+                currentData.form.subjects.forEach((subject, index) => {
+                    const subjectElement = createSubjectElement(subject, index);
+                    container.appendChild(subjectElement);
+                });
+            } else {
+                container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun sujet ajouté</p></div>';
+            }
+        }
+        
+        function createSubjectElement(subject = '', index) {
+            const div = document.createElement('div');
+            div.className = 'border border-gray-200 rounded-lg p-4 subject-item';
+            div.innerHTML = `
+                <div class="flex items-center">
+                    <div class="flex-grow">
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 subject-text" 
+                               value="${subject || ''}" placeholder="Ex: Demande d'admission" required>
+                    </div>
+                    <button type="button" class="ml-4 text-red-500 hover:text-red-700 remove-subject touch-target">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            return div;
+        }
+        
+        function updateFeaturesForm() {
+            const container = document.getElementById('features-container');
+            container.innerHTML = '';
+            
+            if (currentData.map?.features && currentData.map.features.length > 0) {
+                currentData.map.features.forEach((feature, index) => {
+                    const featureElement = createFeatureElement(feature, index);
+                    container.appendChild(featureElement);
+                });
+            } else {
+                container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucune caractéristique ajoutée</p></div>';
+            }
+        }
+        
+        function createFeatureElement(feature = {}, index) {
+            const div = document.createElement('div');
+            div.className = 'border border-gray-200 rounded-lg p-4 feature-item';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-medium text-gray-700">Caractéristique ${index + 1}</h4>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-feature touch-target">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Icône *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 feature-icon" 
+                               value="${feature.icon || ''}" placeholder="Ex: bus" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Couleur *</label>
+                        <select class="form-input w-full border border-gray-300 rounded p-2 feature-color" required>
+                            <option value="blue" ${feature.color === 'blue' ? 'selected' : ''}>Bleu</option>
+                            <option value="emerald" ${feature.color === 'emerald' ? 'selected' : ''}>Vert émeraude</option>
+                            <option value="purple" ${feature.color === 'purple' ? 'selected' : ''}>Violet</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-600 text-sm mb-1">Titre *</label>
+                    <input type="text" class="form-input w-full border border-gray-300 rounded p-2 feature-title" 
+                           value="${feature.title || ''}" placeholder="Ex: Accessible en transport" required>
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-sm mb-1">Description *</label>
+                    <input type="text" class="form-input w-full border border-gray-300 rounded p-2 feature-description" 
+                           value="${feature.description || ''}" placeholder="Ex: Tap-tap, moto-taxi" required>
+                </div>
+            `;
+            return div;
+        }
+        
+        function updateFAQItemsForm() {
+            const container = document.getElementById('faq-items-container');
+            container.innerHTML = '';
+            
+            if (currentData.faq?.items && currentData.faq.items.length > 0) {
+                currentData.faq.items.forEach((item, index) => {
+                    const faqElement = createFAQItemElement(item, index);
+                    container.appendChild(faqElement);
+                });
+            } else {
+                container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucune question FAQ ajoutée</p></div>';
+            }
+        }
+        
+        function createFAQItemElement(item = {}, index) {
+            const div = document.createElement('div');
+            div.className = 'border border-gray-200 rounded-lg p-4 faq-item';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-medium text-gray-700">Question ${index + 1}</h4>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-faq-item touch-target">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Icône *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 faq-icon" 
+                               value="${item.icon || ''}" placeholder="Ex: graduation-cap" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Couleur *</label>
+                        <select class="form-input w-full border border-gray-300 rounded p-2 faq-color" required>
+                            <option value="blue" ${item.color === 'blue' ? 'selected' : ''}>Bleu</option>
+                            <option value="emerald" ${item.color === 'emerald' ? 'selected' : ''}>Vert émeraude</option>
+                            <option value="purple" ${item.color === 'purple' ? 'selected' : ''}>Violet</option>
+                            <option value="red" ${item.color === 'red' ? 'selected' : ''}>Rouge</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-600 text-sm mb-1">Question *</label>
+                    <input type="text" class="form-input w-full border border-gray-300 rounded p-2 faq-question" 
+                           value="${item.question || ''}" placeholder="Ex: Quand puis-je m'inscrire ?" required>
+                </div>
+                <div>
+                    <label class="block text-gray-600 text-sm mb-1">Réponse *</label>
+                    <textarea class="form-input w-full border border-gray-300 rounded p-2 faq-answer" 
+                              rows="3" placeholder="Ex: Les inscriptions sont ouvertes toute l'année..." required>${item.answer || ''}</textarea>
+                </div>
+            `;
+            return div;
+        }
+        
+        function updateCTAButtonsForm() {
+            const container = document.getElementById('cta-buttons-container');
+            container.innerHTML = '';
+            
+            if (currentData.cta?.buttons && currentData.cta.buttons.length > 0) {
+                currentData.cta.buttons.forEach((button, index) => {
+                    const buttonElement = createCTAButtonElement(button, index);
+                    container.appendChild(buttonElement);
+                });
+            } else {
+                container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun bouton CTA ajouté</p></div>';
+            }
+        }
+        
+        function createCTAButtonElement(button = {}, index) {
+            const div = document.createElement('div');
+            div.className = 'border border-gray-200 rounded-lg p-4 cta-button-item';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-medium text-gray-700">Bouton ${index + 1}</h4>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-cta-button touch-target">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Texte *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 cta-button-text" 
+                               value="${button.text || ''}" placeholder="Ex: S'inscrire maintenant" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Icône *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 cta-button-icon" 
+                               value="${button.icon || ''}" placeholder="Ex: user-plus" required>
+                    </div>
+                </div>
+                <div class="grid-responsive md:grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Lien *</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded p-2 cta-button-link" 
+                               value="${button.link || ''}" placeholder="Ex: inscription.html" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 text-sm mb-1">Style *</label>
+                        <select class="form-input w-full border border-gray-300 rounded p-2 cta-button-style" required>
+                            <option value="primary" ${button.style === 'primary' ? 'selected' : ''}>Primaire</option>
+                            <option value="secondary" ${button.style === 'secondary' ? 'selected' : ''}>Secondaire</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+        
+        // Fonctions pour ajouter des éléments dynamiques
+        function addStat() {
+            const container = document.getElementById('stats-container');
+            const emptyDiv = container.querySelector('p.text-gray-600.text-center');
+            if (emptyDiv && emptyDiv.parentElement) {
+                emptyDiv.parentElement.remove();
+            }
+            
+            const statElement = createStatElement({}, container.children.length);
+            container.appendChild(statElement);
+            showStatus('Nouvelle statistique ajoutée', 'success');
+        }
+        
+        function addContactItem() {
+            const container = document.getElementById('contact-items-container');
+            const emptyDiv = container.querySelector('p.text-gray-600.text-center');
+            if (emptyDiv && emptyDiv.parentElement) {
+                emptyDiv.parentElement.remove();
+            }
+            
+            const contactElement = createContactItemElement({}, container.children.length);
+            container.appendChild(contactElement);
+            showStatus('Nouvel élément de contact ajouté', 'success');
+        }
+        
+        function addSchedule() {
+            const container = document.getElementById('schedule-container');
+            const emptyDiv = container.querySelector('p.text-gray-600.text-center');
+            if (emptyDiv && emptyDiv.parentElement) {
+                emptyDiv.parentElement.remove();
+            }
+            
+            const scheduleElement = createScheduleElement({}, container.children.length);
+            container.appendChild(scheduleElement);
+            showStatus('Nouvel horaire ajouté', 'success');
+        }
+        
+        function addSubject() {
+            const container = document.getElementById('subjects-container');
+            const emptyDiv = container.querySelector('p.text-gray-600.text-center');
+            if (emptyDiv && emptyDiv.parentElement) {
+                emptyDiv.parentElement.remove();
+            }
+            
+            const subjectElement = createSubjectElement('', container.children.length);
+            container.appendChild(subjectElement);
+            showStatus('Nouveau sujet ajouté', 'success');
+        }
+        
+        function addFeature() {
+            const container = document.getElementById('features-container');
+            const emptyDiv = container.querySelector('p.text-gray-600.text-center');
+            if (emptyDiv && emptyDiv.parentElement) {
+                emptyDiv.parentElement.remove();
+            }
+            
+            const featureElement = createFeatureElement({}, container.children.length);
+            container.appendChild(featureElement);
+            showStatus('Nouvelle caractéristique ajoutée', 'success');
+        }
+        
+        function addFAQItem() {
+            const container = document.getElementById('faq-items-container');
+            const emptyDiv = container.querySelector('p.text-gray-600.text-center');
+            if (emptyDiv && emptyDiv.parentElement) {
+                emptyDiv.parentElement.remove();
+            }
+            
+            const faqElement = createFAQItemElement({}, container.children.length);
+            container.appendChild(faqElement);
+            showStatus('Nouvelle question FAQ ajoutée', 'success');
+        }
+        
+        function addCTAButton() {
+            const container = document.getElementById('cta-buttons-container');
+            const emptyDiv = container.querySelector('p.text-gray-600.text-center');
+            if (emptyDiv && emptyDiv.parentElement) {
+                emptyDiv.parentElement.remove();
+            }
+            
+            const buttonElement = createCTAButtonElement({}, container.children.length);
+            container.appendChild(buttonElement);
+            showStatus('Nouveau bouton CTA ajouté', 'success');
+        }
+        
+        // Fonction pour basculer entre les pages
+        function switchPage(pageId) {
+            // Masquer toutes les pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Afficher la page sélectionnée
+            document.getElementById(pageId + '-page').classList.add('active');
+            
+            // Mettre à jour le titre
+            const pageTitles = {
+                hero: 'Section Hero',
+                stats: 'Statistiques',
+                'contact-info': 'Infos Contact',
+                hours: 'Horaires',
+                form: 'Formulaire',
+                map: 'Carte',
+                faq: 'FAQ',
+                cta: 'Section CTA'
+            };
+            
+            const pageSubtitles = {
+                hero: 'Gérez le contenu de la section hero de la page Contact',
+                stats: 'Modifiez les statistiques affichées sur la page Contact',
+                'contact-info': 'Gérez les informations de contact',
+                hours: 'Configurez les horaires d\'ouverture',
+                form: 'Personnalisez le formulaire de contact',
+                map: 'Modifiez les informations de localisation',
+                faq: 'Gérez les questions fréquentes',
+                cta: 'Configurez la section d\'appel à l\'action'
+            };
+            
+            document.getElementById('page-title').textContent = pageTitles[pageId] || 'Dashboard';
+            document.getElementById('page-subtitle').textContent = pageSubtitles[pageId] || 'Gestion de contenu';
+            
+            // Mettre à jour le menu actif
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+                item.classList.add('text-gray-300');
+            });
+            
+            const activeMenuItem = document.querySelector(`[data-page="${pageId}"]`);
+            if (activeMenuItem) {
+                activeMenuItem.classList.add('active');
+                activeMenuItem.classList.remove('text-gray-300');
+                activeMenuItem.classList.add('text-white');
+            }
+        }
+        
+        // Fonction pour gérer les événements de suppression
+        function setupEventDelegation() {
+            // Déléguation des événements pour la suppression
+            document.addEventListener('click', function(e) {
+                // Suppression des statistiques
+                if (e.target.closest('.remove-stat')) {
+                    const statItem = e.target.closest('.stat-item');
+                    if (statItem) {
+                        statItem.remove();
+                        showStatus('Statistique supprimée', 'success');
+                        
+                        // Si plus d'éléments, afficher le message vide
+                        const container = document.getElementById('stats-container');
+                        if (container.children.length === 0) {
+                            container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucune statistique ajoutée</p></div>';
+                        }
+                    }
+                }
+                
+                // Suppression des éléments de contact
+                if (e.target.closest('.remove-contact-item')) {
+                    const contactItem = e.target.closest('.contact-item');
+                    if (contactItem) {
+                        contactItem.remove();
+                        showStatus('Élément de contact supprimé', 'success');
+                        
+                        const container = document.getElementById('contact-items-container');
+                        if (container.children.length === 0) {
+                            container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun élément de contact ajouté</p></div>';
+                        }
+                    }
+                }
+                
+                // Suppression des horaires
+                if (e.target.closest('.remove-schedule')) {
+                    const scheduleItem = e.target.closest('.schedule-item');
+                    if (scheduleItem) {
+                        scheduleItem.remove();
+                        showStatus('Horaire supprimé', 'success');
+                        
+                        const container = document.getElementById('schedule-container');
+                        if (container.children.length === 0) {
+                            container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun horaire ajouté</p></div>';
+                        }
+                    }
+                }
+                
+                // Suppression des sujets
+                if (e.target.closest('.remove-subject')) {
+                    const subjectItem = e.target.closest('.subject-item');
+                    if (subjectItem) {
+                        subjectItem.remove();
+                        showStatus('Sujet supprimé', 'success');
+                        
+                        const container = document.getElementById('subjects-container');
+                        if (container.children.length === 0) {
+                            container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun sujet ajouté</p></div>';
+                        }
+                    }
+                }
+                
+                // Suppression des caractéristiques
+                if (e.target.closest('.remove-feature')) {
+                    const featureItem = e.target.closest('.feature-item');
+                    if (featureItem) {
+                        featureItem.remove();
+                        showStatus('Caractéristique supprimée', 'success');
+                        
+                        const container = document.getElementById('features-container');
+                        if (container.children.length === 0) {
+                            container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucune caractéristique ajoutée</p></div>';
+                        }
+                    }
+                }
+                
+                // Suppression des questions FAQ
+                if (e.target.closest('.remove-faq-item')) {
+                    const faqItem = e.target.closest('.faq-item');
+                    if (faqItem) {
+                        faqItem.remove();
+                        showStatus('Question FAQ supprimée', 'success');
+                        
+                        const container = document.getElementById('faq-items-container');
+                        if (container.children.length === 0) {
+                            container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucune question FAQ ajoutée</p></div>';
+                        }
+                    }
+                }
+                
+                // Suppression des boutons CTA
+                if (e.target.closest('.remove-cta-button')) {
+                    const ctaButtonItem = e.target.closest('.cta-button-item');
+                    if (ctaButtonItem) {
+                        ctaButtonItem.remove();
+                        showStatus('Bouton CTA supprimé', 'success');
+                        
+                        const container = document.getElementById('cta-buttons-container');
+                        if (container.children.length === 0) {
+                            container.innerHTML = '<div class="border border-gray-300 rounded-lg p-4"><p class="text-gray-600 text-center">Aucun bouton CTA ajouté</p></div>';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Fonction pour initialiser le dashboard
+        function initDashboard() {
+            // Setup mobile menu
+            setupMobileMenu();
+            
+            // Navigation entre les pages
+            document.querySelectorAll('.menu-item[data-page]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    switchPage(pageId);
+                });
+            });
+            
+            // Bouton "Sauvegarder tout"
+            document.getElementById('save-all').addEventListener('click', saveAllData);
+            
+            // Boutons d'ajout
+            document.getElementById('add-stat').addEventListener('click', addStat);
+            document.getElementById('add-contact-item').addEventListener('click', addContactItem);
+            document.getElementById('add-schedule').addEventListener('click', addSchedule);
+            document.getElementById('add-subject').addEventListener('click', addSubject);
+            document.getElementById('add-feature').addEventListener('click', addFeature);
+            document.getElementById('add-faq-item').addEventListener('click', addFAQItem);
+            document.getElementById('add-cta-button').addEventListener('click', addCTAButton);
+            
+            // Boutons de sauvegarde individuels
+            document.getElementById('save-hero').addEventListener('click', async function() {
+                collectHeroData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('Section Hero sauvegardée', 'success');
+            });
+            
+            document.getElementById('save-stats').addEventListener('click', async function() {
+                collectStatsData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('Statistiques sauvegardées', 'success');
+            });
+            
+            document.getElementById('save-contact-info').addEventListener('click', async function() {
+                collectContactInfoData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('Informations de contact sauvegardées', 'success');
+            });
+            
+            document.getElementById('save-hours').addEventListener('click', async function() {
+                collectHoursData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('Horaires sauvegardés', 'success');
+            });
+            
+            document.getElementById('save-form').addEventListener('click', async function() {
+                collectFormData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('Formulaire sauvegardé', 'success');
+            });
+            
+            document.getElementById('save-map').addEventListener('click', async function() {
+                collectMapData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('Carte sauvegardée', 'success');
+            });
+            
+            document.getElementById('save-faq').addEventListener('click', async function() {
+                collectFAQData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('FAQ sauvegardée', 'success');
+            });
+            
+            document.getElementById('save-cta').addEventListener('click', async function() {
+                collectCTAData();
+                await db.collection('contact').doc('content').set(currentData, { merge: true });
+                showStatus('Section CTA sauvegardée', 'success');
+            });
+            
+            // Configurer la délégation d'événements
+            setupEventDelegation();
+            
+            // Charger les données au démarrage
+            loadData();
+        }
+        
+        // Initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

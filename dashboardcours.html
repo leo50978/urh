@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Gestion des Cours</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        .dashboard-section {
+            display: none;
+        }
+        .dashboard-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .nav-tab {
+            transition: all 0.2s ease;
+        }
+        .nav-tab.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .form-input:focus {
+            outline: none;
+           
+        }
+        .question-item {
+            transition: all 0.3s ease;
+        }
+        .question-item:hover {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation principale -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center py-4">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-chalkboard-teacher text-blue-600 mr-2"></i>Dashboard Admin
+                    </h1>
+                    <p class="text-sm text-gray-600">Gestion complète des contenus pédagogiques</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="showSection('courses-section')" id="nav-courses" class="nav-tab active px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-book mr-2"></i>Cours
+                    </button>
+                    <button onclick="showSection('modules-section')" id="nav-modules" class="nav-tab px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-layer-group mr-2"></i>Modules
+                    </button>
+                    <button onclick="showSection('quizzes-section')" id="nav-quizzes" class="nav-tab px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-question-circle mr-2"></i>Quiz
+                    </button>
+                    <button onclick="showSection('assignments-section')" id="nav-assignments" class="nav-tab px-4 py-2 rounded-lg text-gray:700 hover:bg-blue-50">
+                        <i class="fas fa-tasks mr-2"></i>Devoirs
+                    </button>
+                    <button onclick="showSection('exam-section')" id="nav-exam" class="nav-tab px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-graduation-cap mr-2"></i>Examen Final
+                    </button>
+                    <button onclick="showSection('certificate-section')" id="nav-certificate" class="nav-tab px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-award mr-2"></i>Certificat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Message de statut -->
+        <div id="status-message" class="fixed top-4 right-4 z-50 max-w-md hidden">
+            <div class="bg-white rounded-lg shadow-lg border-l-4 p-4">
+                <div class="flex items-center">
+                    <i id="status-icon" class="fas fa-info-circle text-xl mr-3"></i>
+                    <div>
+                        <h4 id="status-title" class="font-semibold"></h4>
+                        <p id="status-text" class="text-sm text-gray-600"></p>
+                    </div>
+                    <button onclick="hideStatus()" class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: GESTION DES COURS -->
+        <section id="courses-section" class="dashboard-section active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Gestion des Cours</h2>
+                <p class="text-gray-600">Créez, modifiez ou supprimez les cours disponibles sur la plateforme.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Formulaire d'ajout/modification -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
+                        <h3 id="course-form-title" class="text-xl font-semibold text-gray-800 mb-6">
+                            <i class="fas fa-plus-circle mr-2"></i>Nouveau Cours
+                        </h3>
+                        
+                        <form id="course-form" onsubmit="handleCourseSubmit(event)">
+                            <input type="hidden" id="course-id">
+                            
+                            <div class="space-y-4">
+                                <!-- Titre -->
+                                <div>
+                                    <label for="course-title" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Titre du cours *
+                                    </label>
+                                    <input type="text" id="course-title" required
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                </div>
+                                
+                                <!-- Description -->
+                                <div>
+                                    <label for="course-description" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Description
+                                    </label>
+                                    <textarea id="course-description" rows="3"
+                                              class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200"></textarea>
+                                </div>
+                                
+                                <!-- Prix -->
+                                <div>
+                                    <label for="course-price" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Prix (€) *
+                                    </label>
+                                    <input type="number" id="course-price" required min="0" step="0.01"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                </div>
+                                
+                                <!-- Catégorie -->
+                                <div>
+                                    <label for="course-category" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Catégorie *
+                                    </label>
+                                    <input type="text" id="course-category" required
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                </div>
+                                
+                                <!-- Thumbnail -->
+                                <div>
+                                    <label for="course-thumbnail" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Nom du fichier image (thumbnail)
+                                    </label>
+                                    <input type="text" id="course-thumbnail"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                           placeholder="ex: mon-image.jpg">
+                                </div>
+                                
+                                <!-- Statut actif -->
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="course-active"
+                                           class="h-5 w-5 text-blue-600 rounded focus:ring-blue-500">
+                                    <label for="course-active" class="ml-2 text-sm text-gray-700">
+                                        Cours actif (visible pour les étudiants)
+                                    </label>
+                                </div>
+                                
+                                <!-- Boutons d'action -->
+                                <div class="pt-4 flex gap-3">
+                                    <button type="submit" id="course-submit-btn"
+                                            class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-save mr-2"></i>Enregistrer
+                                    </button>
+                                    <button type="button" onclick="resetCourseForm()"
+                                            class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-redo mr-2"></i>Annuler
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Liste des cours -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                <i class="fas fa-list mr-2"></i>Liste des Cours ({<span id="courses-count">0</span>})
+                            </h3>
+                        </div>
+                        
+                        <div class="divide-y divide-gray-200">
+                            <div id="courses-list">
+                                <!-- Les cours seront chargés dynamiquement ici -->
+                                <div class="p-8 text-center text-gray-500">
+                                    <i class="fas fa-spinner fa-spin text-2xl mb-4"></i>
+                                    <p>Chargement des cours...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: GESTION DES MODULES -->
+        <section id="modules-section" class="dashboard-section">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Gestion des Modules</h2>
+                <p class="text-gray-600">Organisez le contenu de chaque cours en modules vidéo.</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="course-select-modules" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sélectionnez un cours *
+                </label>
+                <select id="course-select-modules"
+                        onchange="loadModules(this.value)"
+                        class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    <option value="">-- Choisir un cours --</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Formulaire module -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 id="module-form-title" class="text-xl font-semibold text-gray-800 mb-6">
+                            <i class="fas fa-plus-circle mr-2"></i>Nouveau Module
+                        </h3>
+                        
+                        <form id="module-form" onsubmit="handleModuleSubmit(event)">
+                            <input type="hidden" id="module-id">
+                            <input type="hidden" id="module-course-id">
+                            
+                            <div class="space-y-4">
+                                <!-- Titre -->
+                                <div>
+                                    <label for="module-title" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Titre du module *
+                                    </label>
+                                    <input type="text" id="module-title" required
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                </div>
+                                
+                                <!-- Numéro d'ordre -->
+                                <div>
+                                    <label for="module-order" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Numéro d'ordre *
+                                    </label>
+                                    <input type="number" id="module-order" required min="1"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                </div>
+                                
+                                <!-- Vidéo -->
+                                <div>
+                                    <label for="module-video" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Nom du fichier vidéo
+                                    </label>
+                                    <input type="text" id="module-video"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                           placeholder="ex: module-1.mp4">
+                                </div>
+                                
+                                <!-- Boutons d'action -->
+                                <div class="pt-4 flex gap-3">
+                                    <button type="submit" id="module-submit-btn"
+                                            class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-save mr-2"></i>Enregistrer
+                                    </button>
+                                    <button type="button" onclick="resetModuleForm()"
+                                            class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-redo mr-2"></i>Annuler
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Liste des modules -->
+                <div class="lg:col-span-2">
+                    <div id="modules-container" class="hidden">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    <i class="fas fa-layer-group mr-2"></i>Modules du cours
+                                </h3>
+                                <span id="modules-count" class="text-sm text-gray-600">0 modules</span>
+                            </div>
+                            
+                            <div id="modules-list" class="divide-y divide-gray-200">
+                                <!-- Les modules seront chargés dynamiquement ici -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="no-modules-selected" class="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+                        <i class="fas fa-layer-group text-4xl mb-4 text-gray-300"></i>
+                        <p class="text-lg font-medium mb-2">Aucun cours sélectionné</p>
+                        <p class="text-gray-600">Veuillez sélectionner un cours pour gérer ses modules.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: GESTION DES QUIZ -->
+        <section id="quizzes-section" class="dashboard-section">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Gestion des Quiz</h2>
+                <p class="text-gray-600">Créez des quiz associés aux modules pour évaluer les apprenants.</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="course-select-quizzes" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sélectionnez un cours *
+                </label>
+                <select id="course-select-quizzes"
+                        onchange="loadCourseQuizzes(this.value)"
+                        class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    <option value="">-- Choisir un cours --</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Formulaire quiz -->
+                <div class="lg:col-span-1">
+                    <div id="quiz-form-container" class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                            <i class="fas fa-plus-circle mr-2"></i>Nouveau Quiz
+                        </h3>
+                        
+                        <form id="quiz-form" onsubmit="handleQuizSubmit(event)">
+                            <input type="hidden" id="quiz-id">
+                            <input type="hidden" id="quiz-course-id">
+                            
+                            <div class="space-y-4">
+                                <!-- Module associé -->
+                                <div>
+                                    <label for="quiz-module-order" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Module associé (numéro) *
+                                    </label>
+                                    <input type="number" id="quiz-module-order" required min="1"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                    <p class="text-xs text-gray-500 mt-1">Le quiz sera lié à ce module.</p>
+                                </div>
+                                
+                                <!-- Bouton pour ajouter une question -->
+                                <div class="pt-2">
+                                    <button type="button" onclick="addQuestionField()"
+                                            class="w-full bg-green-100 text-green-700 px-4 py-3 rounded-lg hover:bg-green-200 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-plus-circle mr-2"></i>Ajouter une question
+                                    </button>
+                                </div>
+                                
+                                <!-- Liste des questions -->
+                                <div id="questions-container" class="space-y-6">
+                                    <!-- Les champs de questions seront ajoutés dynamiquement ici -->
+                                </div>
+                                
+                                <!-- Boutons d'action -->
+                                <div class="pt-4 flex gap-3">
+                                    <button type="submit" id="quiz-submit-btn"
+                                            class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-save mr-2"></i>Enregistrer le quiz
+                                    </button>
+                                    <button type="button" onclick="resetQuizForm()"
+                                            class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-redo mr-2"></i>Annuler
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Liste des quiz -->
+                <div class="lg:col-span-2">
+                    <div id="quizzes-container" class="hidden">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    <i class="fas fa-question-circle mr-2"></i>Quiz du cours
+                                </h3>
+                                <span id="quizzes-count" class="text-sm text-gray-600">0 quiz</span>
+                            </div>
+                            
+                            <div id="quizzes-list" class="divide-y divide-gray-200">
+                                <!-- Les quiz seront chargés dynamiquement ici -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="no-quizzes-selected" class="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+                        <i class="fas fa-question-circle text-4xl mb-4 text-gray-300"></i>
+                        <p class="text-lg font-medium mb-2">Aucun cours sélectionné</p>
+                        <p class="text-gray-600">Veuillez sélectionner un cours pour gérer ses quiz.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: GESTION DES DEVOIRS -->
+        <section id="assignments-section" class="dashboard-section">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Gestion des Devoirs</h2>
+                <p class="text-gray-600">Créez des travaux pratiques associés aux modules.</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="course-select-assignments" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sélectionnez un cours *
+                </label>
+                <select id="course-select-assignments"
+                        onchange="loadCourseAssignments(this.value)"
+                        class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    <option value="">-- Choisir un cours --</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Formulaire devoir -->
+                <div class="lg:col-span-1">
+                    <div id="assignment-form-container" class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                            <i class="fas fa-plus-circle mr-2"></i>Nouveau Devoir
+                        </h3>
+                        
+                        <form id="assignment-form" onsubmit="handleAssignmentSubmit(event)">
+                            <input type="hidden" id="assignment-id">
+                            <input type="hidden" id="assignment-course-id">
+                            
+                            <div class="space-y-4">
+                                <!-- Module associé -->
+                                <div>
+                                    <label for="assignment-module-order" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Module associé (numéro) *
+                                    </label>
+                                    <input type="number" id="assignment-module-order" required min="1"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                    <p class="text-xs text-gray-500 mt-1">Le devoir sera lié à ce module.</p>
+                                </div>
+                                
+                                <!-- Description -->
+                                <div>
+                                    <label for="assignment-description" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Description du devoir *
+                                    </label>
+                                    <textarea id="assignment-description" rows="5" required
+                                              class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200"></textarea>
+                                    <p class="text-xs text-gray-500 mt-1">Décrivez les instructions et les attentes.</p>
+                                </div>
+                                
+                                <!-- Boutons d'action -->
+                                <div class="pt-4 flex gap-3">
+                                    <button type="submit" id="assignment-submit-btn"
+                                            class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-save mr-2"></i>Enregistrer
+                                    </button>
+                                    <button type="button" onclick="resetAssignmentForm()"
+                                            class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium">
+                                        <i class="fas fa-redo mr-2"></i>Annuler
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Liste des devoirs -->
+                <div class="lg:col-span-2">
+                    <div id="assignments-container" class="hidden">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    <i class="fas fa-tasks mr-2"></i>Devoirs du cours
+                                </h3>
+                                <span id="assignments-count" class="text-sm text-gray-600">0 devoirs</span>
+                            </div>
+                            
+                            <div id="assignments-list" class="divide-y divide-gray-200">
+                                <!-- Les devoirs seront chargés dynamiquement ici -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="no-assignments-selected" class="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+                        <i class="fas fa-tasks text-4xl mb-4 text-gray-300"></i>
+                        <p class="text-lg font-medium mb-2">Aucun cours sélectionné</p>
+                        <p class="text-gray-600">Veuillez sélectionner un cours pour gérer ses devoirs.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: EXAMEN FINAL -->
+        <section id="exam-section" class="dashboard-section">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Examen Final</h2>
+                <p class="text-gray-600">Configurez l'examen final du cours avec son score minimum de réussite.</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="course-select-exam" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sélectionnez un cours *
+                </label>
+                <select id="course-select-exam"
+                        onchange="loadCourseExam(this.value)"
+                        class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    <option value="">-- Choisir un cours --</option>
+                </select>
+            </div>
+
+            <div id="exam-container" class="hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <form id="exam-form" onsubmit="handleExamSubmit(event)">
+                        <input type="hidden" id="exam-course-id">
+                        
+                        <div class="space-y-6">
+                            <!-- Score minimum -->
+                            <div class="md:w-1/3">
+                                <label for="exam-pass-score" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Score minimum de réussite (%) *
+                                </label>
+                                <input type="number" id="exam-pass-score" required min="0" max="100"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                            </div>
+                            
+                            <!-- Bouton pour ajouter une question -->
+                            <div>
+                                <button type="button" onclick="addExamQuestionField()"
+                                        class="bg-green-100 text-green-700 px-4 py-3 rounded-lg hover:bg-green-200 transition-colors duration-300 font-medium">
+                                    <i class="fas fa-plus-circle mr-2"></i>Ajouter une question d'examen
+                                </button>
+                                <p class="text-sm text-gray-600 mt-2">Les questions sont similaires à celles des quiz.</p>
+                            </div>
+                            
+                            <!-- Liste des questions d'examen -->
+                            <div id="exam-questions-container" class="space-y-6">
+                                <!-- Les questions d'examen seront ajoutées dynamiquement ici -->
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="pt-6 flex gap-3">
+                                <button type="submit" id="exam-submit-btn"
+                                        class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium">
+                                    <i class="fas fa-save mr-2"></i>Enregistrer l'examen final
+                                </button>
+                                <button type="button" onclick="resetExamForm()"
+                                        class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium">
+                                    <i class="fas fa-redo mr-2"></i>Réinitialiser
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="no-exam-selected" class="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+                <i class="fas fa-graduation-cap text-4xl mb-4 text-gray-300"></i>
+                <p class="text-lg font-medium mb-2">Aucun cours sélectionné</p>
+                <p class="text-gray-600">Veuillez sélectionner un cours pour configurer son examen final.</p>
+            </div>
+        </section>
+
+        <!-- SECTION 6: CERTIFICAT -->
+        <section id="certificate-section" class="dashboard-section">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Configuration du Certificat</h2>
+                <p class="text-gray-600">Personnalisez le certificat ou diplôme délivré à la fin du cours.</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="course-select-certificate" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sélectionnez un cours *
+                </label>
+                <select id="course-select-certificate"
+                        onchange="loadCourseCertificate(this.value)"
+                        class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    <option value="">-- Choisir un cours --</option>
+                </select>
+            </div>
+
+            <div id="certificate-container" class="hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <form id="certificate-form" onsubmit="handleCertificateSubmit(event)">
+                        <input type="hidden" id="certificate-course-id">
+                        
+                        <div class="space-y-6">
+                            <!-- Type de certificat -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">Type de document *</label>
+                                <div class="flex flex-col md:flex-row gap-4">
+                                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                                        <input type="radio" name="certificate-type" value="certificat" class="h-5 w-5 text-blue-600" required>
+                                        <div class="ml-3">
+                                            <span class="font-medium text-gray-700">Certificat</span>
+                                            <p class="text-sm text-gray-600">Atteste de la réussite au cours</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                                        <input type="radio" name="certificate-type" value="diplome" class="h-5 w-5 text-blue-600">
+                                        <div class="ml-3">
+                                            <span class="font-medium text-gray-700">Diplôme</span>
+                                            <p class="text-sm text-gray-600">Niveau supérieur, plus formel</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Image du certificat -->
+                            <div>
+                                <label for="certificate-image" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nom du fichier image du certificat
+                                </label>
+                                <input type="text" id="certificate-image"
+                                       class="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg form-input focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                       placeholder="ex: certificat-modele.jpg">
+                                <p class="text-xs text-gray-500 mt-1">Nom du fichier de l'image à utiliser comme modèle.</p>
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="pt-6">
+                                <button type="submit" id="certificate-submit-btn"
+                                        class="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium">
+                                    <i class="fas fa-save mr-2"></i>Enregistrer la configuration
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="no-certificate-selected" class="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+                <i class="fas fa-award text-4xl mb-4 text-gray-300"></i>
+                <p class="text-lg font-medium mb-2">Aucun cours sélectionné</p>
+                <p class="text-gray-600">Veuillez sélectionner un cours pour configurer son certificat.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Template pour une question de quiz -->
+    <template id="question-template">
+        <div class="question-item p-4 border border-gray-300 rounded-lg">
+            <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-gray-800">Question <span class="question-number"></span></h4>
+                <button type="button" onclick="removeQuestionField(this)" 
+                        class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Texte de la question *</label>
+                    <input type="text" class="question-text w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <div class="options-container space-y-2">
+                    <!-- Les options seront ajoutées dynamiquement -->
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <button type="button" onclick="addOptionField(this)" 
+                            class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-plus mr-1"></i>Ajouter une option
+                    </button>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-700 mr-2">Bonne réponse:</label>
+                        <select class="correct-answer px-2 py-1 border border-gray-300 rounded" required>
+                            <!-- Les options seront ajoutées dynamiquement -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template pour une option de question -->
+    <template id="option-template">
+        <div class="flex items-center">
+            <input type="text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg mr-2 option-text" 
+                   placeholder="Option" required>
+            <button type="button" onclick="removeOptionField(this)" 
+                    class="text-red-500 hover:text-red-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </template>
+<div id="navBulleContainer" class="fixed z-50">
+  <!-- Bulle principale -->
+  <button 
+    id="navBulleBtn" 
+    class="flex items-center justify-center w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white transition-all duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300/50"
+    aria-label="Ouvrir le menu de navigation"
+  >
+    <i id="navBulleIcon" class="fas fa-compass text-xl"></i>
+  </button>
+  
+  <!-- Fenêtre de navigation -->
+  <div 
+    id="navBulleWindow" 
+    class="absolute bottom-16 right-0 w-72 bg-white rounded-2xl shadow-2xl p-4 transform -translate-y-2 opacity-0 invisible transition-all duration-300"
+  >
+    <!-- En-tête de la fenêtre -->
+    <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800">Navigation rapide</h2>
+      <button 
+        id="navBulleCloseBtn" 
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+        aria-label="Fermer le menu"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Liste des liens -->
+    <ul class="space-y-2" id="navBulleLinks">
+      <!-- Les liens seront injectés par JavaScript -->
+    </ul>
+    
+    <!-- Indicateur de position (flèche) -->
+    <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white transform rotate-45"></div>
+  </div>
+</div>
+
+<script>
+// Configuration unique pour éviter les conflits
+const navBulleConfig = {
+  containerId: 'navBulleContainer',
+  buttonId: 'navBulleBtn',
+  windowId: 'navBulleWindow',
+  closeButtonId: 'navBulleCloseBtn',
+  linksContainerId: 'navBulleLinks',
+  iconId: 'navBulleIcon',
+  isOpen: false,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initialX: 0,
+  initialY: 0,
+  touchStartTime: 0,
+  touchMoved: false,
+  
+  // Liens de navigation
+  navLinks: [
+    {
+      id: 'navLinkAccueil',
+      title: 'Dashboard Accueil',
+      url: 'dashacceuil.html',
+      icon: 'fas fa-home',
+      color: 'text-blue-600'
+    },
+    {
+      id: 'navLinkActualites',
+      title: 'Dashboard Actualités',
+      url: 'dashacctualites.html',
+      icon: 'fas fa-newspaper',
+      color: 'text-green-600'
+    },
+    {
+      id: 'navLinkApropos',
+      title: 'Dashboard À propos',
+      url: 'dashapropo.html',
+      icon: 'fas fa-info-circle',
+      color: 'text-purple-600'
+    },
+    {
+      id: 'navLinkCours',
+      title: 'Dashboard Cours',
+      url: 'dashboardcours.html',
+      icon: 'fas fa-book-open',
+      color: 'text-amber-600'
+    },
+    {
+      id: 'navLinkContact',
+      title: 'Dashboard Contact',
+      url: 'dashcontact.html',
+      icon: 'fas fa-envelope',
+      color: 'text-red-600'
+    },
+    {
+      id: 'navLinkSoumissions',
+      title: 'Dashboard Soumissions',
+      url: 'dashboardsoumissions.html',
+      icon: 'fas fa-paper-plane',
+      color: 'text-indigo-600'
+    }
+  ],
+  
+  // Initialisation
+  init: function() {
+    this.setupElements();
+    this.renderLinks();
+    this.setupEventListeners();
+    this.positionBulleOnLoad();
+  },
+  
+  // Configuration des éléments DOM
+  setupElements: function() {
+    this.container = document.getElementById(this.containerId);
+    this.button = document.getElementById(this.buttonId);
+    this.window = document.getElementById(this.windowId);
+    this.closeButton = document.getElementById(this.closeButtonId);
+    this.linksContainer = document.getElementById(this.linksContainerId);
+    this.icon = document.getElementById(this.iconId);
+  },
+  
+  // Rendu des liens de navigation
+  renderLinks: function() {
+    this.linksContainer.innerHTML = '';
+    
+    this.navLinks.forEach(link => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a 
+          href="${link.url}" 
+          id="${link.id}"
+          class="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-colors group"
+        >
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg ${link.color} bg-opacity-10 group-hover:bg-opacity-20 mr-3">
+            <i class="${link.icon}"></i>
+          </div>
+          <span class="font-medium text-gray-800">${link.title}</span>
+        </a>
+      `;
+      this.linksContainer.appendChild(li);
+    });
+  },
+  
+  // Configuration des écouteurs d'événements
+  setupEventListeners: function() {
+    // Clic sur la bulle (ouvrir/fermer) - pour desktop
+    this.button.addEventListener('click', (e) => {
+      // Vérifier si ce n'était pas un drag
+      if (!this.isDragging && !this.touchMoved) {
+        e.stopPropagation();
+        this.toggleWindow();
+      }
+      this.touchMoved = false;
+    });
+    
+    // Clic sur le bouton de fermeture
+    this.closeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeWindow();
+    });
+    
+    // Fermer la fenêtre en cliquant à l'extérieur
+    document.addEventListener('click', (e) => {
+      if (this.isOpen && !this.window.contains(e.target) && !this.button.contains(e.target)) {
+        this.closeWindow();
+      }
+    });
+    
+    // Gestion du déplacement sur desktop (drag)
+    this.button.addEventListener('mousedown', this.startDrag.bind(this));
+    document.addEventListener('mousemove', this.drag.bind(this));
+    document.addEventListener('mouseup', this.stopDrag.bind(this));
+    
+    // Gestion des événements tactiles pour mobile - APPROCHE SIMPLIFIÉE
+    this.button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    this.button.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    this.button.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+    
+    // Fermer la fenêtre avec la touche Échap
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.closeWindow();
+      }
+    });
+    
+    // Ajuster la position lors du redimensionnement
+    window.addEventListener('resize', this.adjustPositionOnResize.bind(this));
+  },
+  
+  // Gestion du touchstart (mobile)
+  handleTouchStart: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    this.startX = touch.clientX;
+    this.startY = touch.clientY;
+    this.initialX = this.container.offsetLeft;
+    this.initialY = this.container.offsetTop;
+    this.touchStartTime = Date.now();
+    this.touchMoved = false;
+    this.isDragging = false;
+    
+    // Timer pour détecter un appui long (drag)
+    this.dragTimer = setTimeout(() => {
+      this.isDragging = true;
+      this.button.classList.add('cursor-grabbing', 'scale-105');
+    }, 300);
+  },
+  
+  // Gestion du touchmove (mobile)
+  handleTouchMove: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.startX;
+    const deltaY = touch.clientY - this.startY;
+    
+    // Si le mouvement est suffisant, c'est un drag
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      this.touchMoved = true;
+      clearTimeout(this.dragTimer);
+      
+      // Si ce n'était pas déjà un drag, le devenir
+      if (!this.isDragging) {
+        this.isDragging = true;
+        this.button.classList.add('cursor-grabbing', 'scale-105');
+      }
+      
+      // Calculer la nouvelle position
+      let newX = this.initialX + deltaX;
+      let newY = this.initialY + deltaY;
+      
+      // Limites de la fenêtre
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const buttonSize = 56; // w-14 = 56px
+      
+      // S'assurer que la bulle reste dans les limites
+      newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+      newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+      
+      // Appliquer la nouvelle position
+      this.container.style.left = `${newX}px`;
+      this.container.style.top = `${newY}px`;
+      this.container.style.right = 'auto';
+      this.container.style.bottom = 'auto';
+      
+      // Fermer la fenêtre si elle est ouverte pendant le drag
+      if (this.isOpen) {
+        this.closeWindow();
+      }
+    }
+  },
+  
+  // Gestion du touchend (mobile)
+  handleTouchEnd: function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    clearTimeout(this.dragTimer);
+    
+    // Si ce n'était pas un drag, c'est un clic
+    if (!this.isDragging && !this.touchMoved) {
+      const touchDuration = Date.now() - this.touchStartTime;
+      
+      // Si le touch était court (< 300ms), c'est un clic
+      if (touchDuration < 300) {
+        this.toggleWindow();
+      }
+    }
+    
+    // Nettoyer l'état de drag
+    if (this.isDragging) {
+      this.isDragging = false;
+      this.button.classList.remove('cursor-grabbing', 'scale-105');
+      
+      // Animation de retour
+      this.button.classList.add('scale-95');
+      setTimeout(() => {
+        this.button.classList.remove('scale-95');
+      }, 200);
+    }
+    
+    // Réinitialiser
+    this.touchMoved = false;
+  },
+  
+  // Ouvrir/fermer la fenêtre
+  toggleWindow: function() {
+    if (this.isOpen) {
+      this.closeWindow();
+    } else {
+      this.openWindow();
+    }
+  },
+  
+  // Ouvrir la fenêtre
+  openWindow: function() {
+    this.window.classList.remove('opacity-0', 'invisible', 'translate-y-2');
+    this.window.classList.add('opacity-100', 'visible', 'translate-y-0');
+    this.icon.classList.remove('fa-compass');
+    this.icon.classList.add('fa-times');
+    this.button.setAttribute('aria-expanded', 'true');
+    this.isOpen = true;
+    
+    // Animation de micro-interaction
+    this.button.classList.add('scale-110');
+    setTimeout(() => {
+      this.button.classList.remove('scale-110');
+    }, 300);
+  },
+  
+  // Fermer la fenêtre
+  closeWindow: function() {
+    this.window.classList.remove('opacity-100', 'visible', 'translate-y-0');
+    this.window.classList.add('opacity-0', 'invisible', 'translate-y-2');
+    this.icon.classList.remove('fa-times');
+    this.icon.classList.add('fa-compass');
+    this.button.setAttribute('aria-expanded', 'false');
+    this.isOpen = false;
+  },
+  
+  // Position initiale de la bulle
+  positionBulleOnLoad: function() {
+    // Position par défaut en bas à droite
+    this.container.style.bottom = '20px';
+    this.container.style.right = '20px';
+  },
+  
+  // Ajuster la position lors du redimensionnement
+  adjustPositionOnResize: function() {
+    const rect = this.container.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    // S'assurer que la bulle reste dans les limites de la fenêtre
+    if (rect.left < 0) {
+      this.container.style.left = '10px';
+      this.container.style.right = 'auto';
+    }
+    
+    if (rect.top < 0) {
+      this.container.style.top = '10px';
+      this.container.style.bottom = 'auto';
+    }
+    
+    if (rect.right > windowWidth) {
+      this.container.style.right = '10px';
+      this.container.style.left = 'auto';
+    }
+    
+    if (rect.bottom > windowHeight) {
+      this.container.style.bottom = '10px';
+      this.container.style.top = 'auto';
+    }
+  },
+  
+  // Début du drag (souris) - pour desktop
+  startDrag: function(e) {
+    e.preventDefault();
+    this.isDragging = true;
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    
+    // Enregistrer la position initiale
+    const rect = this.container.getBoundingClientRect();
+    this.initialX = rect.left;
+    this.initialY = rect.top;
+    
+    // Changer l'apparence pendant le drag
+    this.button.classList.add('cursor-grabbing', 'scale-105');
+  },
+  
+  // Déplacement (souris) - pour desktop
+  drag: function(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    
+    // Calculer le déplacement
+    const deltaX = e.clientX - this.startX;
+    const deltaY = e.clientY - this.startY;
+    
+    // Calculer la nouvelle position
+    let newX = this.initialX + deltaX;
+    let newY = this.initialY + deltaY;
+    
+    // Limites de la fenêtre
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const buttonSize = 56; // w-14 = 56px
+    
+    // S'assurer que la bulle reste dans les limites
+    newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+    newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+    
+    // Appliquer la nouvelle position
+    this.container.style.left = `${newX}px`;
+    this.container.style.top = `${newY}px`;
+    this.container.style.right = 'auto';
+    this.container.style.bottom = 'auto';
+    
+    // Fermer la fenêtre si elle est ouverte pendant le drag
+    if (this.isOpen) {
+      this.closeWindow();
+    }
+  },
+  
+  // Fin du drag (souris) - pour desktop
+  stopDrag: function() {
+    if (!this.isDragging) return;
+    
+    this.isDragging = false;
+    this.button.classList.remove('cursor-grabbing', 'scale-105');
+    
+    // Animation de retour
+    this.button.classList.add('scale-95');
+    setTimeout(() => {
+      this.button.classList.remove('scale-95');
+    }, 200);
+  }
+};
+
+// Initialiser la bulle de navigation quand le DOM est chargé
+document.addEventListener('DOMContentLoaded', () => {
+  navBulleConfig.init();
+});
+</script>
+
+<!-- Styles additionnels pour une meilleure expérience mobile -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+#navBulleContainer {
+  touch-action: none; /* Empêche le défilement pendant le drag sur mobile */
+}
+
+#navBulleBtn {
+  cursor: grab;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+#navBulleBtn:active {
+  cursor: grabbing;
+}
+
+#navBulleWindow {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: white; /* Assure un fond blanc */
+}
+
+/* Correction des couleurs des textes et liens */
+#navBulleWindow h2 {
+  color: #1f2937 !important; /* Couleur foncée pour le titre */
+}
+
+#navBulleLinks a {
+  color: #374151 !important; /* Couleur gris foncé pour les liens */
+}
+
+#navBulleLinks a span {
+  color: #374151 !important; /* Assure la couleur du texte des liens */
+}
+
+#navBulleCloseBtn {
+  color: #6b7280 !important; /* Couleur grise pour l'icône de fermeture */
+}
+
+#navBulleCloseBtn:hover {
+  color: #374151 !important;
+}
+
+/* Animation d'entrée pour les liens */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#navBulleLinks li {
+  animation: fadeInUp 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+#navBulleLinks li:nth-child(1) { animation-delay: 0.05s; }
+#navBulleLinks li:nth-child(2) { animation-delay: 0.1s; }
+#navBulleLinks li:nth-child(3) { animation-delay: 0.15s; }
+#navBulleLinks li:nth-child(4) { animation-delay: 0.2s; }
+#navBulleLinks li:nth-child(5) { animation-delay: 0.25s; }
+#navBulleLinks li:nth-child(6) { animation-delay: 0.3s; }
+
+/* Assurer la visibilité des icônes dans les cercles colorés */
+#navBulleLinks a div i {
+  color: inherit !important; /* Hérite la couleur définie par la classe */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #navBulleWindow {
+    width: calc(100vw - 40px);
+    max-width: 300px;
+    right: 0;
+    bottom: 70px;
+  }
+  
+  #navBulleWindow > div:last-child {
+    right: 20px;
+  }
+}
+
+/* Dark mode support - corrigé pour garder la lisibilité */
+@media (prefers-color-scheme: dark) {
+  #navBulleWindow {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  #navBulleWindow h2 {
+    color: #f9fafb !important; /* Blanc pour le titre en dark mode */
+  }
+  
+  #navBulleLinks a {
+    color: #e5e7eb !important; /* Gris clair pour les liens */
+  }
+  
+  #navBulleLinks a span {
+    color: #e5e7eb !important; /* Gris clair pour le texte */
+  }
+  
+  #navBulleLinks a:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  #navBulleCloseBtn {
+    color: #9ca3af !important;
+  }
+  
+  #navBulleCloseBtn:hover {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+  
+  #navBulleWindow > div:last-child {
+    background-color: #1f2937 !important;
+  }
+}
+
+/* Force la visibilité des éléments pendant les animations */
+#navBulleWindow.opacity-100.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Correction spécifique pour les couleurs des icônes dans les cercles */
+.bg-opacity-10 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.text-blue-600 { color: #2563eb !important; }
+.text-green-600 { color: #16a34a !important; }
+.text-purple-600 { color: #9333ea !important; }
+.text-amber-600 { color: #d97706 !important; }
+.text-red-600 { color: #dc2626 !important; }
+.text-indigo-600 { color: #4f46e5 !important; }
+</style>
+    <!-- Firebase SDK -->
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { 
+        getFirestore, 
+        collection, 
+        getDocs, 
+        doc, 
+        getDoc, 
+        setDoc, 
+        deleteDoc, 
+        updateDoc,
+        addDoc,
+        serverTimestamp,
+        query,
+        where,
+        orderBy
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+ const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentSelectedCourseId = null;
+    let questionCounter = 0;
+    let examQuestionCounter = 0;
+
+    // ========== FONCTIONS D'AFFICHAGE ==========
+    function showSection(sectionId) {
+        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.dashboard-section').forEach(section => section.classList.remove('active'));
+        
+        document.getElementById(sectionId).classList.add('active');
+        document.getElementById(`nav-${sectionId.split('-')[0]}`).classList.add('active');
+        
+        if (sectionId === 'courses-section') loadCourses();
+    }
+
+    function showStatus(type, title, text) {
+        const statusElement = document.getElementById('status-message');
+        const iconElement = document.getElementById('status-icon');
+        const titleElement = document.getElementById('status-title');
+        const textElement = document.getElementById('status-text');
+        
+        let borderColor = '', iconClass = '';
+        switch(type) {
+            case 'success': borderColor = 'border-green-500'; iconClass = 'fa-check-circle text-green-500'; break;
+            case 'error': borderColor = 'border-red-500'; iconClass = 'fa-exclamation-circle text-red-500'; break;
+            case 'info': borderColor = 'border-blue-500'; iconClass = 'fa-info-circle text-blue-500'; break;
+        }
+        
+        statusElement.className = statusElement.className.replace(/border-\w+-\d+/, '');
+        statusElement.classList.add(borderColor);
+        iconElement.className = `fas ${iconClass} text-xl mr-3`;
+        titleElement.textContent = title;
+        textElement.textContent = text;
+        
+        statusElement.classList.remove('hidden');
+        setTimeout(hideStatus, 5000);
+    }
+
+    function hideStatus() {
+        document.getElementById('status-message').classList.add('hidden');
+    }
+
+    // ========== GESTION DES COURS ==========
+    async function loadCourses() {
+        try {
+            const coursesList = document.getElementById('courses-list');
+            coursesList.innerHTML = '<div class="p-8 text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div><p class="mt-2 text-gray-600">Chargement des cours...</p></div>';
+            
+            const coursesQuery = query(collection(db, "courses"), orderBy("createdAt", "desc"));
+            const querySnapshot = await getDocs(coursesQuery);
+            
+            const courses = [];
+            querySnapshot.forEach((doc) => courses.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('courses-count').textContent = courses.length;
+            displayCourses(courses);
+            updateCourseSelectors(courses);
+            
+        } catch (error) {
+            console.error("Erreur loadCourses:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger les cours');
+        }
+    }
+
+    function displayCourses(courses) {
+        const coursesList = document.getElementById('courses-list');
+        
+        if (courses.length === 0) {
+            coursesList.innerHTML = '<div class="p-8 text-center text-gray-500"><i class="fas fa-book-open text-4xl mb-4"></i><p class="text-lg font-medium mb-2">Aucun cours créé</p></div>';
+            return;
+        }
+        
+        coursesList.innerHTML = '';
+        courses.forEach(course => {
+            const courseElement = document.createElement('div');
+            courseElement.className = 'p-6 hover:bg-gray-50 transition-colors duration-200';
+            courseElement.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                ${course.thumbnail ? `<img src="${course.thumbnail}" alt="${course.title}" class="w-full h-full object-cover rounded-lg">` : `<i class="fas fa-book text-blue-600 text-2xl"></i>`}
+                            </div>
+                            <div>
+                                <div class="flex items-center">
+                                    <h4 class="text-lg font-semibold text-gray-800">${course.title}</h4>
+                                    <span class="ml-2 px-2 py-1 text-xs rounded-full ${course.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${course.active ? 'Actif' : 'Inactif'}</span>
+                                </div>
+                                <p class="text-gray-600 mt-1 line-clamp-2">${course.description || 'Aucune description'}</p>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <span class="text-sm text-gray-500"><i class="fas fa-tag mr-1"></i>${course.category}</span>
+                                    <span class="text-sm text-gray-500"><i class="fas fa-euro-sign mr-1"></i>${course.price || '0'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex gap-2">
+                        <button onclick="editCourse('${course.id}')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"><i class="fas fa-edit mr-2"></i>Modifier</button>
+                        <button onclick="confirmDeleteCourse('${course.id}', '${course.title}')" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"><i class="fas fa-trash mr-2"></i>Supprimer</button>
+                    </div>
+                </div>
+            `;
+            coursesList.appendChild(courseElement);
+        });
+    }
+
+    function updateCourseSelectors(courses) {
+        ['course-select-modules', 'course-select-quizzes', 'course-select-assignments', 'course-select-exam', 'course-select-certificate'].forEach(selectorId => {
+            const selector = document.getElementById(selectorId);
+            if (selector) {
+                const currentValue = selector.value;
+                selector.innerHTML = '<option value="">-- Choisir un cours --</option>';
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.id;
+                    option.textContent = course.title;
+                    if (course.id === currentValue) option.selected = true;
+                    selector.appendChild(option);
+                });
+            }
+        });
+    }
+
+    async function handleCourseSubmit(event) {
+        event.preventDefault();
+        try {
+            const courseId = document.getElementById('course-id').value;
+            const courseData = {
+                title: document.getElementById('course-title').value.trim(),
+                description: document.getElementById('course-description').value.trim(),
+                price: parseFloat(document.getElementById('course-price').value),
+                category: document.getElementById('course-category').value.trim(),
+                thumbnail: document.getElementById('course-thumbnail').value.trim() || null,
+                active: document.getElementById('course-active').checked,
+                updatedAt: serverTimestamp()
+            };
+            
+            if (!courseId) {
+                courseData.createdAt = serverTimestamp();
+                await addDoc(collection(db, "courses"), courseData);
+                showStatus('success', 'Succès', `Cours créé avec succès`);
+                resetCourseForm();
+            } else {
+                await updateDoc(doc(db, "courses", courseId), courseData);
+                showStatus('success', 'Succès', `Cours mis à jour avec succès`);
+            }
+            
+            loadCourses();
+        } catch (error) {
+            console.error("Erreur handleCourseSubmit:", error);
+            showStatus('error', 'Erreur', 'Impossible d\'enregistrer le cours');
+        }
+    }
+
+    async function editCourse(courseId) {
+        try {
+            const courseRef = doc(db, "courses", courseId);
+            const courseSnap = await getDoc(courseRef);
+            if (courseSnap.exists()) {
+                const courseData = courseSnap.data();
+                document.getElementById('course-id').value = courseId;
+                document.getElementById('course-title').value = courseData.title || '';
+                document.getElementById('course-description').value = courseData.description || '';
+                document.getElementById('course-price').value = courseData.price || 0;
+                document.getElementById('course-category').value = courseData.category || '';
+                document.getElementById('course-thumbnail').value = courseData.thumbnail || '';
+                document.getElementById('course-active').checked = courseData.active || false;
+                document.getElementById('course-form-title').innerHTML = `<i class="fas fa-edit mr-2"></i>Modifier le cours`;
+                document.getElementById('course-submit-btn').innerHTML = `<i class="fas fa-save mr-2"></i>Mettre à jour`;
+            }
+        } catch (error) {
+            console.error("Erreur editCourse:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger le cours');
+        }
+    }
+
+    function confirmDeleteCourse(courseId, courseTitle) {
+        if (confirm(`Supprimer "${courseTitle}" ?`)) deleteCourse(courseId);
+    }
+
+    async function deleteCourse(courseId) {
+        try {
+            await deleteDoc(doc(db, "courses", courseId));
+            showStatus('success', 'Succès', 'Cours supprimé');
+            loadCourses();
+        } catch (error) {
+            console.error("Erreur deleteCourse:", error);
+            showStatus('error', 'Erreur', 'Impossible de supprimer');
+        }
+    }
+
+    function resetCourseForm() {
+        document.getElementById('course-form').reset();
+        document.getElementById('course-id').value = '';
+        document.getElementById('course-form-title').innerHTML = `<i class="fas fa-plus-circle mr-2"></i>Nouveau Cours`;
+        document.getElementById('course-submit-btn').innerHTML = `<i class="fas fa-save mr-2"></i>Enregistrer`;
+        document.getElementById('course-active').checked = true;
+    }
+
+    // ========== GESTION DES MODULES ==========
+    async function loadModules(courseId) {
+        currentSelectedCourseId = courseId;
+        if (!courseId) {
+            document.getElementById('modules-container').classList.add('hidden');
+            document.getElementById('no-modules-selected').classList.remove('hidden');
+            resetModuleForm();
+            return;
+        }
+        
+        try {
+            document.getElementById('modules-container').classList.remove('hidden');
+            document.getElementById('no-modules-selected').classList.add('hidden');
+            
+            const modulesQuery = query(collection(db, "courses", courseId, "modules"), orderBy("order", "asc"));
+            const modulesSnapshot = await getDocs(modulesQuery);
+            const modules = [];
+            modulesSnapshot.forEach(doc => modules.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('modules-count').textContent = `${modules.length} modules`;
+            displayModules(modules);
+            document.getElementById('module-course-id').value = courseId;
+        } catch (error) {
+            console.error("Erreur loadModules:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger les modules');
+        }
+    }
+
+    function displayModules(modules) {
+        const modulesList = document.getElementById('modules-list');
+        if (modules.length === 0) {
+            modulesList.innerHTML = '<div class="p-8 text-center text-gray-500"><i class="fas fa-layer-group text-3xl mb-4"></i><p>Aucun module créé</p></div>';
+            return;
+        }
+        
+        modulesList.innerHTML = '';
+        modules.forEach(module => {
+            const moduleElement = document.createElement('div');
+            moduleElement.className = 'p-6 hover:bg-gray-50 transition-colors duration-200';
+            moduleElement.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4"><span class="font-bold text-blue-600">${module.order}</span></div>
+                        <div><h4 class="text-lg font-semibold text-gray-800">${module.title}</h4><p class="text-gray-600 mt-1">${module.video ? `<i class="fas fa-video mr-2 text-blue-500"></i>${module.video}` : '<span class="text-gray-400">Aucune vidéo</span>'}</p></div>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex gap-2">
+                        <button onclick="editModule('${module.id}')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"><i class="fas fa-edit mr-2"></i>Modifier</button>
+                        <button onclick="confirmDeleteModule('${module.id}', '${module.title}')" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"><i class="fas fa-trash mr-2"></i>Supprimer</button>
+                    </div>
+                </div>
+            `;
+            modulesList.appendChild(moduleElement);
+        });
+    }
+
+    async function handleModuleSubmit(event) {
+        event.preventDefault();
+        const courseId = document.getElementById('module-course-id').value;
+        if (!courseId) {
+            showStatus('error', 'Erreur', 'Sélectionnez un cours');
+            return;
+        }
+        
+        try {
+            const moduleId = document.getElementById('module-id').value;
+            const moduleData = {
+                title: document.getElementById('module-title').value.trim(),
+                order: parseInt(document.getElementById('module-order').value),
+                video: document.getElementById('module-video').value.trim() || null
+            };
+            
+            if (!moduleId) {
+                await addDoc(collection(db, "courses", courseId, "modules"), moduleData);
+                showStatus('success', 'Succès', 'Module créé');
+                resetModuleForm();
+            } else {
+                await updateDoc(doc(db, "courses", courseId, "modules", moduleId), moduleData);
+                showStatus('success', 'Succès', 'Module mis à jour');
+            }
+            
+            loadModules(courseId);
+        } catch (error) {
+            console.error("Erreur handleModuleSubmit:", error);
+            showStatus('error', 'Erreur', 'Impossible d\'enregistrer');
+        }
+    }
+
+    async function editModule(moduleId) {
+        try {
+            const moduleRef = doc(db, "courses", currentSelectedCourseId, "modules", moduleId);
+            const moduleSnap = await getDoc(moduleRef);
+            if (moduleSnap.exists()) {
+                const moduleData = moduleSnap.data();
+                document.getElementById('module-id').value = moduleId;
+                document.getElementById('module-title').value = moduleData.title || '';
+                document.getElementById('module-order').value = moduleData.order || 1;
+                document.getElementById('module-video').value = moduleData.video || '';
+                document.getElementById('module-form-title').innerHTML = `<i class="fas fa-edit mr-2"></i>Modifier le module`;
+            }
+        } catch (error) {
+            console.error("Erreur editModule:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger');
+        }
+    }
+
+    function confirmDeleteModule(moduleId, moduleTitle) {
+        if (confirm(`Supprimer "${moduleTitle}" ?`)) deleteModule(moduleId);
+    }
+
+    async function deleteModule(moduleId) {
+        try {
+            await deleteDoc(doc(db, "courses", currentSelectedCourseId, "modules", moduleId));
+            showStatus('success', 'Succès', 'Module supprimé');
+            loadModules(currentSelectedCourseId);
+        } catch (error) {
+            console.error("Erreur deleteModule:", error);
+            showStatus('error', 'Erreur', 'Impossible de supprimer');
+        }
+    }
+
+    function resetModuleForm() {
+        document.getElementById('module-form').reset();
+        document.getElementById('module-id').value = '';
+        document.getElementById('module-form-title').innerHTML = `<i class="fas fa-plus-circle mr-2"></i>Nouveau Module`;
+        document.getElementById('module-order').value = 1;
+    }
+
+    // ========== GESTION DES QUIZ ==========
+    async function loadCourseQuizzes(courseId) {
+        if (!courseId) {
+            document.getElementById('quizzes-container').classList.add('hidden');
+            document.getElementById('no-quizzes-selected').classList.remove('hidden');
+            resetQuizForm();
+            return;
+        }
+        
+        try {
+            document.getElementById('quizzes-container').classList.remove('hidden');
+            document.getElementById('no-quizzes-selected').classList.add('hidden');
+            document.getElementById('quiz-course-id').value = courseId;
+            
+            const quizzesQuery = query(collection(db, "courses", courseId, "quizzes"), orderBy("moduleOrder", "asc"));
+            const quizzesSnapshot = await getDocs(quizzesQuery);
+            const quizzes = [];
+            quizzesSnapshot.forEach(doc => quizzes.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('quizzes-count').textContent = `${quizzes.length} quiz`;
+            displayQuizzes(quizzes);
+        } catch (error) {
+            console.error("Erreur loadCourseQuizzes:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger les quiz');
+        }
+    }
+
+    function displayQuizzes(quizzes) {
+        const quizzesList = document.getElementById('quizzes-list');
+        if (quizzes.length === 0) {
+            quizzesList.innerHTML = '<div class="p-8 text-center text-gray-500"><i class="fas fa-question-circle text-3xl mb-4"></i><p>Aucun quiz créé</p></div>';
+            return;
+        }
+        
+        quizzesList.innerHTML = '';
+        quizzes.forEach(quiz => {
+            const quizElement = document.createElement('div');
+            quizElement.className = 'p-6 hover:bg-gray-50 transition-colors duration-200';
+            quizElement.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div>
+                        <div class="flex items-center mb-2"><span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Module ${quiz.moduleOrder}</span><span class="ml-3 text-gray-600">${quiz.questions ? quiz.questions.length : 0} questions</span></div>
+                        <div class="questions-preview text-gray-700">
+                            ${quiz.questions ? quiz.questions.slice(0, 2).map((q, i) => `<p class="text-sm mt-1">${i + 1}. ${q.question.substring(0, 60)}...</p>`).join('') : ''}
+                            ${quiz.questions && quiz.questions.length > 2 ? `<p class="text-sm text-gray-500 mt-1">... et ${quiz.questions.length - 2} autres</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex gap-2">
+                        <button onclick="editQuiz('${quiz.id}')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"><i class="fas fa-edit mr-2"></i>Modifier</button>
+                        <button onclick="confirmDeleteQuiz('${quiz.id}', 'Module ${quiz.moduleOrder}')" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"><i class="fas fa-trash mr-2"></i>Supprimer</button>
+                    </div>
+                </div>
+            `;
+            quizzesList.appendChild(quizElement);
+        });
+    }
+
+    function addQuestionField() {
+        const questionsContainer = document.getElementById('questions-container');
+        const questionTemplate = document.getElementById('question-template').content.cloneNode(true);
+        questionCounter++;
+        const questionElement = questionTemplate.querySelector('.question-item');
+        questionElement.querySelector('.question-number').textContent = questionCounter;
+        
+        for (let i = 0; i < 2; i++) addOptionField(questionElement.querySelector('.options-container'));
+        updateCorrectAnswerSelectors(questionElement);
+        questionsContainer.appendChild(questionElement);
+    }
+
+    function addOptionField(container) {
+        const optionTemplate = document.getElementById('option-template').content.cloneNode(true);
+        container.appendChild(optionTemplate);
+        const questionItem = container.closest('.question-item');
+        if (questionItem) updateCorrectAnswerSelectors(questionItem);
+    }
+
+    function removeOptionField(button) {
+        const optionField = button.closest('.flex');
+        if (optionField) {
+            optionField.remove();
+            const questionItem = optionField.closest('.question-item');
+            if (questionItem) updateCorrectAnswerSelectors(questionItem);
+        }
+    }
+
+    function updateCorrectAnswerSelectors(questionItem) {
+        const options = questionItem.querySelectorAll('.option-text');
+        const select = questionItem.querySelector('.correct-answer');
+        const currentValue = select.value;
+        
+        select.innerHTML = '';
+        options.forEach((option, index) => {
+            const optionValue = document.createElement('option');
+            optionValue.value = index;
+            optionValue.textContent = `Option ${index + 1}`;
+            if (index.toString() === currentValue) optionValue.selected = true;
+            select.appendChild(optionValue);
+        });
+        
+        if (select.value === '' && options.length > 0) select.value = '0';
+    }
+
+    function removeQuestionField(button) {
+        const questionField = button.closest('.question-item');
+        if (questionField) {
+            questionField.remove();
+            recalculateQuestionNumbers();
+        }
+    }
+
+    function recalculateQuestionNumbers() {
+        const questions = document.querySelectorAll('.question-item');
+        questionCounter = 0;
+        questions.forEach((question, index) => {
+            questionCounter++;
+            question.querySelector('.question-number').textContent = questionCounter;
+        });
+    }
+
+    async function handleQuizSubmit(event) {
+        event.preventDefault();
+        const courseId = document.getElementById('quiz-course-id').value;
+        if (!courseId) {
+            showStatus('error', 'Erreur', 'Sélectionnez un cours');
+            return;
+        }
+        
+        try {
+            const questions = [];
+            const questionElements = document.querySelectorAll('.question-item');
+            if (questionElements.length === 0) {
+                showStatus('error', 'Erreur', 'Ajoutez au moins une question');
+                return;
+            }
+            
+            questionElements.forEach(questionElement => {
+                const questionText = questionElement.querySelector('.question-text').value.trim();
+                const options = Array.from(questionElement.querySelectorAll('.option-text')).map(input => input.value.trim()).filter(text => text !== '');
+                const correctAnswer = parseInt(questionElement.querySelector('.correct-answer').value);
+                
+                if (questionText && options.length >= 2) {
+                    questions.push({ question: questionText, options: options, answer: correctAnswer });
+                }
+            });
+            
+            if (questions.length === 0) {
+                showStatus('error', 'Erreur', 'Remplissez toutes les questions');
+                return;
+            }
+            
+            const quizData = {
+                moduleOrder: parseInt(document.getElementById('quiz-module-order').value),
+                questions: questions
+            };
+            
+            const quizId = document.getElementById('quiz-id').value;
+            
+            if (!quizId) {
+                await addDoc(collection(db, "courses", courseId, "quizzes"), quizData);
+                showStatus('success', 'Succès', 'Quiz créé');
+                resetQuizForm();
+            } else {
+                await updateDoc(doc(db, "courses", courseId, "quizzes", quizId), quizData);
+                showStatus('success', 'Succès', 'Quiz mis à jour');
+            }
+            
+            loadCourseQuizzes(courseId);
+        } catch (error) {
+            console.error("Erreur handleQuizSubmit:", error);
+            showStatus('error', 'Erreur', 'Impossible d\'enregistrer');
+        }
+    }
+
+    async function editQuiz(quizId) {
+        try {
+            const courseId = document.getElementById('quiz-course-id').value;
+            const quizRef = doc(db, "courses", courseId, "quizzes", quizId);
+            const quizSnap = await getDoc(quizRef);
+            
+            if (quizSnap.exists()) {
+                const quizData = quizSnap.data();
+                document.getElementById('quiz-id').value = quizId;
+                document.getElementById('quiz-module-order').value = quizData.moduleOrder || 1;
+                document.getElementById('questions-container').innerHTML = '';
+                questionCounter = 0;
+                
+                if (quizData.questions && quizData.questions.length > 0) {
+                    quizData.questions.forEach(questionData => {
+                        addQuestionField();
+                        const lastQuestion = document.querySelector('.question-item:last-child');
+                        if (lastQuestion) {
+                            lastQuestion.querySelector('.question-text').value = questionData.question || '';
+                            const optionsContainer = lastQuestion.querySelector('.options-container');
+                            optionsContainer.innerHTML = '';
+                            
+                            if (questionData.options && questionData.options.length > 0) {
+                                questionData.options.forEach(optionText => {
+                                    addOptionField(optionsContainer);
+                                    const lastOption = optionsContainer.querySelector('.flex:last-child input');
+                                    if (lastOption) lastOption.value = optionText;
+                                });
+                            }
+                            
+                            lastQuestion.querySelector('.correct-answer').value = questionData.answer || 0;
+                            updateCorrectAnswerSelectors(lastQuestion);
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Erreur editQuiz:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger');
+        }
+    }
+
+    function confirmDeleteQuiz(quizId, quizTitle) {
+        if (confirm(`Supprimer "${quizTitle}" ?`)) deleteQuiz(quizId);
+    }
+
+    async function deleteQuiz(quizId) {
+        try {
+            const courseId = document.getElementById('quiz-course-id').value;
+            await deleteDoc(doc(db, "courses", courseId, "quizzes", quizId));
+            showStatus('success', 'Succès', 'Quiz supprimé');
+            loadCourseQuizzes(courseId);
+        } catch (error) {
+            console.error("Erreur deleteQuiz:", error);
+            showStatus('error', 'Erreur', 'Impossible de supprimer');
+        }
+    }
+
+    function resetQuizForm() {
+        document.getElementById('quiz-form').reset();
+        document.getElementById('quiz-id').value = '';
+        document.getElementById('questions-container').innerHTML = '';
+        questionCounter = 0;
+        document.getElementById('quiz-module-order').value = 1;
+        addQuestionField();
+    }
+
+    // ========== GESTION DES DEVOIRS ==========
+    async function loadCourseAssignments(courseId) {
+        if (!courseId) {
+            document.getElementById('assignments-container').classList.add('hidden');
+            document.getElementById('no-assignments-selected').classList.remove('hidden');
+            resetAssignmentForm();
+            return;
+        }
+        
+        try {
+            document.getElementById('assignments-container').classList.remove('hidden');
+            document.getElementById('no-assignments-selected').classList.add('hidden');
+            document.getElementById('assignment-course-id').value = courseId;
+            
+            const assignmentsQuery = query(collection(db, "courses", courseId, "assignments"), orderBy("moduleOrder", "asc"));
+            const assignmentsSnapshot = await getDocs(assignmentsQuery);
+            const assignments = [];
+            assignmentsSnapshot.forEach(doc => assignments.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('assignments-count').textContent = `${assignments.length} devoirs`;
+            displayAssignments(assignments);
+        } catch (error) {
+            console.error("Erreur loadCourseAssignments:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger');
+        }
+    }
+
+    function displayAssignments(assignments) {
+        const assignmentsList = document.getElementById('assignments-list');
+        if (assignments.length === 0) {
+            assignmentsList.innerHTML = '<div class="p-8 text-center text-gray-500"><i class="fas fa-tasks text-3xl mb-4"></i><p>Aucun devoir créé</p></div>';
+            return;
+        }
+        
+        assignmentsList.innerHTML = '';
+        assignments.forEach(assignment => {
+            const assignmentElement = document.createElement('div');
+            assignmentElement.className = 'p-6 hover:bg-gray-50 transition-colors duration-200';
+            assignmentElement.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-2"><span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Module ${assignment.moduleOrder}</span></div>
+                        <p class="text-gray-700 line-clamp-3">${assignment.description || 'Aucune description'}</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex gap-2">
+                        <button onclick="editAssignment('${assignment.id}')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"><i class="fas fa-edit mr-2"></i>Modifier</button>
+                        <button onclick="confirmDeleteAssignment('${assignment.id}', 'Module ${assignment.moduleOrder}')" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"><i class="fas fa-trash mr-2"></i>Supprimer</button>
+                    </div>
+                </div>
+            `;
+            assignmentsList.appendChild(assignmentElement);
+        });
+    }
+
+    async function handleAssignmentSubmit(event) {
+        event.preventDefault();
+        const courseId = document.getElementById('assignment-course-id').value;
+        if (!courseId) {
+            showStatus('error', 'Erreur', 'Sélectionnez un cours');
+            return;
+        }
+        
+        try {
+            const assignmentData = {
+                moduleOrder: parseInt(document.getElementById('assignment-module-order').value),
+                description: document.getElementById('assignment-description').value.trim()
+            };
+            
+            const assignmentId = document.getElementById('assignment-id').value;
+            
+            if (!assignmentId) {
+                await addDoc(collection(db, "courses", courseId, "assignments"), assignmentData);
+                showStatus('success', 'Succès', 'Devoir créé');
+                resetAssignmentForm();
+            } else {
+                await updateDoc(doc(db, "courses", courseId, "assignments", assignmentId), assignmentData);
+                showStatus('success', 'Succès', 'Devoir mis à jour');
+            }
+            
+            loadCourseAssignments(courseId);
+        } catch (error) {
+            console.error("Erreur handleAssignmentSubmit:", error);
+            showStatus('error', 'Erreur', 'Impossible d\'enregistrer');
+        }
+    }
+
+    async function editAssignment(assignmentId) {
+        try {
+            const courseId = document.getElementById('assignment-course-id').value;
+            const assignmentRef = doc(db, "courses", courseId, "assignments", assignmentId);
+            const assignmentSnap = await getDoc(assignmentRef);
+            
+            if (assignmentSnap.exists()) {
+                const assignmentData = assignmentSnap.data();
+                document.getElementById('assignment-id').value = assignmentId;
+                document.getElementById('assignment-module-order').value = assignmentData.moduleOrder || 1;
+                document.getElementById('assignment-description').value = assignmentData.description || '';
+            }
+        } catch (error) {
+            console.error("Erreur editAssignment:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger');
+        }
+    }
+
+    function confirmDeleteAssignment(assignmentId, assignmentTitle) {
+        if (confirm(`Supprimer "${assignmentTitle}" ?`)) deleteAssignment(assignmentId);
+    }
+
+    async function deleteAssignment(assignmentId) {
+        try {
+            const courseId = document.getElementById('assignment-course-id').value;
+            await deleteDoc(doc(db, "courses", courseId, "assignments", assignmentId));
+            showStatus('success', 'Succès', 'Devoir supprimé');
+            loadCourseAssignments(courseId);
+        } catch (error) {
+            console.error("Erreur deleteAssignment:", error);
+            showStatus('error', 'Erreur', 'Impossible de supprimer');
+        }
+    }
+
+    function resetAssignmentForm() {
+        document.getElementById('assignment-form').reset();
+        document.getElementById('assignment-id').value = '';
+        document.getElementById('assignment-module-order').value = 1;
+    }
+
+    // ========== GESTION EXAMEN FINAL ==========
+    async function loadCourseExam(courseId) {
+        if (!courseId) {
+            document.getElementById('exam-container').classList.add('hidden');
+            document.getElementById('no-exam-selected').classList.remove('hidden');
+            resetExamForm();
+            return;
+        }
+        
+        try {
+            document.getElementById('exam-container').classList.remove('hidden');
+            document.getElementById('no-exam-selected').classList.add('hidden');
+            document.getElementById('exam-course-id').value = courseId;
+            
+            // ESSAIE DEUX STRUCTURES POSSIBLES :
+            // 1. Sous-collection finalExam avec un document unique
+            try {
+                const examRef = doc(db, "courses", courseId, "finalExam", "finalExam");
+                const examSnap = await getDoc(examRef);
+                if (examSnap.exists()) {
+                    fillExamForm(examSnap.data());
+                    return;
+                }
+            } catch (error) {
+                console.log("Pas de sous-collection finalExam");
+            }
+            
+            // 2. Champ finalExam dans le document cours
+            const courseRef = doc(db, "courses", courseId);
+            const courseSnap = await getDoc(courseRef);
+            if (courseSnap.exists() && courseSnap.data().finalExam) {
+                fillExamForm(courseSnap.data().finalExam);
+                return;
+            }
+            
+            // 3. Aucun examen existant
+            resetExamForm();
+            
+        } catch (error) {
+            console.error("Erreur loadCourseExam:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger l\'examen');
+        }
+    }
+
+    function fillExamForm(examData) {
+        document.getElementById('exam-pass-score').value = examData.passScore || 70;
+        document.getElementById('exam-questions-container').innerHTML = '';
+        examQuestionCounter = 0;
+        
+        if (examData.questions && examData.questions.length > 0) {
+            examData.questions.forEach(questionData => {
+                addExamQuestionField();
+                const lastQuestion = document.querySelector('#exam-questions-container .question-item:last-child');
+                if (lastQuestion) {
+                    lastQuestion.querySelector('.question-text').value = questionData.question || '';
+                    const optionsContainer = lastQuestion.querySelector('.options-container');
+                    optionsContainer.innerHTML = '';
+                    
+                    if (questionData.options && questionData.options.length > 0) {
+                        questionData.options.forEach(optionText => {
+                            addOptionField(optionsContainer);
+                            const lastOption = optionsContainer.querySelector('.flex:last-child input');
+                            if (lastOption) lastOption.value = optionText;
+                        });
+                    }
+                    
+                    lastQuestion.querySelector('.correct-answer').value = questionData.answer || 0;
+                    updateCorrectAnswerSelectors(lastQuestion);
+                }
+            });
+        }
+    }
+
+    function addExamQuestionField() {
+        const questionsContainer = document.getElementById('exam-questions-container');
+        const questionTemplate = document.getElementById('question-template').content.cloneNode(true);
+        examQuestionCounter++;
+        const questionElement = questionTemplate.querySelector('.question-item');
+        questionElement.querySelector('.question-number').textContent = examQuestionCounter;
+        
+        for (let i = 0; i < 2; i++) addOptionField(questionElement.querySelector('.options-container'));
+        updateCorrectAnswerSelectors(questionElement);
+        questionsContainer.appendChild(questionElement);
+    }
+
+    async function handleExamSubmit(event) {
+        event.preventDefault();
+        const courseId = document.getElementById('exam-course-id').value;
+        if (!courseId) {
+            showStatus('error', 'Erreur', 'Sélectionnez un cours');
+            return;
+        }
+        
+        try {
+            const questions = [];
+            const questionElements = document.querySelectorAll('#exam-questions-container .question-item');
+            if (questionElements.length === 0) {
+                showStatus('error', 'Erreur', 'Ajoutez au moins une question');
+                return;
+            }
+            
+            questionElements.forEach(questionElement => {
+                const questionText = questionElement.querySelector('.question-text').value.trim();
+                const options = Array.from(questionElement.querySelectorAll('.option-text')).map(input => input.value.trim()).filter(text => text !== '');
+                const correctAnswer = parseInt(questionElement.querySelector('.correct-answer').value);
+                
+                if (questionText && options.length >= 2) {
+                    questions.push({ question: questionText, options: options, answer: correctAnswer });
+                }
+            });
+            
+            if (questions.length === 0) {
+                showStatus('error', 'Erreur', 'Remplissez toutes les questions');
+                return;
+            }
+            
+            const examData = {
+                passScore: parseInt(document.getElementById('exam-pass-score').value),
+                questions: questions,
+                updatedAt: serverTimestamp()
+            };
+            
+            // ESSAYER DE SAUVEGARDER DANS LES DEUX STRUCTURES
+            try {
+                // Essai 1: Sous-collection
+                const examRef = doc(db, "courses", courseId, "finalExam", "finalExam");
+                await setDoc(examRef, examData, { merge: true });
+                showStatus('success', 'Succès', 'Examen enregistré (sous-collection)');
+            } catch (error1) {
+                console.log("Essai sous-collection échoué, tentative champ...");
+                try {
+                    // Essai 2: Champ dans le document cours
+                    const courseRef = doc(db, "courses", courseId);
+                    await updateDoc(courseRef, { finalExam: examData });
+                    showStatus('success', 'Succès', 'Examen enregistré (champ cours)');
+                } catch (error2) {
+                    console.error("Les deux méthodes ont échoué:", error2);
+                    showStatus('error', 'Erreur', 'Impossible d\'enregistrer l\'examen');
+                }
+            }
+            
+        } catch (error) {
+            console.error("Erreur handleExamSubmit:", error);
+            showStatus('error', 'Erreur', 'Erreur lors de l\'enregistrement');
+        }
+    }
+
+    function resetExamForm() {
+        document.getElementById('exam-form').reset();
+        document.getElementById('exam-questions-container').innerHTML = '';
+        examQuestionCounter = 0;
+        document.getElementById('exam-pass-score').value = 70;
+        addExamQuestionField();
+    }
+
+    // ========== GESTION CERTIFICAT ==========
+    async function loadCourseCertificate(courseId) {
+        if (!courseId) {
+            document.getElementById('certificate-container').classList.add('hidden');
+            document.getElementById('no-certificate-selected').classList.remove('hidden');
+            return;
+        }
+        
+        try {
+            document.getElementById('certificate-container').classList.remove('hidden');
+            document.getElementById('no-certificate-selected').classList.add('hidden');
+            document.getElementById('certificate-course-id').value = courseId;
+            
+            // ESSAIE DEUX STRUCTURES
+            try {
+                const certRef = doc(db, "courses", courseId, "certificate", "certificate");
+                const certSnap = await getDoc(certRef);
+                if (certSnap.exists()) {
+                    fillCertificateForm(certSnap.data());
+                    return;
+                }
+            } catch (error) {
+                console.log("Pas de sous-collection certificate");
+            }
+            
+            const courseRef = doc(db, "courses", courseId);
+            const courseSnap = await getDoc(courseRef);
+            if (courseSnap.exists() && courseSnap.data().certificate) {
+                fillCertificateForm(courseSnap.data().certificate);
+                return;
+            }
+            
+        } catch (error) {
+            console.error("Erreur loadCourseCertificate:", error);
+            showStatus('error', 'Erreur', 'Impossible de charger');
+        }
+    }
+
+    function fillCertificateForm(certData) {
+        const radioButton = document.querySelector(`input[name="certificate-type"][value="${certData.type}"]`);
+        if (radioButton) radioButton.checked = true;
+        document.getElementById('certificate-image').value = certData.image || '';
+    }
+
+    async function handleCertificateSubmit(event) {
+        event.preventDefault();
+        const courseId = document.getElementById('certificate-course-id').value;
+        if (!courseId) {
+            showStatus('error', 'Erreur', 'Sélectionnez un cours');
+            return;
+        }
+        
+        try {
+            const certificateType = document.querySelector('input[name="certificate-type"]:checked').value;
+            const certificateData = {
+                type: certificateType,
+                image: document.getElementById('certificate-image').value.trim() || null,
+                updatedAt: serverTimestamp()
+            };
+            
+            // ESSAYER LES DEUX STRUCTURES
+            try {
+                const certRef = doc(db, "courses", courseId, "certificate", "certificate");
+                await setDoc(certRef, certificateData, { merge: true });
+                showStatus('success', 'Succès', 'Certificat enregistré (sous-collection)');
+            } catch (error1) {
+                const courseRef = doc(db, "courses", courseId);
+                await updateDoc(courseRef, { certificate: certificateData });
+                showStatus('success', 'Succès', 'Certificat enregistré (champ cours)');
+            }
+            
+        } catch (error) {
+            console.error("Erreur handleCertificateSubmit:", error);
+            showStatus('error', 'Erreur', 'Impossible d\'enregistrer');
+        }
+    }
+
+    // ========== INITIALISATION ==========
+    async function initApp() {
+        try {
+            await loadCourses();
+            resetQuizForm();
+            resetExamForm();
+            showStatus('success', 'Prêt', 'Dashboard chargé');
+        } catch (error) {
+            console.error("Erreur initApp:", error);
+            showStatus('error', 'Erreur', 'Impossible d\'initialiser');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+
+    // EXPOSITION GLOBALE
+    window.showSection = showSection;
+    window.addQuestionField = addQuestionField;
+    window.addOptionField = addOptionField;
+    window.removeOptionField = removeOptionField;
+    window.removeQuestionField = removeQuestionField;
+    window.addExamQuestionField = addExamQuestionField;
+    window.loadModules = loadModules;
+    window.editModule = editModule;
+    window.confirmDeleteModule = confirmDeleteModule;
+    window.editCourse = editCourse;
+    window.confirmDeleteCourse = confirmDeleteCourse;
+    window.editQuiz = editQuiz;
+    window.confirmDeleteQuiz = confirmDeleteQuiz;
+    window.editAssignment = editAssignment;
+    window.confirmDeleteAssignment = confirmDeleteAssignment;
+    window.loadCourseQuizzes = loadCourseQuizzes;
+    window.loadCourseAssignments = loadCourseAssignments;
+    window.loadCourseExam = loadCourseExam;
+    window.loadCourseCertificate = loadCourseCertificate;
+    window.resetCourseForm = resetCourseForm;
+    window.resetModuleForm = resetModuleForm;
+    window.resetQuizForm = resetQuizForm;
+    window.resetAssignmentForm = resetAssignmentForm;
+    window.resetExamForm = resetExamForm;
+    window.handleCourseSubmit = handleCourseSubmit;
+    window.handleModuleSubmit = handleModuleSubmit;
+    window.handleQuizSubmit = handleQuizSubmit;
+    window.handleAssignmentSubmit = handleAssignmentSubmit;
+    window.handleExamSubmit = handleExamSubmit;
+    window.handleCertificateSubmit = handleCertificateSubmit;
+</script>
+</body>
+</html>

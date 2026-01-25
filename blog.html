@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualités | URH</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .like-animation {
+            animation: likeHeart 0.5s ease-in-out;
+        }
+        
+        @keyframes likeHeart {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { max-height: 0; opacity: 0; }
+            to { max-height: 500px; opacity: 1; }
+        }
+        
+        .post-media {
+            max-height: 500px;
+            object-fit: contain;
+        }
+        
+        video {
+            background-color: #000;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .user-menu-hidden {
+            display: none !important;
+        }
+        
+        .auth-buttons-hidden {
+            display: none !important;
+        }
+        
+        .user-avatar {
+            transition: transform 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header Fixe -->
+    <header class="fixed w-full z-50 bg-white shadow-md">
+        <nav class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center">
+                        <img src="logo.png" alt="URH Logo" class="h-10">
+                    </div>
+                    <span class="font-bold text-xl text-green-700">URH</span>
+                </div>
+
+                <!-- Navigation Desktop -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-green-700 font-medium">Accueil</a>
+                    <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium">Cours</a>
+                    <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium">Admission</a>
+                    <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium">Actualités</a>
+                    <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium">Contact</a>
+                    
+                    <!-- Boutons d'authentification -->
+                    <div id="auth-buttons-desktop" class="flex items-center space-x-4">
+                        <a href="connexion.html" class="text-green-600 hover:text-green-800 font-medium">
+                            Connexion
+                        </a>
+                        <a href="inscription.html" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                            Inscription
+                        </a>
+                    </div>
+                    
+                    <!-- Menu utilisateur -->
+                    <div id="user-menu-desktop" class="user-menu-hidden flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center focus:outline-none">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center user-avatar">
+                                    <i class="fas fa-user text-green-600"></i>
+                                </div>
+                            </button>
+                            
+                            <!-- Dropdown menu utilisateur -->
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+                                <a href="profil.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user-circle mr-2"></i> Mon profil
+                                </a>
+                                <button id="logout-button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton menu mobile -->
+                <button class="md:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="md:hidden bg-white shadow-lg px-4 py-3 hidden">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-green-700 font-medium py-2">Accueil</a>
+                <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Cours</a>
+                <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Actualité</a>
+                <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Admissions</a>
+                <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Contact</a>
+                
+                <!-- Boutons d'authentification mobile -->
+                <div id="auth-buttons-mobile" class="pt-4 border-t border-gray-200">
+                    <a href="connexion.html" class="block text-center text-green-600 hover:text-green-800 font-medium py-2">
+                        Connexion
+                    </a>
+                    <a href="inscription.html" class="block text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg mt-2 transition duration-300">
+                        Inscription
+                    </a>
+                </div>
+                
+                <!-- Menu utilisateur mobile -->
+                <div id="user-menu-mobile" class="user-menu-hidden pt-4 border-t border-gray-200">
+                    <a href="profil.html" class="flex items-center text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-green-600"></i>
+                        </div>
+                        Mon profil
+                    </a>
+                    <button id="logout-button-mobile" class="w-full flex items-center text-left text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        </div>
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-16"></div> <!-- Espace pour le header fixe -->
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- En-tête de la page -->
+        <div class="mb-10 text-center fade-in">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                <i class="fas fa-newspaper text-green-600 mr-3"></i>
+                Actualités de l'Institution
+            </h1>
+            <p class="text-gray-600 max-w-2xl mx-auto">
+                Découvrez les dernières publications, annonces et événements de notre institution éducative
+            </p>
+        </div>
+        
+        <!-- Messages de feedback -->
+        <div id="feedback-message" class="hidden mb-6 p-4 rounded-lg max-w-2xl mx-auto"></div>
+        
+        <!-- Modal de connexion requise -->
+        <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full fade-in">
+                <div class="p-6">
+                    <div class="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full mb-4">
+                        <i class="fas fa-user-lock text-green-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 text-center mb-2">
+                        Connexion requise
+                    </h3>
+                    <p class="text-gray-600 text-center mb-6">
+                        Pour liker ou commenter les publications, vous devez être connecté à votre compte.
+                    </p>
+                    <div class="flex space-x-3">
+                        <button type="button" id="close-login-modal"
+                                class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg transition">
+                            Fermer
+                        </button>
+                        <a href="connexion.html"
+                           class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition text-center">
+                            Se connecter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de partage -->
+        <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full fade-in">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Partager cette publication</h3>
+                        <button type="button" id="close-share-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4 mb-6">
+                        <!-- URL de partage -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lien de partage</label>
+                            <div class="flex">
+                                <input type="text" id="share-url" 
+                                       class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                                       readonly>
+                                <button id="copy-share-url" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-r-lg transition">
+                                    Copier
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Options de partage -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Partager sur</label>
+                            <div class="grid grid-cols-4 gap-3">
+                                <button class="share-platform-btn flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                                        data-platform="facebook">
+                                    <i class="fab fa-facebook text-green-600 text-2xl mb-2"></i>
+                                    <span class="text-xs text-gray-600">Facebook</span>
+                                </button>
+                                
+                                <button class="share-platform-btn flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                                        data-platform="twitter">
+                                    <i class="fab fa-twitter text-green-400 text-2xl mb-2"></i>
+                                    <span class="text-xs text-gray-600">Twitter</span>
+                                </button>
+                                
+                                <button class="share-platform-btn flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                                        data-platform="whatsapp">
+                                    <i class="fab fa-whatsapp text-green-500 text-2xl mb-2"></i>
+                                    <span class="text-xs text-gray-600">WhatsApp</span>
+                                </button>
+                                
+                                <button class="share-platform-btn flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                                        data-platform="email">
+                                    <i class="fas fa-envelope text-red-500 text-2xl mb-2"></i>
+                                    <span class="text-xs text-gray-600">Email</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-sm text-gray-500">
+                        <p>Le partage permet de diffuser les actualités de l'institution</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conteneur principal -->
+        <div class="max-w-2xl mx-auto">
+            <!-- Liste des articles -->
+            <div id="posts-container" class="space-y-6">
+                <!-- Les articles seront chargés ici dynamiquement -->
+                <div class="text-center py-12">
+                    <div class="inline-block p-4 rounded-full bg-green-50 mb-4">
+                        <i class="fas fa-spinner fa-spin text-2xl text-green-600"></i>
+                    </div>
+                    <p class="text-gray-600">Chargement des actualités...</p>
+                </div>
+            </div>
+            
+            <!-- Message pas d'articles -->
+            <div id="no-posts-message" class="hidden text-center py-12">
+                <div class="inline-block p-4 rounded-full bg-gray-100 mb-4">
+                    <i class="fas fa-newspaper text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Aucune publication pour le moment</h3>
+                <p class="text-gray-500">Revenez plus tard pour découvrir les actualités de l'institution.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+      <footer class="bg-gray-900 text-white pt-12 pb-8">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-4 gap-8 mb-8">
+                    <!-- Logo et description -->
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-6">
+                          <div class="mr-3">
+        <img src="logo.png" alt="Logo URH HAITI" class="h-12 w-auto object-contain">
+    </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">URH HAITI</h2>
+                                <p class="text-sm text-gray-300">Plateforme d'enseignement en ligne</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mb-6">École de référence en matière de formation à l'échelle nationale et internationale</p>
+                        <div class="flex space-x-4">
+                            <a href="https://www.facebook.com/share/1BnXZxoXJr/" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-400 transition">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-700 transition">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Liens rapides -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Liens rapides</h3>
+                        <ul class="space-y-3">
+                            <li><a href="index.html" class="text-gray-400 hover:text-white transition">Accueil</a></li>
+                            <li><a href="formation.html" class="text-gray-400 hover:text-white transition">Formations</a></li>
+                            <li><a href="apropos.html" class="text-gray-400 hover:text-white transition">À propos</a></li>
+                            <li><a href="https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant" class="text-gray-400 hover:text-white transition">Admission</a></li>
+                            <li><a href="contct.html" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Contact footer -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Contact</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-map-marker-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-phone-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-envelope text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir  definir </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Copyright -->
+                <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+                    <p>&copy; 2026 URH. Tous droits réservés.</p>
+                    <p class="mt-2">Site conçu avec <i class="fas fa-heart text-red-500"></i></p>
+                </div>
+            </div>
+        </footer>
+
+    <!-- Template d'article (caché) -->
+    <template id="post-template">
+        <div class="post-card bg-white rounded-xl shadow-md overflow-hidden fade-in">
+            <!-- En-tête de l'article -->
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-white"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="font-bold text-gray-800">URH</h3>
+                        <p class="text-xs text-gray-500">
+                            <i class="far fa-clock mr-1"></i>
+                            <span class="post-date">Date</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="p-4">
+                <p class="text-gray-700 post-description whitespace-pre-line"></p>
+            </div>
+            
+            <!-- Média (Image ou Vidéo) -->
+            <div class="post-media-container">
+                <!-- Le média sera inséré ici -->
+            </div>
+            
+            <!-- Statistiques -->
+            <div class="px-4 pt-3 pb-2 border-t border-gray-100">
+                <div class="flex items-center text-sm text-gray-500">
+                    <div class="flex items-center mr-4">
+                        <i class="fas fa-heart text-red-500 mr-1"></i>
+                        <span class="post-likes-count">0</span> likes
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-comment text-green-500 mr-1"></i>
+                        <span class="post-comments-count">0</span> commentaires
+                    </div>
+                    <div class="flex items-center ml-4">
+                        <i class="fas fa-share text-green-500 mr-1"></i>
+                        <span class="post-shares-count">0</span> partages
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barre d'actions -->
+            <div class="px-2 py-1 border-t border-gray-100">
+                <div class="flex divide-x divide-gray-100">
+                    <!-- Bouton Like -->
+                    <button class="like-btn flex-1 py-3 flex items-center justify-center hover:bg-gray-50 transition group"
+                            data-post-id="">
+                        <div class="flex items-center">
+                            <i class="far fa-heart text-gray-500 group-hover:text-red-500 text-lg like-icon"></i>
+                            <span class="ml-2 text-gray-700 font-medium hidden md:inline">J'aime</span>
+                        </div>
+                    </button>
+                    
+                    <!-- Bouton Commenter -->
+                    <button class="comment-btn flex-1 py-3 flex items-center justify-center hover:bg-gray-50 transition group"
+                            data-post-id="">
+                        <div class="flex items-center">
+                            <i class="far fa-comment text-gray-500 group-hover:text-green-500 text-lg"></i>
+                            <span class="ml-2 text-gray-700 font-medium hidden md:inline">Commenter</span>
+                        </div>
+                    </button>
+                    
+                    <!-- Bouton Partager -->
+                    <button class="share-btn flex-1 py-3 flex items-center justify-center hover:bg-gray-50 transition group"
+                            data-post-id="">
+                        <div class="flex items-center">
+                            <i class="fas fa-share text-gray-500 group-hover:text-green-500 text-lg"></i>
+                            <span class="ml-2 text-gray-700 font-medium hidden md:inline">Partager</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Zone commentaires (repliable) -->
+            <div class="comments-section border-t border-gray-100 hidden">
+                <div class="p-4">
+                    <!-- Liste des commentaires -->
+                    <div class="post-comments-list mb-4 max-h-64 overflow-y-auto pr-2">
+                        <!-- Les commentaires seront chargés ici -->
+                        <div class="text-center py-4 text-gray-500">
+                            <i class="fas fa-comment-dots text-2xl opacity-20 mb-2"></i>
+                            <p class="text-sm">Aucun commentaire pour le moment</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulaire d'ajout de commentaire -->
+                    <div class="add-comment-form">
+                        <div class="flex space-x-2">
+                            <input type="text" 
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                                   placeholder="Ajouter un commentaire..."
+                                   data-post-id="">
+                            <button class="send-comment-btn bg-green-600 hover:bg-green-700 text-white w-10 h-10 rounded-full flex items-center justify-center transition"
+                                    data-post-id="">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Firebase SDK et Script principal -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs, 
+            query, 
+            orderBy, 
+            onSnapshot, 
+            addDoc, 
+            deleteDoc,
+            serverTimestamp,
+            updateDoc,
+            increment,
+            setDoc,
+            arrayUnion,
+            arrayRemove
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+        // Configuration Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Variables globales de l'application
+        let currentUser = null;
+        let postsListener = null;
+        let currentPostIdForShare = null;
+
+        // ============================================
+        // GESTION DU HEADER
+        // ============================================
+
+        function setupHeaderEventListeners() {
+            // Menu mobile
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Dropdown menu utilisateur (desktop)
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuButton && userDropdown) {
+                userMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                
+                // Fermer le dropdown en cliquant ailleurs
+                document.addEventListener('click', () => {
+                    userDropdown.classList.add('hidden');
+                });
+                
+                // Empêcher la fermeture quand on clique dans le dropdown
+                userDropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Boutons de déconnexion
+            const logoutButton = document.getElementById('logout-button');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+            
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', handleLogout);
+            }
+        }
+
+        function updateHeaderForAuthState(user) {
+            const authButtonsDesktop = document.getElementById('auth-buttons-desktop');
+            const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+            const userMenuDesktop = document.getElementById('user-menu-desktop');
+            const userMenuMobile = document.getElementById('user-menu-mobile');
+            
+            if (user) {
+                // Utilisateur connecté
+                if (authButtonsDesktop) authButtonsDesktop.classList.add('auth-buttons-hidden');
+                if (authButtonsMobile) authButtonsMobile.classList.add('auth-buttons-hidden');
+                if (userMenuDesktop) userMenuDesktop.classList.remove('user-menu-hidden');
+                if (userMenuMobile) userMenuMobile.classList.remove('user-menu-hidden');
+            } else {
+                // Utilisateur non connecté
+                if (authButtonsDesktop) authButtonsDesktop.classList.remove('auth-buttons-hidden');
+                if (authButtonsMobile) authButtonsMobile.classList.remove('auth-buttons-hidden');
+                if (userMenuDesktop) userMenuDesktop.classList.add('user-menu-hidden');
+                if (userMenuMobile) userMenuMobile.classList.add('user-menu-hidden');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                window.location.href = 'connexion.html';
+            } catch (error) {
+                console.error("Erreur lors de la déconnexion:", error);
+                alert("Erreur lors de la déconnexion");
+            }
+        }
+
+        // ============================================
+        // LOGIQUE PRINCIPALE
+        // ============================================
+
+        /**
+         * Initialise l'application lors du chargement
+         */
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 1. Configurer le header
+                setupHeaderEventListeners();
+                
+                // 2. Initialiser l'authentification
+                initializeAuth();
+                
+                // 3. Configurer les écouteurs d'événements globaux
+                setupGlobalEventListeners();
+                
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation:', error);
+                showFeedback('Erreur lors du chargement de l\'application', 'error');
+            }
+        });
+
+        /**
+         * Initialise la surveillance de l'authentification
+         */
+        function initializeAuth() {
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                updateHeaderForAuthState(user);
+                console.log('État d\'authentification:', user ? 'connecté' : 'non connecté');
+                
+                // Recharger les articles si nécessaire
+                if (postsListener) {
+                    loadPosts();
+                }
+            });
+        }
+
+        /**
+         * Configure les écouteurs d'événements globaux
+         */
+        function setupGlobalEventListeners() {
+            // Fermer la modal de connexion
+            document.getElementById('close-login-modal').addEventListener('click', () => {
+                document.getElementById('login-modal').classList.add('hidden');
+            });
+            
+            // Fermer la modal de partage
+            document.getElementById('close-share-modal').addEventListener('click', () => {
+                document.getElementById('share-modal').classList.add('hidden');
+            });
+            
+            // Copier l'URL de partage
+            document.getElementById('copy-share-url').addEventListener('click', copyShareUrl);
+            
+            // Partager sur les plateformes
+            document.querySelectorAll('.share-platform-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const platform = btn.dataset.platform;
+                    shareOnPlatform(platform);
+                });
+            });
+            
+            // Fermer les modales en cliquant à l'extérieur
+            document.addEventListener('click', (e) => {
+                if (e.target.id === 'login-modal') {
+                    document.getElementById('login-modal').classList.add('hidden');
+                }
+                if (e.target.id === 'share-modal') {
+                    document.getElementById('share-modal').classList.add('hidden');
+                }
+            });
+        }
+
+        /**
+         * Charge et affiche tous les articles
+         */
+        function loadPosts() {
+            try {
+                const postsCollection = collection(db, 'posts');
+                
+                // Créer une requête triée par date (plus récent en premier)
+                const postsQuery = query(postsCollection, orderBy('createdAt', 'desc'));
+                
+                // Arrêter l'écoute précédente si elle existe
+                if (postsListener) {
+                    postsListener();
+                }
+                
+                // Écouter les changements en temps réel
+                postsListener = onSnapshot(postsQuery, async (snapshot) => {
+                    const posts = [];
+                    snapshot.forEach((doc) => {
+                        posts.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    await renderPosts(posts);
+                    
+                    // Mettre à jour le compteur d'articles
+                    updatePostsCount(posts.length);
+                    
+                }, (error) => {
+                    console.error('Erreur lors du chargement des articles:', error);
+                    showFeedback('Erreur lors du chargement des actualités', 'error');
+                });
+                
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation du chargement:', error);
+                showFeedback('Impossible de charger les actualités', 'error');
+            }
+        }
+
+        /**
+         * Affiche la liste des articles
+         */
+        async function renderPosts(posts) {
+            const postsContainer = document.getElementById('posts-container');
+            
+            if (posts.length === 0) {
+                postsContainer.classList.add('hidden');
+                document.getElementById('no-posts-message').classList.remove('hidden');
+                return;
+            }
+            
+            // Afficher le conteneur et masquer le message "pas d'articles"
+            postsContainer.classList.remove('hidden');
+            document.getElementById('no-posts-message').classList.add('hidden');
+            
+            // Vider le conteneur
+            postsContainer.innerHTML = '';
+            
+            // Créer et afficher chaque article
+            for (const post of posts) {
+                await createPostElement(post);
+            }
+            
+            // Ajouter les écouteurs d'événements après le rendu
+            setTimeout(() => attachEventListeners(), 100);
+        }
+
+        /**
+         * Crée un élément d'article à partir du template
+         */
+        async function createPostElement(post) {
+            try {
+                const template = document.getElementById('post-template');
+                const postElement = template.content.cloneNode(true);
+                
+                // Remplir les données de base
+                postElement.querySelector('.post-card').dataset.postId = post.id;
+                postElement.querySelector('.post-description').textContent = post.description;
+                postElement.querySelector('.post-likes-count').textContent = post.likesCount || 0;
+                postElement.querySelector('.post-comments-count').textContent = post.commentsCount || 0;
+                postElement.querySelector('.post-shares-count').textContent = post.sharesCount || 0;
+                
+                // Formater et afficher la date
+                const date = post.createdAt?.toDate() || new Date();
+                postElement.querySelector('.post-date').textContent = formatPostDate(date);
+                
+                // Configurer les boutons
+                postElement.querySelector('.like-btn').dataset.postId = post.id;
+                postElement.querySelector('.comment-btn').dataset.postId = post.id;
+                postElement.querySelector('.share-btn').dataset.postId = post.id;
+                postElement.querySelector('input[type="text"]').dataset.postId = post.id;
+                postElement.querySelector('.send-comment-btn').dataset.postId = post.id;
+                
+                // Vérifier si l'utilisateur a déjà liké cet article
+                if (currentUser) {
+                    await checkIfLiked(post.id, postElement);
+                }
+                
+                // Ajouter le média (image ou vidéo)
+                await addMediaToPost(post, postElement);
+                
+                // Ajouter au DOM
+                document.getElementById('posts-container').appendChild(postElement);
+                
+            } catch (error) {
+                console.error('Erreur lors de la création de l\'article:', error, post);
+            }
+        }
+
+        /**
+         * Vérifie si l'utilisateur a déjà liké l'article et met à jour l'icône
+         */
+        async function checkIfLiked(postId, postElement) {
+            try {
+                const likeDoc = doc(db, 'posts', postId, 'likes', currentUser.uid);
+                const likeSnapshot = await getDoc(likeDoc);
+                
+                if (likeSnapshot.exists()) {
+                    // L'utilisateur a déjà liké
+                    const likeIcon = postElement.querySelector('.like-icon');
+                    likeIcon.classList.remove('far', 'fa-heart');
+                    likeIcon.classList.add('fas', 'fa-heart', 'text-red-500');
+                }
+            } catch (error) {
+                console.error('Erreur lors de la vérification du like:', error);
+            }
+        }
+
+        /**
+         * Ajoute le média (image ou vidéo) à l'article
+         */
+        async function addMediaToPost(post, postElement) {
+            const mediaContainer = postElement.querySelector('.post-media-container');
+            
+            if (!post.media) {
+                mediaContainer.classList.add('hidden');
+                return;
+            }
+            
+            if (post.type === 'image') {
+                // Créer une image
+                const img = document.createElement('img');
+                img.src = post.media;
+                img.alt = post.description.substring(0, 100);
+                img.className = 'w-full post-media cursor-pointer';
+                img.loading = 'lazy';
+                
+                // Ajouter un effet au clic
+                img.addEventListener('click', () => {
+                    openMediaModal(post.media, 'image');
+                });
+                
+                mediaContainer.appendChild(img);
+                
+            } else if (post.type === 'video') {
+                // Créer une vidéo
+                const video = document.createElement('video');
+                video.src = post.media;
+                video.controls = true;
+                video.className = 'w-full post-media';
+                video.preload = 'metadata';
+                
+                mediaContainer.appendChild(video);
+            }
+        }
+
+        /**
+         * Attache les écouteurs d'événements aux éléments dynamiques
+         */
+        function attachEventListeners() {
+            // Boutons Like
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleLike(btn.dataset.postId));
+            });
+            
+            // Boutons Commenter
+            document.querySelectorAll('.comment-btn').forEach(btn => {
+                btn.addEventListener('click', () => toggleComments(btn.dataset.postId));
+            });
+            
+            // Boutons Partager
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleShare(btn.dataset.postId));
+            });
+            
+            // Boutons d'envoi de commentaire
+            document.querySelectorAll('.send-comment-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleAddComment(btn.dataset.postId));
+            });
+            
+            // Entrée dans les champs de commentaire
+            document.querySelectorAll('input[type="text"]').forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        handleAddComment(input.dataset.postId);
+                    }
+                });
+            });
+        }
+
+        /**
+         * Gère l'action de like
+         */
+        async function handleLike(postId) {
+            try {
+                // Vérifier si l'utilisateur est connecté
+                if (!currentUser) {
+                    showLoginModal();
+                    return;
+                }
+                
+                const likeRef = doc(db, 'posts', postId, 'likes', currentUser.uid);
+                const postRef = doc(db, 'posts', postId);
+                
+                // Vérifier si l'utilisateur a déjà liké
+                const likeSnapshot = await getDoc(likeRef);
+                
+                // Trouver l'élément du bouton like
+                const likeBtn = document.querySelector(`.like-btn[data-post-id="${postId}"]`);
+                const likeIcon = likeBtn.querySelector('.like-icon');
+                const likesCountElement = likeBtn.closest('.post-card').querySelector('.post-likes-count');
+                
+                if (likeSnapshot.exists()) {
+                    // Retirer le like
+                    await deleteDoc(likeRef);
+                    
+                    // Décrémenter le compteur dans le post
+                    await updateDoc(postRef, {
+                        likesCount: increment(-1),
+                        // Retirer l'ID utilisateur de la liste des likes
+                        likedBy: arrayRemove(currentUser.uid)
+                    });
+                    
+                    // Mettre à jour l'interface
+                    likeIcon.classList.remove('fas', 'fa-heart', 'text-red-500');
+                    likeIcon.classList.add('far', 'fa-heart');
+                    
+                    // Animation
+                    likeIcon.classList.remove('like-animation');
+                    void likeIcon.offsetWidth; // Trigger reflow
+                    likeIcon.classList.add('like-animation');
+                    
+                    // Mettre à jour le compteur
+                    const currentCount = parseInt(likesCountElement.textContent);
+                    likesCountElement.textContent = Math.max(0, currentCount - 1);
+                    
+                } else {
+                    // Ajouter le like
+                    await setDoc(likeRef, {
+                        userId: currentUser.uid,
+                        userName: currentUser.displayName || currentUser.email,
+                        likedAt: serverTimestamp()
+                    });
+                    
+                    // Incrémenter le compteur dans le post
+                    await updateDoc(postRef, {
+                        likesCount: increment(1),
+                        // Ajouter l'ID utilisateur à la liste des likes
+                        likedBy: arrayUnion(currentUser.uid)
+                    });
+                    
+                    // Mettre à jour l'interface
+                    likeIcon.classList.remove('far', 'fa-heart');
+                    likeIcon.classList.add('fas', 'fa-heart', 'text-red-500');
+                    
+                    // Animation
+                    likeIcon.classList.remove('like-animation');
+                    void likeIcon.offsetWidth; // Trigger reflow
+                    likeIcon.classList.add('like-animation');
+                    
+                    // Mettre à jour le compteur
+                    const currentCount = parseInt(likesCountElement.textContent);
+                    likesCountElement.textContent = currentCount + 1;
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors du like:', error);
+                showFeedback('Impossible d\'enregistrer votre like', 'error');
+            }
+        }
+
+        /**
+         * Affiche/masque la zone de commentaires
+         */
+        function toggleComments(postId) {
+            try {
+                const postElement = document.querySelector(`.post-card[data-post-id="${postId}"]`);
+                const commentsSection = postElement.querySelector('.comments-section');
+                const commentBtn = postElement.querySelector('.comment-btn');
+                
+                // Vérifier si l'utilisateur veut commenter mais n'est pas connecté
+                if (!currentUser && commentsSection.classList.contains('hidden')) {
+                    showLoginModal();
+                    return;
+                }
+                
+                // Basculer l'affichage
+                if (commentsSection.classList.contains('hidden')) {
+                    commentsSection.classList.remove('hidden');
+                    commentsSection.classList.add('slide-down');
+                    commentBtn.classList.add('bg-green-50', 'text-green-600');
+                    
+                    // Charger les commentaires si c'est la première fois
+                    loadComments(postId);
+                    
+                } else {
+                    commentsSection.classList.add('hidden');
+                    commentsSection.classList.remove('slide-down');
+                    commentBtn.classList.remove('bg-green-50', 'text-green-600');
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors du basculement des commentaires:', error);
+            }
+        }
+
+        /**
+         * Charge les commentaires d'un article
+         */
+        async function loadComments(postId) {
+            try {
+                const commentsRef = collection(db, 'posts', postId, 'comments');
+                const commentsQuery = query(commentsRef, orderBy('createdAt', 'asc'));
+                
+                const commentsSnapshot = await getDocs(commentsQuery);
+                const commentsList = document.querySelector(`.post-card[data-post-id="${postId}"] .post-comments-list`);
+                
+                if (commentsSnapshot.empty) {
+                    commentsList.innerHTML = `
+                        <div class="text-center py-4 text-gray-500">
+                            <i class="fas fa-comment-dots text-2xl opacity-20 mb-2"></i>
+                            <p class="text-sm">Aucun commentaire pour le moment</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let commentsHtml = '';
+                
+                commentsSnapshot.forEach((doc) => {
+                    const comment = doc.data();
+                    const date = comment.createdAt?.toDate() || new Date();
+                    
+                    commentsHtml += `
+                        <div class="mb-3 pb-3 border-b border-gray-100 last:border-0 last:mb-0">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                    <i class="fas fa-user text-gray-500 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-1">
+                                        <span class="font-medium text-sm text-gray-800">${comment.userName || 'Utilisateur'}</span>
+                                        <span class="text-xs text-gray-500 ml-2">${formatCommentDate(date)}</span>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">${comment.text}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                commentsList.innerHTML = commentsHtml;
+                commentsList.scrollTop = commentsList.scrollHeight;
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des commentaires:', error);
+            }
+        }
+
+        /**
+         * Gère l'ajout d'un commentaire
+         */
+        async function handleAddComment(postId) {
+            try {
+                // Vérifier si l'utilisateur est connecté
+                if (!currentUser) {
+                    showLoginModal();
+                    return;
+                }
+                
+                const postElement = document.querySelector(`.post-card[data-post-id="${postId}"]`);
+                const commentInput = postElement.querySelector('input[type="text"]');
+                const commentText = commentInput.value.trim();
+                
+                if (!commentText) {
+                    showFeedback('Veuillez écrire un commentaire', 'info');
+                    commentInput.focus();
+                    return;
+                }
+                
+                // Récupérer le nom d'utilisateur
+                const userName = currentUser.displayName || currentUser.email?.split('@')[0] || 'Utilisateur';
+                
+                // Préparer les données du commentaire
+                const commentData = {
+                    userId: currentUser.uid,
+                    userName: userName,
+                    text: commentText,
+                    createdAt: serverTimestamp()
+                };
+                
+                // Ajouter le commentaire à Firestore
+                const commentsRef = collection(db, 'posts', postId, 'comments');
+                const postRef = doc(db, 'posts', postId);
+                
+                // Ajouter le commentaire
+                await addDoc(commentsRef, commentData);
+                
+                // Incrémenter le compteur de commentaires
+                await updateDoc(postRef, {
+                    commentsCount: increment(1)
+                });
+                
+                // Réinitialiser le champ
+                commentInput.value = '';
+                
+                // Mettre à jour le compteur dans l'interface
+                const commentsCountElement = postElement.querySelector('.post-comments-count');
+                const currentCount = parseInt(commentsCountElement.textContent);
+                commentsCountElement.textContent = currentCount + 1;
+                
+                // Recharger les commentaires
+                await loadComments(postId);
+                
+                // Afficher un feedback
+                showFeedback('Commentaire ajouté avec succès', 'success');
+                
+            } catch (error) {
+                console.error('Erreur lors de l\'ajout du commentaire:', error);
+                showFeedback('Impossible d\'ajouter votre commentaire', 'error');
+            }
+        }
+
+        /**
+         * Gère le partage d'un article
+         */
+        async function handleShare(postId) {
+            try {
+                // Enregistrer le partage dans la base de données si l'utilisateur est connecté
+                if (currentUser) {
+                    const shareRef = doc(db, 'posts', postId, 'shares', currentUser.uid);
+                    const postRef = doc(db, 'posts', postId);
+                    
+                    // Vérifier si l'utilisateur a déjà partagé
+                    const shareSnapshot = await getDoc(shareRef);
+                    
+                    if (!shareSnapshot.exists()) {
+                        // Ajouter le partage
+                        await setDoc(shareRef, {
+                            userId: currentUser.uid,
+                            userName: currentUser.displayName || currentUser.email,
+                            sharedAt: serverTimestamp()
+                        });
+                        
+                        // Incrémenter le compteur de partages
+                        await updateDoc(postRef, {
+                            sharesCount: increment(1)
+                        });
+                        
+                        // Mettre à jour le compteur dans l'interface
+                        const sharesCountElement = document.querySelector(`.post-card[data-post-id="${postId}"] .post-shares-count`);
+                        const currentCount = parseInt(sharesCountElement.textContent);
+                        sharesCountElement.textContent = currentCount + 1;
+                    }
+                }
+                
+                // Ouvrir la modal de partage
+                currentPostIdForShare = postId;
+                openShareModal(postId);
+                
+            } catch (error) {
+                console.error('Erreur lors de l\'enregistrement du partage:', error);
+                // On continue quand même avec le partage
+                openShareModal(postId);
+            }
+        }
+
+        /**
+         * Ouvre la modal de partage
+         */
+        async function openShareModal(postId) {
+            try {
+                // Récupérer les données du post
+                const postRef = doc(db, 'posts', postId);
+                const postSnap = await getDoc(postRef);
+                
+                if (postSnap.exists()) {
+                    const post = postSnap.data();
+                    
+                    // Créer l'URL de partage
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?post=${postId}`;
+                    document.getElementById('share-url').value = shareUrl;
+                    
+                    // Stocker les données pour le partage
+                    document.getElementById('share-modal').dataset.postTitle = post.description.substring(0, 100);
+                    document.getElementById('share-modal').dataset.postUrl = shareUrl;
+                    
+                    // Afficher la modal
+                    document.getElementById('share-modal').classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors de l\'ouverture de la modal:', error);
+                // Fallback URL
+                const shareUrl = `${window.location.origin}${window.location.pathname}`;
+                document.getElementById('share-url').value = shareUrl;
+                document.getElementById('share-modal').classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Copie l'URL de partage
+         */
+        async function copyShareUrl() {
+            const shareUrl = document.getElementById('share-url');
+            shareUrl.select();
+            
+            try {
+                await navigator.clipboard.writeText(shareUrl.value);
+                showFeedback('Lien copié dans le presse-papier !', 'success');
+                
+                // Changer le texte du bouton temporairement
+                const copyBtn = document.getElementById('copy-share-url');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                copyBtn.classList.add('bg-green-600');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.classList.remove('bg-green-600');
+                }, 2000);
+                
+            } catch (error) {
+                // Fallback pour les anciens navigateurs
+                document.execCommand('copy');
+                showFeedback('Lien copié !', 'success');
+            }
+        }
+
+        /**
+         * Partage sur une plateforme spécifique
+         */
+        function shareOnPlatform(platform) {
+            const postTitle = document.getElementById('share-modal').dataset.postTitle || 'Actualité URH';
+            const postUrl = document.getElementById('share-modal').dataset.postUrl || window.location.href;
+            
+            let shareUrl = '';
+            
+            switch(platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}&quote=${encodeURIComponent(postTitle)}`;
+                    break;
+                    
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(postTitle)}&url=${encodeURIComponent(postUrl)}`;
+                    break;
+                    
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${encodeURIComponent(postTitle + ' ' + postUrl)}`;
+                    break;
+                    
+                case 'email':
+                    shareUrl = `mailto:?subject=${encodeURIComponent(postTitle)}&body=${encodeURIComponent(postTitle + '\n\n' + postUrl)}`;
+                    break;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'noopener,noreferrer');
+                showFeedback(`Partage sur ${platform} lancé`, 'success');
+                
+                // Fermer la modal après un court délai
+                setTimeout(() => {
+                    document.getElementById('share-modal').classList.add('hidden');
+                }, 1000);
+            }
+        }
+
+        /**
+         * Affiche la modal de connexion
+         */
+        function showLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        /**
+         * Affiche un message de feedback
+         */
+        function showFeedback(message, type = 'info') {
+            const feedbackEl = document.getElementById('feedback-message');
+            
+            // Définir les classes selon le type
+            const classes = {
+                success: 'bg-green-100 text-green-800 border border-green-200',
+                error: 'bg-red-100 text-red-800 border border-red-200',
+                info: 'bg-green-100 text-green-800 border border-green-200'
+            };
+            
+            // Appliquer les classes
+            feedbackEl.className = `${classes[type]} p-4 rounded-lg fade-in`;
+            
+            // Icône selon le type
+            const icons = {
+                success: '<i class="fas fa-check-circle mr-2"></i>',
+                error: '<i class="fas fa-exclamation-circle mr-2"></i>',
+                info: '<i class="fas fa-info-circle mr-2"></i>'
+            };
+            
+            // Ajouter le contenu
+            feedbackEl.innerHTML = `${icons[type]} ${message}`;
+            
+            // Afficher l'élément
+            feedbackEl.classList.remove('hidden');
+            
+            // Masquer automatiquement après 4 secondes
+            setTimeout(() => {
+                feedbackEl.classList.add('hidden');
+            }, 4000);
+        }
+
+        /**
+         * Met à jour le compteur d'articles
+         */
+        function updatePostsCount(count) {
+            // Cette fonction peut être utilisée pour afficher le nombre d'articles
+            console.log(`Nombre d'articles chargés: ${count}`);
+        }
+
+        /**
+         * Formate la date d'un article
+         */
+        function formatPostDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            const diffMinutes = Math.floor(diff / (1000 * 60));
+            const diffHours = Math.floor(diff / (1000 * 60 * 60));
+            const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (diffMinutes < 1) {
+                return 'À l\'instant';
+            } else if (diffMinutes < 60) {
+                return `Il y a ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+            } else if (diffHours < 24) {
+                return `Il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+            } else if (diffDays < 7) {
+                return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+            } else {
+                return date.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+                });
+            }
+        }
+
+        /**
+         * Formate la date d'un commentaire
+         */
+        function formatCommentDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            const diffMinutes = Math.floor(diff / (1000 * 60));
+            const diffHours = Math.floor(diff / (1000 * 60 * 60));
+            
+            if (diffMinutes < 1) {
+                return 'À l\'instant';
+            } else if (diffMinutes < 60) {
+                return `Il y a ${diffMinutes} min`;
+            } else if (diffHours < 24) {
+                return `Il y a ${diffHours} h`;
+            } else {
+                return date.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        /**
+         * Ouvre une modal pour afficher le média en grand
+         */
+        function openMediaModal(mediaSrc, type) {
+            // Créer la modal si elle n'existe pas
+            let modal = document.getElementById('media-modal');
+            
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'media-modal';
+                modal.className = 'fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-50 p-4';
+                modal.innerHTML = `
+                    <div class="relative max-w-4xl max-h-full w-full">
+                        <button id="close-media-modal" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center z-10">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                        <div id="media-modal-content" class="flex items-center justify-center h-full">
+                            <!-- Le média sera inséré ici -->
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                // Ajouter l'écouteur pour fermer la modal
+                document.getElementById('close-media-modal').addEventListener('click', () => {
+                    modal.classList.add('hidden');
+                });
+                
+                // Fermer en cliquant à l'extérieur
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Afficher le média
+            const content = document.getElementById('media-modal-content');
+            content.innerHTML = '';
+            
+            if (type === 'image') {
+                const img = document.createElement('img');
+                img.src = mediaSrc;
+                img.className = 'max-w-full max-h-[90vh] object-contain';
+                content.appendChild(img);
+            } else if (type === 'video') {
+                const video = document.createElement('video');
+                video.src = mediaSrc;
+                video.controls = true;
+                video.autoplay = true;
+                video.className = 'max-w-full max-h-[90vh]';
+                content.appendChild(video);
+            }
+            
+            // Afficher la modal
+            modal.classList.remove('hidden');
+        }
+
+        // Démarrer le chargement des articles après un court délai
+        setTimeout(() => {
+            loadPosts();
+        }, 500);
+    </script>
+</body>
+</html>

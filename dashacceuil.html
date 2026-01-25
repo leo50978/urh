@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin URH - Gestion du Contenu</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Toastify pour les notifications -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <style>
+        :root {
+            --primary: #1e40af;
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+            width: 260px;
+        }
+        
+        .sidebar-collapsed {
+            width: 70px;
+        }
+        
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+        
+        .sidebar-collapsed .logo-text {
+            display: none;
+        }
+        
+        .main-content-expanded {
+            margin-left: 260px;
+        }
+        
+        .main-content-collapsed {
+            margin-left: 70px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+            }
+            
+            .sidebar-mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content-expanded, .main-content-collapsed {
+                margin-left: 0;
+            }
+        }
+        
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .form-input:focus {
+            outline: none;
+           
+        }
+        
+        .table-row:hover {
+            background-color: #f8fafc;
+        }
+        
+        .page-content {
+            display: none;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+        
+        .menu-item.active {
+            background-color: #1e40af;
+            color: white;
+        }
+        
+        .menu-item.active:hover {
+            background-color: #1e3a8a;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar bg-gray-900 text-white h-screen fixed left-0 top-0 overflow-y-auto">
+        <!-- Logo -->
+        <div class="p-6 border-b border-gray-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-graduation-cap text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold logo-text">Admin URH</h1>
+                    <p class="text-gray-400 text-sm logo-text">Gestion du contenu</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu de navigation -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" data-page="homepage" class="menu-item active flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-white">
+                        <i class="fas fa-home w-6 text-center"></i>
+                        <span class="menu-text">Page d'accueil</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="programs" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-book w-6 text-center"></i>
+                        <span class="menu-text">Programmes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="news" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-newspaper w-6 text-center"></i>
+                        <span class="menu-text">Actualités</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="features" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-star w-6 text-center"></i>
+                        <span class="menu-text">Avantages</span>
+                    </a>
+                </li>
+                <li class="pt-8 border-t border-gray-800">
+                    <a href="#" data-page="settings" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-cog w-6 text-center"></i>
+                        <span class="menu-text">Paramètres</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/" target="_blank" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-external-link-alt w-6 text-center"></i>
+                        <span class="menu-text">Voir le site</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Version et statut -->
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-800">
+            <div class="text-center">
+                <p class="text-gray-500 text-sm menu-text">Version 1.0.0</p>
+                <div class="flex items-center justify-center mt-1">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span class="text-green-500 text-xs menu-text">Connecté à Firebase</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Bouton pour mobile -->
+    <button id="mobile-menu-toggle" class="lg:hidden fixed top-4 left-4 z-50 bg-gray-900 text-white p-3 rounded-lg shadow-lg">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Contenu principal -->
+    <main id="main-content" class="main-content-expanded min-h-screen transition-all duration-300">
+        <!-- Header du dashboard -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800" id="page-title">Gestion de la page d'accueil</h1>
+                        <p class="text-gray-600" id="page-subtitle">Modifiez le contenu de la page d'accueil de l'URH</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Bouton collapse sidebar -->
+                        <button id="toggle-sidebar" class="hidden lg:block text-gray-600 hover:text-blue-600">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        
+                        <!-- Profil utilisateur -->
+                        <div class="flex items-center space-x-3">
+                            <div class="text-right hidden md:block">
+                                <p class="font-medium text-gray-800">Administrateur</p>
+                                <p class="text-sm text-gray-600">admin@ifept.fr</p>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Contenu des pages -->
+        <div class="p-4 md:p-6" id="page-content">
+            <!-- Page Gestion de la page d'accueil -->
+            <div id="homepage-page" class="page-content active">
+                <!-- Aperçu en direct -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Aperçu en direct</h2>
+                        <button id="refresh-preview" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                            <i class="fas fa-redo-alt mr-1"></i> Actualiser l'aperçu
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Aperçu Hero -->
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <div class="bg-blue-800 text-white p-3 font-medium">
+                                    Section Hero
+                                </div>
+                                <div class="p-4">
+                                    <h3 id="preview-hero-title" class="font-bold text-lg mb-2">Titre principal</h3>
+                                    <p id="preview-hero-subtitle" class="text-gray-600 text-sm mb-3">Sous-titre</p>
+                                    <div class="text-xs text-gray-500">Image de fond: <span id="preview-hero-image">hero-bg.jpg</span></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aperçu Présentation -->
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <div class="bg-blue-800 text-white p-3 font-medium">
+                                    Section Présentation
+                                </div>
+                                <div class="p-4">
+                                    <p id="preview-presentation" class="text-gray-700 text-sm line-clamp-3">Texte de présentation...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulaire Hero Section -->
+                <div class="bg-white rounded-xl shadow p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-gray-800">Section Hero</h3>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">Visible</span>
+                    </div>
+                    
+                    <form id="hero-form">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Titre principal *</label>
+                                <input type="text" id="hero-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Titre principal de la page d'accueil">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Sous-titre *</label>
+                                <input type="text" id="hero-subtitle" required class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Sous-titre de la page d'accueil">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2">Image de fond *</label>
+                            <div class="flex items-center">
+                                <input type="text" id="hero-bg-image" required class="form-input flex-grow border border-gray-300 rounded-l-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="hero-bg.jpg">
+                                <button type="button" id="browse-hero-image" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 border-l-0 rounded-r-lg px-4 py-3">
+                                    <i class="fas fa-folder-open"></i>
+                                </button>
+                            </div>
+                            <p class="text-gray-500 text-sm mt-2">Nom du fichier image (doit être placé à la racine du projet, ex: hero.jpg)</p>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-hero" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 flex items-center">
+                                <i class="fas fa-save mr-2"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Formulaire Présentation -->
+                <div class="bg-white rounded-xl shadow p-6 mb-8">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">Section Présentation</h3>
+                    
+                    <form id="presentation-form">
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2">Texte de présentation *</label>
+                            <textarea id="presentation-text" rows="5" required class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Description de la mission et vision de l'URH..."></textarea>
+                            <p class="text-gray-500 text-sm mt-2">Ce texte apparaîtra dans la section "Notre Mission"</p>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-presentation" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 flex items-center">
+                                <i class="fas fa-save mr-2"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page Gestion des Programmes -->
+            <div id="programs-page" class="page-content">
+                <div class="mb-8 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Programmes</h2>
+                        <p class="text-gray-600">Ajoutez, modifiez ou supprimez les programmes de formation</p>
+                    </div>
+                    <button id="add-program-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Nouveau programme
+                    </button>
+                </div>
+                
+                <!-- Liste des programmes -->
+                <div class="bg-white rounded-xl shadow overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">#</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Image</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Titre</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Description</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Statut</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="programs-list">
+                                <!-- Les programmes seront chargés dynamiquement -->
+                                <tr>
+                                    <td colspan="6" class="text-center py-12 text-gray-600">
+                                        <div class="spinner-border text-blue-600" role="status">
+                                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                        </div>
+                                        <p class="mt-4">Chargement des programmes...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Instructions pour les images -->
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-blue-800 mb-2">Instructions pour les images des programmes</h3>
+                            <p class="text-blue-700 mb-2">Pour ajouter une image à un programme :</p>
+                            <ol class="list-decimal list-inside text-blue-700 space-y-1">
+                                <li>Placez l'image à la racine du projet (dans le même dossier que index.html)</li>
+                                <li>Notez le nom exact du fichier (ex: "developpement-web.jpg")</li>
+                                <li>Entrez ce nom dans le champ "Nom de l'image" lors de l'ajout/modification d'un programme</li>
+                                <li>Les formats supportés sont : JPG, PNG, GIF, SVG</li>
+                                <li>Recommandé : Taille 400x300 pixels pour un affichage optimal</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page Gestion des Actualités -->
+            <div id="news-page" class="page-content">
+                <div class="mb-8 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Actualités</h2>
+                        <p class="text-gray-600">Publiez et gérez les actualités de l'URH</p>
+                    </div>
+                    <button id="add-news-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Nouvelle actualité
+                    </button>
+                </div>
+                
+                <!-- Liste des actualités -->
+                <div class="bg-white rounded-xl shadow overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Date</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Titre</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Description</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Statut</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="news-list">
+                                <!-- Les actualités seront chargées dynamiquement -->
+                                <tr>
+                                    <td colspan="5" class="text-center py-12 text-gray-600">
+                                        <div class="spinner-border text-blue-600" role="status">
+                                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                        </div>
+                                        <p class="mt-4">Chargement des actualités...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page Gestion des Avantages -->
+            <div id="features-page" class="page-content">
+                <div class="mb-8 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Gestion des Avantages</h2>
+                        <p class="text-gray-600">Modifiez les raisons de choisir URH</p>
+                    </div>
+                    <button id="add-feature-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Nouvel avantage
+                    </button>
+                </div>
+                
+                <!-- Liste des avantages -->
+                <div class="bg-white rounded-xl shadow overflow-hidden mb-8">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">#</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Icône</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Titre</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Description</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="features-list">
+                                <!-- Les avantages seront chargés dynamiquement -->
+                                <tr>
+                                    <td colspan="5" class="text-center py-12 text-gray-600">
+                                        <div class="spinner-border text-blue-600" role="status">
+                                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                        </div>
+                                        <p class="mt-4">Chargement des avantages...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Page Paramètres -->
+            <div id="settings-page" class="page-content">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Paramètres</h2>
+                    <p class="text-gray-600">Configuration de l'application et connexion Firebase</p>
+                </div>
+                
+                <!-- Configuration Firebase -->
+                <div class="bg-white rounded-xl shadow p-6 mb-8">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">Configuration Firebase</h3>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-fire text-red-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Firebase Firestore</h4>
+                                <p class="text-gray-600 text-sm">Connecté au projet : izipret-c669d</p>
+                            </div>
+                            <span id="firebase-status" class="ml-auto bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">Connecté</span>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-1">Project ID</label>
+                                <input type="text" value="izipret-c669d" readonly class="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 text-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-1">Collection principale</label>
+                                <input type="text" value="homepage" readonly class="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 text-gray-700">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button id="test-firebase" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 flex items-center">
+                            <i class="fas fa-sync-alt mr-2"></i> Tester la connexion
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Gestion des images -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">Gestion des images</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-medium text-gray-800 mb-3">Images disponibles</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <!-- Les images seront listées dynamiquement -->
+                                <div class="border border-gray-200 rounded-lg p-3 text-center">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                                        <i class="fas fa-image text-gray-400"></i>
+                                    </div>
+                                    <p class="text-sm text-gray-600 truncate">hero-bg.jpg</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h4 class="font-medium text-gray-800 mb-3">Comment ajouter des images</h4>
+                            <ol class="list-decimal list-inside text-gray-700 space-y-2 pl-2">
+                                <li>Téléchargez vos images via FTP/FileZilla dans le dossier racine du site</li>
+                                <li>Les images doivent être au format JPG, PNG ou GIF</li>
+                                <li>Notez le nom exact du fichier (avec extension)</li>
+                                <li>Utilisez ce nom dans les champs "Nom de l'image"</li>
+                                <li>L'image sera automatiquement chargée depuis la racine du site</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Modal Programme -->
+        <div id="program-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800" id="program-modal-title">Ajouter un programme</h3>
+                        <button id="close-program-modal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="program-form">
+                        <input type="hidden" id="program-id">
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Titre du programme *</label>
+                                <input type="text" id="program-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Ex: Développement Web Full Stack">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Description *</label>
+                                <textarea id="program-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Description du programme..."></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Nom de l'image *</label>
+                                    <input type="text" id="program-image" required class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="developpement-web.jpg">
+                                    <p class="text-gray-500 text-sm mt-1">Nom du fichier à la racine</p>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Lien (optionnel)</label>
+                                    <input type="text" id="program-link" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="/programmes/developpement-web">
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Ordre d'affichage</label>
+                                    <input type="number" id="program-order" min="1" value="1" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Couleur (optionnel)</label>
+                                    <select id="program-color" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                        <option value="blue">Bleu</option>
+                                        <option value="green">Vert</option>
+                                        <option value="purple">Violet</option>
+                                        <option value="red">Rouge</option>
+                                        <option value="yellow">Jaune</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="checkbox" id="program-visible" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="program-visible" class="ml-2 text-gray-700">Visible sur le site</label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-4 mt-8">
+                            <button type="button" id="cancel-program" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                                Annuler
+                            </button>
+                            <button type="submit" id="save-program" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Actualité -->
+        <div id="news-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800" id="news-modal-title">Ajouter une actualité</h3>
+                        <button id="close-news-modal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="news-form">
+                        <input type="hidden" id="news-id">
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Titre *</label>
+                                <input type="text" id="news-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Titre de l'actualité">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Description *</label>
+                                <textarea id="news-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Description de l'actualité..."></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Contenu détaillé (optionnel)</label>
+                                <textarea id="news-content" rows="5" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Contenu complet de l'actualité..."></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Date de publication</label>
+                                    <input type="date" id="news-date" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" value="<?php echo date('Y-m-d'); ?>">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Image (optionnel)</label>
+                                    <input type="text" id="news-image" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="news-1.jpg">
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="checkbox" id="news-published" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="news-published" class="ml-2 text-gray-700">Publier immédiatement</label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-4 mt-8">
+                            <button type="button" id="cancel-news" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                                Annuler
+                            </button>
+                            <button type="submit" id="save-news" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300">
+                                Publier
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Avantage -->
+        <div id="feature-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800" id="feature-modal-title">Ajouter un avantage</h3>
+                        <button id="close-feature-modal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="feature-form">
+                        <input type="hidden" id="feature-id">
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Titre *</label>
+                                <input type="text" id="feature-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Ex: Formateurs Experts">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Description *</label>
+                                <textarea id="feature-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="Description de l'avantage..."></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Icône Font Awesome *</label>
+                                <div class="flex items-center">
+                                    <span class="bg-gray-100 border border-gray-300 border-r-0 rounded-l-lg p-3">
+                                        <i class="fas fa-"></i>
+                                    </span>
+                                    <input type="text" id="feature-icon" required class="form-input flex-grow border border-gray-300 rounded-r-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="users, graduation-cap, etc.">
+                                </div>
+                                <p class="text-gray-500 text-sm mt-1">Nom de l'icône Font Awesome (sans le "fa-")</p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Ordre d'affichage</label>
+                                <input type="number" id="feature-order" min="1" value="1" class="form-input w-full border border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-4 mt-8">
+                            <button type="button" id="cancel-feature" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                                Annuler
+                            </button>
+                            <button type="submit" id="save-feature" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de confirmation -->
+        <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-md">
+                <div class="p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800" id="confirm-modal-title">Confirmation</h3>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-8" id="confirm-modal-message">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+                    
+                    <div class="flex justify-end space-x-4">
+                        <button id="confirm-cancel" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                            Annuler
+                        </button>
+                        <button id="confirm-action" class="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300">
+                            Confirmer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Bulle de navigation unique - Mobile First -->
+<div id="navBulleContainer" class="fixed z-50">
+  <!-- Bulle principale -->
+  <button 
+    id="navBulleBtn" 
+    class="flex items-center justify-center w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white transition-all duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300/50"
+    aria-label="Ouvrir le menu de navigation"
+  >
+    <i id="navBulleIcon" class="fas fa-compass text-xl"></i>
+  </button>
+  
+  <!-- Fenêtre de navigation -->
+  <div 
+    id="navBulleWindow" 
+    class="absolute bottom-16 right-0 w-72 bg-white rounded-2xl shadow-2xl p-4 transform -translate-y-2 opacity-0 invisible transition-all duration-300"
+  >
+    <!-- En-tête de la fenêtre -->
+    <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800">Navigation rapide</h2>
+      <button 
+        id="navBulleCloseBtn" 
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+        aria-label="Fermer le menu"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Liste des liens -->
+    <ul class="space-y-2" id="navBulleLinks">
+      <!-- Les liens seront injectés par JavaScript -->
+    </ul>
+    
+    <!-- Indicateur de position (flèche) -->
+    <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white transform rotate-45"></div>
+  </div>
+</div>
+
+<script>
+// Configuration unique pour éviter les conflits
+const navBulleConfig = {
+  containerId: 'navBulleContainer',
+  buttonId: 'navBulleBtn',
+  windowId: 'navBulleWindow',
+  closeButtonId: 'navBulleCloseBtn',
+  linksContainerId: 'navBulleLinks',
+  iconId: 'navBulleIcon',
+  isOpen: false,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initialX: 0,
+  initialY: 0,
+  touchStartTime: 0,
+  touchMoved: false,
+  
+  // Liens de navigation
+  navLinks: [
+    {
+      id: 'navLinkAccueil',
+      title: 'Dashboard Accueil',
+      url: 'dashacceuil.html',
+      icon: 'fas fa-home',
+      color: 'text-blue-600'
+    },
+    {
+      id: 'navLinkActualites',
+      title: 'Dashboard Actualités',
+      url: 'dashacctualites.html',
+      icon: 'fas fa-newspaper',
+      color: 'text-green-600'
+    },
+    {
+      id: 'navLinkApropos',
+      title: 'Dashboard À propos',
+      url: 'dashapropo.html',
+      icon: 'fas fa-info-circle',
+      color: 'text-purple-600'
+    },
+    {
+      id: 'navLinkCours',
+      title: 'Dashboard Cours',
+      url: 'dashboardcours.html',
+      icon: 'fas fa-book-open',
+      color: 'text-amber-600'
+    },
+    {
+      id: 'navLinkContact',
+      title: 'Dashboard Contact',
+      url: 'dashcontact.html',
+      icon: 'fas fa-envelope',
+      color: 'text-red-600'
+    },
+    {
+      id: 'navLinkSoumissions',
+      title: 'Dashboard Soumissions',
+      url: 'dashboardsoumissions.html',
+      icon: 'fas fa-paper-plane',
+      color: 'text-indigo-600'
+    }
+  ],
+  
+  // Initialisation
+  init: function() {
+    this.setupElements();
+    this.renderLinks();
+    this.setupEventListeners();
+    this.positionBulleOnLoad();
+  },
+  
+  // Configuration des éléments DOM
+  setupElements: function() {
+    this.container = document.getElementById(this.containerId);
+    this.button = document.getElementById(this.buttonId);
+    this.window = document.getElementById(this.windowId);
+    this.closeButton = document.getElementById(this.closeButtonId);
+    this.linksContainer = document.getElementById(this.linksContainerId);
+    this.icon = document.getElementById(this.iconId);
+  },
+  
+  // Rendu des liens de navigation
+  renderLinks: function() {
+    this.linksContainer.innerHTML = '';
+    
+    this.navLinks.forEach(link => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a 
+          href="${link.url}" 
+          id="${link.id}"
+          class="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-colors group"
+        >
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg ${link.color} bg-opacity-10 group-hover:bg-opacity-20 mr-3">
+            <i class="${link.icon}"></i>
+          </div>
+          <span class="font-medium text-gray-800">${link.title}</span>
+        </a>
+      `;
+      this.linksContainer.appendChild(li);
+    });
+  },
+  
+  // Configuration des écouteurs d'événements
+  setupEventListeners: function() {
+    // Clic sur la bulle (ouvrir/fermer) - pour desktop
+    this.button.addEventListener('click', (e) => {
+      // Vérifier si ce n'était pas un drag
+      if (!this.isDragging && !this.touchMoved) {
+        e.stopPropagation();
+        this.toggleWindow();
+      }
+      this.touchMoved = false;
+    });
+    
+    // Clic sur le bouton de fermeture
+    this.closeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeWindow();
+    });
+    
+    // Fermer la fenêtre en cliquant à l'extérieur
+    document.addEventListener('click', (e) => {
+      if (this.isOpen && !this.window.contains(e.target) && !this.button.contains(e.target)) {
+        this.closeWindow();
+      }
+    });
+    
+    // Gestion du déplacement sur desktop (drag)
+    this.button.addEventListener('mousedown', this.startDrag.bind(this));
+    document.addEventListener('mousemove', this.drag.bind(this));
+    document.addEventListener('mouseup', this.stopDrag.bind(this));
+    
+    // Gestion des événements tactiles pour mobile - APPROCHE SIMPLIFIÉE
+    this.button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    this.button.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    this.button.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+    
+    // Fermer la fenêtre avec la touche Échap
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.closeWindow();
+      }
+    });
+    
+    // Ajuster la position lors du redimensionnement
+    window.addEventListener('resize', this.adjustPositionOnResize.bind(this));
+  },
+  
+  // Gestion du touchstart (mobile)
+  handleTouchStart: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    this.startX = touch.clientX;
+    this.startY = touch.clientY;
+    this.initialX = this.container.offsetLeft;
+    this.initialY = this.container.offsetTop;
+    this.touchStartTime = Date.now();
+    this.touchMoved = false;
+    this.isDragging = false;
+    
+    // Timer pour détecter un appui long (drag)
+    this.dragTimer = setTimeout(() => {
+      this.isDragging = true;
+      this.button.classList.add('cursor-grabbing', 'scale-105');
+    }, 300);
+  },
+  
+  // Gestion du touchmove (mobile)
+  handleTouchMove: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.startX;
+    const deltaY = touch.clientY - this.startY;
+    
+    // Si le mouvement est suffisant, c'est un drag
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      this.touchMoved = true;
+      clearTimeout(this.dragTimer);
+      
+      // Si ce n'était pas déjà un drag, le devenir
+      if (!this.isDragging) {
+        this.isDragging = true;
+        this.button.classList.add('cursor-grabbing', 'scale-105');
+      }
+      
+      // Calculer la nouvelle position
+      let newX = this.initialX + deltaX;
+      let newY = this.initialY + deltaY;
+      
+      // Limites de la fenêtre
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const buttonSize = 56; // w-14 = 56px
+      
+      // S'assurer que la bulle reste dans les limites
+      newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+      newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+      
+      // Appliquer la nouvelle position
+      this.container.style.left = `${newX}px`;
+      this.container.style.top = `${newY}px`;
+      this.container.style.right = 'auto';
+      this.container.style.bottom = 'auto';
+      
+      // Fermer la fenêtre si elle est ouverte pendant le drag
+      if (this.isOpen) {
+        this.closeWindow();
+      }
+    }
+  },
+  
+  // Gestion du touchend (mobile)
+  handleTouchEnd: function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    clearTimeout(this.dragTimer);
+    
+    // Si ce n'était pas un drag, c'est un clic
+    if (!this.isDragging && !this.touchMoved) {
+      const touchDuration = Date.now() - this.touchStartTime;
+      
+      // Si le touch était court (< 300ms), c'est un clic
+      if (touchDuration < 300) {
+        this.toggleWindow();
+      }
+    }
+    
+    // Nettoyer l'état de drag
+    if (this.isDragging) {
+      this.isDragging = false;
+      this.button.classList.remove('cursor-grabbing', 'scale-105');
+      
+      // Animation de retour
+      this.button.classList.add('scale-95');
+      setTimeout(() => {
+        this.button.classList.remove('scale-95');
+      }, 200);
+    }
+    
+    // Réinitialiser
+    this.touchMoved = false;
+  },
+  
+  // Ouvrir/fermer la fenêtre
+  toggleWindow: function() {
+    if (this.isOpen) {
+      this.closeWindow();
+    } else {
+      this.openWindow();
+    }
+  },
+  
+  // Ouvrir la fenêtre
+  openWindow: function() {
+    this.window.classList.remove('opacity-0', 'invisible', 'translate-y-2');
+    this.window.classList.add('opacity-100', 'visible', 'translate-y-0');
+    this.icon.classList.remove('fa-compass');
+    this.icon.classList.add('fa-times');
+    this.button.setAttribute('aria-expanded', 'true');
+    this.isOpen = true;
+    
+    // Animation de micro-interaction
+    this.button.classList.add('scale-110');
+    setTimeout(() => {
+      this.button.classList.remove('scale-110');
+    }, 300);
+  },
+  
+  // Fermer la fenêtre
+  closeWindow: function() {
+    this.window.classList.remove('opacity-100', 'visible', 'translate-y-0');
+    this.window.classList.add('opacity-0', 'invisible', 'translate-y-2');
+    this.icon.classList.remove('fa-times');
+    this.icon.classList.add('fa-compass');
+    this.button.setAttribute('aria-expanded', 'false');
+    this.isOpen = false;
+  },
+  
+  // Position initiale de la bulle
+  positionBulleOnLoad: function() {
+    // Position par défaut en bas à droite
+    this.container.style.bottom = '20px';
+    this.container.style.right = '20px';
+  },
+  
+  // Ajuster la position lors du redimensionnement
+  adjustPositionOnResize: function() {
+    const rect = this.container.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    // S'assurer que la bulle reste dans les limites de la fenêtre
+    if (rect.left < 0) {
+      this.container.style.left = '10px';
+      this.container.style.right = 'auto';
+    }
+    
+    if (rect.top < 0) {
+      this.container.style.top = '10px';
+      this.container.style.bottom = 'auto';
+    }
+    
+    if (rect.right > windowWidth) {
+      this.container.style.right = '10px';
+      this.container.style.left = 'auto';
+    }
+    
+    if (rect.bottom > windowHeight) {
+      this.container.style.bottom = '10px';
+      this.container.style.top = 'auto';
+    }
+  },
+  
+  // Début du drag (souris) - pour desktop
+  startDrag: function(e) {
+    e.preventDefault();
+    this.isDragging = true;
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    
+    // Enregistrer la position initiale
+    const rect = this.container.getBoundingClientRect();
+    this.initialX = rect.left;
+    this.initialY = rect.top;
+    
+    // Changer l'apparence pendant le drag
+    this.button.classList.add('cursor-grabbing', 'scale-105');
+  },
+  
+  // Déplacement (souris) - pour desktop
+  drag: function(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    
+    // Calculer le déplacement
+    const deltaX = e.clientX - this.startX;
+    const deltaY = e.clientY - this.startY;
+    
+    // Calculer la nouvelle position
+    let newX = this.initialX + deltaX;
+    let newY = this.initialY + deltaY;
+    
+    // Limites de la fenêtre
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const buttonSize = 56; // w-14 = 56px
+    
+    // S'assurer que la bulle reste dans les limites
+    newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+    newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+    
+    // Appliquer la nouvelle position
+    this.container.style.left = `${newX}px`;
+    this.container.style.top = `${newY}px`;
+    this.container.style.right = 'auto';
+    this.container.style.bottom = 'auto';
+    
+    // Fermer la fenêtre si elle est ouverte pendant le drag
+    if (this.isOpen) {
+      this.closeWindow();
+    }
+  },
+  
+  // Fin du drag (souris) - pour desktop
+  stopDrag: function() {
+    if (!this.isDragging) return;
+    
+    this.isDragging = false;
+    this.button.classList.remove('cursor-grabbing', 'scale-105');
+    
+    // Animation de retour
+    this.button.classList.add('scale-95');
+    setTimeout(() => {
+      this.button.classList.remove('scale-95');
+    }, 200);
+  }
+};
+
+// Initialiser la bulle de navigation quand le DOM est chargé
+document.addEventListener('DOMContentLoaded', () => {
+  navBulleConfig.init();
+});
+</script>
+
+<!-- Styles additionnels pour une meilleure expérience mobile -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+#navBulleContainer {
+  touch-action: none; /* Empêche le défilement pendant le drag sur mobile */
+}
+
+#navBulleBtn {
+  cursor: grab;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+#navBulleBtn:active {
+  cursor: grabbing;
+}
+
+#navBulleWindow {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: white; /* Assure un fond blanc */
+}
+
+/* Correction des couleurs des textes et liens */
+#navBulleWindow h2 {
+  color: #1f2937 !important; /* Couleur foncée pour le titre */
+}
+
+#navBulleLinks a {
+  color: #374151 !important; /* Couleur gris foncé pour les liens */
+}
+
+#navBulleLinks a span {
+  color: #374151 !important; /* Assure la couleur du texte des liens */
+}
+
+#navBulleCloseBtn {
+  color: #6b7280 !important; /* Couleur grise pour l'icône de fermeture */
+}
+
+#navBulleCloseBtn:hover {
+  color: #374151 !important;
+}
+
+/* Animation d'entrée pour les liens */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#navBulleLinks li {
+  animation: fadeInUp 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+#navBulleLinks li:nth-child(1) { animation-delay: 0.05s; }
+#navBulleLinks li:nth-child(2) { animation-delay: 0.1s; }
+#navBulleLinks li:nth-child(3) { animation-delay: 0.15s; }
+#navBulleLinks li:nth-child(4) { animation-delay: 0.2s; }
+#navBulleLinks li:nth-child(5) { animation-delay: 0.25s; }
+#navBulleLinks li:nth-child(6) { animation-delay: 0.3s; }
+
+/* Assurer la visibilité des icônes dans les cercles colorés */
+#navBulleLinks a div i {
+  color: inherit !important; /* Hérite la couleur définie par la classe */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #navBulleWindow {
+    width: calc(100vw - 40px);
+    max-width: 300px;
+    right: 0;
+    bottom: 70px;
+  }
+  
+  #navBulleWindow > div:last-child {
+    right: 20px;
+  }
+}
+
+/* Dark mode support - corrigé pour garder la lisibilité */
+@media (prefers-color-scheme: dark) {
+  #navBulleWindow {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  #navBulleWindow h2 {
+    color: #f9fafb !important; /* Blanc pour le titre en dark mode */
+  }
+  
+  #navBulleLinks a {
+    color: #e5e7eb !important; /* Gris clair pour les liens */
+  }
+  
+  #navBulleLinks a span {
+    color: #e5e7eb !important; /* Gris clair pour le texte */
+  }
+  
+  #navBulleLinks a:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  #navBulleCloseBtn {
+    color: #9ca3af !important;
+  }
+  
+  #navBulleCloseBtn:hover {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+  
+  #navBulleWindow > div:last-child {
+    background-color: #1f2937 !important;
+  }
+}
+
+/* Force la visibilité des éléments pendant les animations */
+#navBulleWindow.opacity-100.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Correction spécifique pour les couleurs des icônes dans les cercles */
+.bg-opacity-10 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.text-blue-600 { color: #2563eb !important; }
+.text-green-600 { color: #16a34a !important; }
+.text-purple-600 { color: #9333ea !important; }
+.text-amber-600 { color: #d97706 !important; }
+.text-red-600 { color: #dc2626 !important; }
+.text-indigo-600 { color: #4f46e5 !important; }
+</style>
+    <!-- JavaScript -->
+    <script>
+   
+        // Configuration Firebase
+  const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Variables globales
+        let currentPage = 'homepage';
+        let programs = [];
+        let news = [];
+        let features = [];
+        let homepageData = null;
+        let confirmCallback = null;
+        
+        // Fonction d'affichage de notification
+        function showToast(message, type = 'success') {
+            const backgroundColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6';
+            
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: backgroundColor,
+                stopOnFocus: true,
+            }).showToast();
+        }
+        
+        // Fonction de chargement des données depuis Firebase
+        async function loadFirestoreData() {
+            try {
+                // Charger les données de la page d'accueil
+                const homepageDoc = await db.collection('homepage').doc('content').get();
+                if (homepageDoc.exists) {
+                    homepageData = homepageDoc.data();
+                    updateHomepageForm();
+                    updateHomepagePreview();
+                } else {
+                    homepageData = null;
+                }
+                
+                // Charger les programmes
+                const programsSnapshot = await db.collection('programs').orderBy('order', 'asc').get();
+                programs = [];
+                programsSnapshot.forEach(doc => {
+                    programs.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                updateProgramsList();
+                
+                // Charger les actualités
+                const newsSnapshot = await db.collection('news').orderBy('date', 'desc').limit(10).get();
+                news = [];
+                newsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    news.push({
+                        id: doc.id,
+                        ...data,
+                        // Convertir la date en objet Date pour le tri
+                        dateObj: data.date ? new Date(data.date) : new Date()
+                    });
+                });
+                updateNewsList();
+                
+                // Charger les avantages
+                const featuresSnapshot = await db.collection('features').orderBy('order', 'asc').get();
+                features = [];
+                featuresSnapshot.forEach(doc => {
+                    features.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                updateFeaturesList();
+                
+                showToast('Données chargées avec succès', 'success');
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                showToast('Erreur lors du chargement des données', 'error');
+                document.getElementById('firebase-status').textContent = 'Erreur';
+                document.getElementById('firebase-status').className = 'ml-auto bg-red-100 text-red-800 text-xs font-medium px-3 py-1 rounded-full';
+            }
+        }
+        
+        // Mettre à jour le formulaire de la page d'accueil
+        function updateHomepageForm() {
+            if (!homepageData) return;
+            
+            if (homepageData.hero) {
+                document.getElementById('hero-title').value = homepageData.hero.title || '';
+                document.getElementById('hero-subtitle').value = homepageData.hero.subtitle || '';
+                document.getElementById('hero-bg-image').value = homepageData.hero.backgroundImage || '';
+            }
+            
+            if (homepageData.presentation) {
+                document.getElementById('presentation-text').value = homepageData.presentation.text || '';
+            }
+        }
+        
+        // Mettre à jour l'aperçu de la page d'accueil
+        function updateHomepagePreview() {
+            if (!homepageData) return;
+            
+            if (homepageData.hero) {
+                document.getElementById('preview-hero-title').textContent = homepageData.hero.title || 'Titre principal';
+                document.getElementById('preview-hero-subtitle').textContent = homepageData.hero.subtitle || 'Sous-titre';
+                document.getElementById('preview-hero-image').textContent = homepageData.hero.backgroundImage || 'Aucune image';
+            }
+            
+            if (homepageData.presentation) {
+                document.getElementById('preview-presentation').textContent = homepageData.presentation.text || 'Texte de présentation...';
+            }
+        }
+        
+        // Mettre à jour la liste des programmes
+        function updateProgramsList() {
+            const programsList = document.getElementById('programs-list');
+            
+            if (!programs.length) {
+                programsList.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-12 text-gray-600">
+                            <i class="fas fa-book-open text-3xl mb-4 text-gray-300"></i>
+                            <p class="text-lg">Aucun programme disponible</p>
+                            <p class="text-sm mt-2">Cliquez sur "Nouveau programme" pour commencer</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            programsList.innerHTML = programs.map((program, index) => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6 text-gray-700">${index + 1}</td>
+                    <td class="py-4 px-6">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            ${program.image ? 
+                                `<img src="${program.image}" alt="${program.title}" class="w-10 h-10 object-cover rounded">` :
+                                `<i class="fas fa-image text-gray-400"></i>`
+                            }
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1 truncate max-w-xs">${program.image || 'Pas d\'image'}</div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="font-medium text-gray-800">${program.title}</div>
+                    </td>
+                    <td class="py-4 px-6 text-gray-600 max-w-xs">${program.description.substring(0, 80)}${program.description.length > 80 ? '...' : ''}</td>
+                    <td class="py-4 px-6">
+                        <span class="${program.visible !== false ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} text-xs font-medium px-3 py-1 rounded-full">
+                            ${program.visible !== false ? 'Visible' : 'Masqué'}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex space-x-2">
+                            <button class="edit-program-btn text-blue-600 hover:text-blue-800" data-id="${program.id}" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-program-btn text-red-600 hover:text-red-800" data-id="${program.id}" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Mettre à jour la liste des actualités
+        function updateNewsList() {
+            const newsList = document.getElementById('news-list');
+            
+            if (!news.length) {
+                newsList.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-12 text-gray-600">
+                            <i class="fas fa-newspaper text-3xl mb-4 text-gray-300"></i>
+                            <p class="text-lg">Aucune actualité disponible</p>
+                            <p class="text-sm mt-2">Cliquez sur "Nouvelle actualité" pour commencer</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            newsList.innerHTML = news.map(item => {
+                const date = item.date ? new Date(item.date).toLocaleDateString('fr-FR') : 'Non définie';
+                return `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-4 px-6 text-gray-700">${date}</td>
+                        <td class="py-4 px-6">
+                            <div class="font-medium text-gray-800">${item.title}</div>
+                        </td>
+                        <td class="py-4 px-6 text-gray-600 max-w-xs">${item.description.substring(0, 80)}${item.description.length > 80 ? '...' : ''}</td>
+                        <td class="py-4 px-6">
+                            <span class="${item.published !== false ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} text-xs font-medium px-3 py-1 rounded-full">
+                                ${item.published !== false ? 'Publié' : 'Brouillon'}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex space-x-2">
+                                <button class="edit-news-btn text-blue-600 hover:text-blue-800" data-id="${item.id}" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="delete-news-btn text-red-600 hover:text-red-800" data-id="${item.id}" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Mettre à jour la liste des avantages
+        function updateFeaturesList() {
+            const featuresList = document.getElementById('features-list');
+            
+            if (!features.length) {
+                featuresList.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-12 text-gray-600">
+                            <i class="fas fa-star text-3xl mb-4 text-gray-300"></i>
+                            <p class="text-lg">Aucun avantage disponible</p>
+                            <p class="text-sm mt-2">Cliquez sur "Nouvel avantage" pour commencer</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            featuresList.innerHTML = features.map((feature, index) => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6 text-gray-700">${index + 1}</td>
+                    <td class="py-4 px-6">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-${feature.icon || 'star'} text-blue-600"></i>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">${feature.icon || 'star'}</div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="font-medium text-gray-800">${feature.title}</div>
+                    </td>
+                    <td class="py-4 px-6 text-gray-600 max-w-xs">${feature.description.substring(0, 80)}${feature.description.length > 80 ? '...' : ''}</td>
+                    <td class="py-4 px-6">
+                        <div class="flex space-x-2">
+                            <button class="edit-feature-btn text-blue-600 hover:text-blue-800" data-id="${feature.id}" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-feature-btn text-red-600 hover:text-red-800" data-id="${feature.id}" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Sauvegarder les données de la page d'accueil
+        async function saveHomepageData() {
+            try {
+                const heroData = {
+                    title: document.getElementById('hero-title').value,
+                    subtitle: document.getElementById('hero-subtitle').value,
+                    backgroundImage: document.getElementById('hero-bg-image').value
+                };
+                
+                const presentationData = {
+                    text: document.getElementById('presentation-text').value
+                };
+                
+                // Construire l'objet de données
+                const data = {
+                    hero: heroData,
+                    presentation: presentationData,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: 'admin'
+                };
+                
+                // Sauvegarder dans Firebase
+                await db.collection('homepage').doc('content').set(data, { merge: true });
+                
+                // Mettre à jour les données locales
+                homepageData = data;
+                
+                // Mettre à jour l'aperçu
+                updateHomepagePreview();
+                
+                showToast('Page d\'accueil mise à jour avec succès', 'success');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde:', error);
+                showToast('Erreur lors de la sauvegarde', 'error');
+            }
+        }
+        
+        // Gérer l'ajout/modification de programme
+        async function saveProgram(programData) {
+            try {
+                // Préparer les données
+                const programToSave = {
+                    title: programData.title,
+                    description: programData.description,
+                    image: programData.image,
+                    link: programData.link || '',
+                    order: parseInt(programData.order) || 1,
+                    color: programData.color || 'blue',
+                    visible: programData.visible,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                if (programData.id) {
+                    // Mise à jour d'un programme existant
+                    await db.collection('programs').doc(programData.id).update(programToSave);
+                    showToast('Programme mis à jour avec succès', 'success');
+                } else {
+                    // Ajout d'un nouveau programme
+                    programToSave.createdAt = new Date().toISOString();
+                    await db.collection('programs').add(programToSave);
+                    showToast('Programme ajouté avec succès', 'success');
+                }
+                
+                // Recharger les données
+                await loadFirestoreData();
+                
+                // Fermer le modal
+                document.getElementById('program-modal').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde du programme:', error);
+                showToast('Erreur lors de la sauvegarde', 'error');
+            }
+        }
+        
+        // Gérer l'ajout/modification d'actualité
+        async function saveNews(newsData) {
+            try {
+                // Préparer les données
+                const newsToSave = {
+                    title: newsData.title,
+                    description: newsData.description,
+                    content: newsData.content || '',
+                    date: newsData.date || new Date().toISOString(),
+                    image: newsData.image || '',
+                    published: newsData.published,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                if (newsData.id) {
+                    // Mise à jour d'une actualité existante
+                    await db.collection('news').doc(newsData.id).update(newsToSave);
+                    showToast('Actualité mise à jour avec succès', 'success');
+                } else {
+                    // Ajout d'une nouvelle actualité
+                    newsToSave.createdAt = new Date().toISOString();
+                    await db.collection('news').add(newsToSave);
+                    showToast('Actualité ajoutée avec succès', 'success');
+                }
+                
+                // Recharger les données
+                await loadFirestoreData();
+                
+                // Fermer le modal
+                document.getElementById('news-modal').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde de l\'actualité:', error);
+                showToast('Erreur lors de la sauvegarde', 'error');
+            }
+        }
+        
+        // Gérer l'ajout/modification d'avantage
+        async function saveFeature(featureData) {
+            try {
+                // Préparer les données
+                const featureToSave = {
+                    title: featureData.title,
+                    description: featureData.description,
+                    icon: featureData.icon,
+                    order: parseInt(featureData.order) || 1,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                if (featureData.id) {
+                    // Mise à jour d'un avantage existant
+                    await db.collection('features').doc(featureData.id).update(featureToSave);
+                    showToast('Avantage mis à jour avec succès', 'success');
+                } else {
+                    // Ajout d'un nouvel avantage
+                    featureToSave.createdAt = new Date().toISOString();
+                    await db.collection('features').add(featureToSave);
+                    showToast('Avantage ajouté avec succès', 'success');
+                }
+                
+                // Recharger les données
+                await loadFirestoreData();
+                
+                // Fermer le modal
+                document.getElementById('feature-modal').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde de l\'avantage:', error);
+                showToast('Erreur lors de la sauvegarde', 'error');
+            }
+        }
+        
+        // Supprimer un programme
+        async function deleteProgram(programId) {
+            try {
+                await db.collection('programs').doc(programId).delete();
+                showToast('Programme supprimé avec succès', 'success');
+                await loadFirestoreData();
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                showToast('Erreur lors de la suppression', 'error');
+            }
+        }
+        
+        // Supprimer une actualité
+        async function deleteNews(newsId) {
+            try {
+                await db.collection('news').doc(newsId).delete();
+                showToast('Actualité supprimée avec succès', 'success');
+                await loadFirestoreData();
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                showToast('Erreur lors de la suppression', 'error');
+            }
+        }
+        
+        // Supprimer un avantage
+        async function deleteFeature(featureId) {
+            try {
+                await db.collection('features').doc(featureId).delete();
+                showToast('Avantage supprimé avec succès', 'success');
+                await loadFirestoreData();
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                showToast('Erreur lors de la suppression', 'error');
+            }
+        }
+        
+        // Fonction pour changer de page
+        function navigateToPage(pageId) {
+            // Mettre à jour le menu actif
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+                item.classList.add('text-gray-300');
+            });
+            
+            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+            document.querySelector(`[data-page="${pageId}"]`).classList.remove('text-gray-300');
+            
+            // Cacher toutes les pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Afficher la page sélectionnée
+            document.getElementById(`${pageId}-page`).classList.add('active');
+            
+            // Mettre à jour le titre
+            const pageTitles = {
+                homepage: 'Gestion de la page d\'accueil',
+                programs: 'Gestion des Programmes',
+                news: 'Gestion des Actualités',
+                features: 'Gestion des Avantages',
+                settings: 'Paramètres'
+            };
+            
+            const pageSubtitles = {
+                homepage: 'Modifiez le contenu de la page d\'accueil de l\'URH',
+                programs: 'Ajoutez, modifiez ou supprimez les programmes de formation',
+                news: 'Publiez et gérez les actualités de l\'URH',
+                features: 'Modifiez les raisons de choisir URH',
+                settings: 'Configuration de l\'application et connexion Firebase'
+            };
+            
+            document.getElementById('page-title').textContent = pageTitles[pageId] || 'Gestion du contenu';
+            document.getElementById('page-subtitle').textContent = pageSubtitles[pageId] || '';
+            
+            // Mettre à jour la page actuelle
+            currentPage = pageId;
+            
+            // Fermer le menu mobile si ouvert
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.remove('sidebar-mobile-open');
+            }
+        }
+        
+        // Fonction d'initialisation
+        async function initDashboard() {
+            // Charger les données Firebase
+            await loadFirestoreData();
+            
+            // Configurer les écouteurs d'événements
+            setupEventListeners();
+            
+            // Afficher un message de bienvenue
+            showToast('Dashboard URH chargé avec succès', 'success');
+        }
+        
+        // Configurer les écouteurs d'événements
+        function setupEventListeners() {
+            // Navigation entre les pages
+            document.querySelectorAll('.menu-item[data-page]').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    if (tab.getAttribute('href') === '#') {
+                        e.preventDefault();
+                    }
+                    const pageId = tab.dataset.page;
+                    navigateToPage(pageId);
+                });
+            });
+            
+            // Bouton pour réduire/étendre la sidebar
+            document.getElementById('toggle-sidebar').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    sidebar.classList.remove('sidebar-collapsed');
+                    mainContent.classList.remove('main-content-collapsed');
+                    mainContent.classList.add('main-content-expanded');
+                } else {
+                    sidebar.classList.add('sidebar-collapsed');
+                    mainContent.classList.remove('main-content-expanded');
+                    mainContent.classList.add('main-content-collapsed');
+                }
+            });
+            
+            // Bouton menu mobile
+            document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('sidebar-mobile-open');
+            });
+            
+            // Sauvegarde des données de la page d'accueil
+            document.getElementById('save-hero').addEventListener('click', saveHomepageData);
+            document.getElementById('save-presentation').addEventListener('click', saveHomepageData);
+            
+            // Actualiser l'aperçu
+            document.getElementById('refresh-preview').addEventListener('click', updateHomepagePreview);
+            
+            // Gestion des programmes
+            document.getElementById('add-program-btn').addEventListener('click', () => {
+                document.getElementById('program-modal-title').textContent = 'Ajouter un programme';
+                document.getElementById('program-form').reset();
+                document.getElementById('program-id').value = '';
+                document.getElementById('program-order').value = programs.length + 1;
+                document.getElementById('program-modal').classList.remove('hidden');
+            });
+            
+            // Gestion des actualités
+            document.getElementById('add-news-btn').addEventListener('click', () => {
+                document.getElementById('news-modal-title').textContent = 'Ajouter une actualité';
+                document.getElementById('news-form').reset();
+                document.getElementById('news-id').value = '';
+                document.getElementById('news-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('news-modal').classList.remove('hidden');
+            });
+            
+            // Gestion des avantages
+            document.getElementById('add-feature-btn').addEventListener('click', () => {
+                document.getElementById('feature-modal-title').textContent = 'Ajouter un avantage';
+                document.getElementById('feature-form').reset();
+                document.getElementById('feature-id').value = '';
+                document.getElementById('feature-order').value = features.length + 1;
+                document.getElementById('feature-modal').classList.remove('hidden');
+            });
+            
+            // Formulaire programme
+            document.getElementById('program-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const programData = {
+                    id: document.getElementById('program-id').value || null,
+                    title: document.getElementById('program-title').value,
+                    description: document.getElementById('program-description').value,
+                    image: document.getElementById('program-image').value,
+                    link: document.getElementById('program-link').value,
+                    order: document.getElementById('program-order').value,
+                    color: document.getElementById('program-color').value,
+                    visible: document.getElementById('program-visible').checked
+                };
+                
+                saveProgram(programData);
+            });
+            
+            // Formulaire actualité
+            document.getElementById('news-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const newsData = {
+                    id: document.getElementById('news-id').value || null,
+                    title: document.getElementById('news-title').value,
+                    description: document.getElementById('news-description').value,
+                    content: document.getElementById('news-content').value,
+                    date: document.getElementById('news-date').value,
+                    image: document.getElementById('news-image').value,
+                    published: document.getElementById('news-published').checked
+                };
+                
+                saveNews(newsData);
+            });
+            
+            // Formulaire avantage
+            document.getElementById('feature-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const featureData = {
+                    id: document.getElementById('feature-id').value || null,
+                    title: document.getElementById('feature-title').value,
+                    description: document.getElementById('feature-description').value,
+                    icon: document.getElementById('feature-icon').value,
+                    order: document.getElementById('feature-order').value
+                };
+                
+                saveFeature(featureData);
+            });
+            
+            // Fermer les modals
+            document.getElementById('close-program-modal').addEventListener('click', () => {
+                document.getElementById('program-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-program').addEventListener('click', () => {
+                document.getElementById('program-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('close-news-modal').addEventListener('click', () => {
+                document.getElementById('news-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-news').addEventListener('click', () => {
+                document.getElementById('news-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('close-feature-modal').addEventListener('click', () => {
+                document.getElementById('feature-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-feature').addEventListener('click', () => {
+                document.getElementById('feature-modal').classList.add('hidden');
+            });
+            
+            // Tester la connexion Firebase
+            document.getElementById('test-firebase').addEventListener('click', async () => {
+                try {
+                    await loadFirestoreData();
+                    showToast('Connexion Firebase testée avec succès', 'success');
+                } catch (error) {
+                    showToast('Erreur de connexion Firebase', 'error');
+                }
+            });
+            
+            // Gestion des boutons d'édition/suppression via délégation d'événements
+            document.addEventListener('click', (e) => {
+                // Éditer un programme
+                if (e.target.closest('.edit-program-btn')) {
+                    const programId = e.target.closest('.edit-program-btn').dataset.id;
+                    const program = programs.find(p => p.id === programId);
+                    
+                    if (program) {
+                        document.getElementById('program-modal-title').textContent = 'Modifier le programme';
+                        document.getElementById('program-id').value = program.id;
+                        document.getElementById('program-title').value = program.title;
+                        document.getElementById('program-description').value = program.description;
+                        document.getElementById('program-image').value = program.image || '';
+                        document.getElementById('program-link').value = program.link || '';
+                        document.getElementById('program-order').value = program.order || 1;
+                        document.getElementById('program-color').value = program.color || 'blue';
+                        document.getElementById('program-visible').checked = program.visible !== false;
+                        
+                        document.getElementById('program-modal').classList.remove('hidden');
+                    }
+                }
+                
+                // Supprimer un programme
+                if (e.target.closest('.delete-program-btn')) {
+                    const programId = e.target.closest('.delete-program-btn').dataset.id;
+                    const program = programs.find(p => p.id === programId);
+                    
+                    if (program) {
+                        showConfirmModal(
+                            'Supprimer le programme',
+                            `Êtes-vous sûr de vouloir supprimer le programme "${program.title}" ? Cette action est irréversible.`,
+                            () => deleteProgram(programId)
+                        );
+                    }
+                }
+                
+                // Éditer une actualité
+                if (e.target.closest('.edit-news-btn')) {
+                    const newsId = e.target.closest('.edit-news-btn').dataset.id;
+                    const newsItem = news.find(n => n.id === newsId);
+                    
+                    if (newsItem) {
+                        document.getElementById('news-modal-title').textContent = 'Modifier l\'actualité';
+                        document.getElementById('news-id').value = newsItem.id;
+                        document.getElementById('news-title').value = newsItem.title;
+                        document.getElementById('news-description').value = newsItem.description;
+                        document.getElementById('news-content').value = newsItem.content || '';
+                        document.getElementById('news-date').value = newsItem.date ? newsItem.date.split('T')[0] : new Date().toISOString().split('T')[0];
+                        document.getElementById('news-image').value = newsItem.image || '';
+                        document.getElementById('news-published').checked = newsItem.published !== false;
+                        
+                        document.getElementById('news-modal').classList.remove('hidden');
+                    }
+                }
+                
+                // Supprimer une actualité
+                if (e.target.closest('.delete-news-btn')) {
+                    const newsId = e.target.closest('.delete-news-btn').dataset.id;
+                    const newsItem = news.find(n => n.id === newsId);
+                    
+                    if (newsItem) {
+                        showConfirmModal(
+                            'Supprimer l\'actualité',
+                            `Êtes-vous sûr de vouloir supprimer l'actualité "${newsItem.title}" ? Cette action est irréversible.`,
+                            () => deleteNews(newsId)
+                        );
+                    }
+                }
+                
+                // Éditer un avantage
+                if (e.target.closest('.edit-feature-btn')) {
+                    const featureId = e.target.closest('.edit-feature-btn').dataset.id;
+                    const feature = features.find(f => f.id === featureId);
+                    
+                    if (feature) {
+                        document.getElementById('feature-modal-title').textContent = 'Modifier l\'avantage';
+                        document.getElementById('feature-id').value = feature.id;
+                        document.getElementById('feature-title').value = feature.title;
+                        document.getElementById('feature-description').value = feature.description;
+                        document.getElementById('feature-icon').value = feature.icon || '';
+                        document.getElementById('feature-order').value = feature.order || 1;
+                        
+                        document.getElementById('feature-modal').classList.remove('hidden');
+                    }
+                }
+                
+                // Supprimer un avantage
+                if (e.target.closest('.delete-feature-btn')) {
+                    const featureId = e.target.closest('.delete-feature-btn').dataset.id;
+                    const feature = features.find(f => f.id === featureId);
+                    
+                    if (feature) {
+                        showConfirmModal(
+                            'Supprimer l\'avantage',
+                            `Êtes-vous sûr de vouloir supprimer l'avantage "${feature.title}" ? Cette action est irréversible.`,
+                            () => deleteFeature(featureId)
+                        );
+                    }
+                }
+            });
+            
+            // Modal de confirmation
+            document.getElementById('confirm-cancel').addEventListener('click', () => {
+                document.getElementById('confirm-modal').classList.add('hidden');
+                confirmCallback = null;
+            });
+            
+            document.getElementById('confirm-action').addEventListener('click', () => {
+                if (confirmCallback) {
+                    confirmCallback();
+                }
+                document.getElementById('confirm-modal').classList.add('hidden');
+                confirmCallback = null;
+            });
+        }
+        
+        // Afficher le modal de confirmation
+        function showConfirmModal(title, message, callback) {
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-message').textContent = message;
+            confirmCallback = callback;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+        
+        // Initialiser le dashboard au chargement de la page
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

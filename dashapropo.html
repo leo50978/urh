@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestion Page À Propos</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Animation pour le menu mobile */
+        .sidebar-mobile {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .sidebar-mobile.open {
+            transform: translateX(0);
+        }
+        
+        .sidebar-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Animation pour les modals */
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            transform: translateY(-20px) scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .modal-overlay.open .modal-content {
+            transform: translateY(0) scale(1);
+        }
+        
+        /* Animation pour les pages */
+        .page-content {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            display: none;
+        }
+        
+        .page-content.active {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+        
+        /* Styles pour les boutons */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+        }
+        
+        /* Styles pour les inputs */
+        .form-input {
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header Mobile -->
+    <header class="lg:hidden bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-40">
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button id="mobile-menu-btn" class="p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-bars text-gray-700 text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-800">Dashboard</h1>
+                        <p class="text-xs text-gray-600">URH HAITI</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <button id="mobile-save-btn" class="btn-primary text-white font-medium py-2 px-4 rounded-lg text-sm">
+                        <i class="fas fa-save mr-1"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Overlay pour le menu mobile -->
+    <div id="mobile-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
+    
+    <!-- Sidebar Mobile -->
+    <aside id="mobile-sidebar" class="sidebar-mobile bg-gray-900 text-white h-screen w-64 fixed left-0 top-0 z-50 overflow-y-auto lg:hidden">
+        <!-- Logo -->
+        <div class="p-5 border-b border-gray-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-info-circle text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">Gestion À Propos</h1>
+                    <p class="text-gray-400 text-sm">URH HAITI</p>
+                </div>
+                <button id="close-mobile-menu" class="ml-auto p-2 rounded-lg hover:bg-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Menu de navigation -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" data-page="hero" class="menu-item active flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-white">
+                        <i class="fas fa-home w-6 text-center"></i>
+                        <span>Section Hero</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="mission" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-bullseye w-6 text-center"></i>
+                        <span>Mission & Vision</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="values" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-heart w-6 text-center"></i>
+                        <span>Nos Valeurs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="team" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-users w-6 text-center"></i>
+                        <span>Équipe</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="cta" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-bullhorn w-6 text-center"></i>
+                        <span>Section CTA</span>
+                    </a>
+                </li>
+                <li class="pt-8 border-t border-gray-800">
+                    <a href="apropos.html" target="_blank" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-external-link-alt w-6 text-center"></i>
+                        <span>Voir la page</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Sidebar Desktop -->
+    <aside class="hidden lg:block bg-gray-900 text-white h-screen w-64 fixed left-0 top-0 overflow-y-auto">
+        <!-- Logo -->
+        <div class="p-6 border-b border-gray-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-info-circle text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">Gestion À Propos</h1>
+                    <p class="text-gray-400 text-sm">URH HAITI</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu de navigation -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" data-page="hero" class="menu-item active flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-white">
+                        <i class="fas fa-home w-6 text-center"></i>
+                        <span>Section Hero</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="mission" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-bullseye w-6 text-center"></i>
+                        <span>Mission & Vision</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="values" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-heart w-6 text-center"></i>
+                        <span>Nos Valeurs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="team" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-users w-6 text-center"></i>
+                        <span>Équipe</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="cta" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-bullhorn w-6 text-center"></i>
+                        <span>Section CTA</span>
+                    </a>
+                </li>
+                <li class="pt-8 border-t border-gray-800">
+                    <a href="apropos.html" target="_blank" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
+                        <i class="fas fa-external-link-alt w-6 text-center"></i>
+                        <span>Voir la page</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Contenu principal -->
+    <main class="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+        <!-- Header Desktop -->
+        <header class="hidden lg:block bg-white shadow-sm border-b">
+            <div class="px-6 py-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800" id="page-title">Section Hero</h1>
+                        <p class="text-gray-600" id="page-subtitle">Gérez le contenu de la section hero de la page À Propos</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-3">
+                        <button id="save-all" class="btn-primary text-white font-medium py-2 px-4 rounded-lg transition duration-300 text-sm sm:text-base">
+                            <i class="fas fa-save mr-2"></i> Sauvegarder tout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Contenu des pages -->
+        <div class="p-4 sm:p-6" id="page-content">
+            <!-- Page Hero -->
+            <div id="hero-page" class="page-content active">
+                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Section Hero - Page À Propos</h2>
+                    
+                    <form id="hero-form" class="space-y-4 sm:space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge du haut *</label>
+                            <input type="text" id="hero-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: À propos de nous">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre principal *</label>
+                            <textarea id="hero-title" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Former la jeunesse de Delmas pour l'avenir"></textarea>
+                            <p class="text-gray-500 text-xs sm:text-sm mt-2">Utilisez <code class="bg-gray-100 px-1 py-0.5 rounded">&lt;span class="gradient-text"&gt;...&lt;/span&gt;</code> pour du texte en gradient</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Description *</label>
+                            <textarea id="hero-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Description de la section hero..."></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-hero" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page Mission -->
+            <div id="mission-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Section Mission & Vision</h2>
+                    
+                    <form id="mission-form" class="space-y-4 sm:space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge *</label>
+                            <input type="text" id="mission-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Notre mission & vision">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
+                            <textarea id="mission-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section mission..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Premier paragraphe *</label>
+                            <textarea id="mission-text1" required rows="4" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Texte du premier paragraphe..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Deuxième paragraphe *</label>
+                            <textarea id="mission-text2" required rows="4" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Texte du deuxième paragraphe..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Nom du fichier vidéo *</label>
+                            <input type="text" id="mission-video" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: videoifept.mp4">
+                            <p class="text-gray-500 text-xs sm:text-sm mt-2">Placez la vidéo à la racine du projet</p>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-4">Statistiques</h3>
+                            <div id="stats-container" class="space-y-4">
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center text-sm sm:text-base">Aucune statistique ajoutée</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-stat" class="mt-4 w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base">
+                                <i class="fas fa-plus mr-2"></i> Ajouter une statistique
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-mission" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page Valeurs -->
+            <div id="values-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Nos Valeurs Fondamentales</h2>
+                    
+                    <form id="values-form" class="space-y-4 sm:space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge *</label>
+                            <input type="text" id="values-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Nos valeurs fondamentales">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
+                            <textarea id="values-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section valeurs..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Sous-titre *</label>
+                            <textarea id="values-subtitle" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Sous-titre de la section valeurs..."></textarea>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-4">Liste des valeurs</h3>
+                            <div id="values-list-container" class="space-y-6">
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center text-sm sm:text-base">Aucune valeur ajoutée</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-value" class="mt-4 w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base">
+                                <i class="fas fa-plus mr-2"></i> Ajouter une valeur
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-values" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page Équipe -->
+            <div id="team-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Notre Équipe Dirigeante</h2>
+                    
+                    <form id="team-form" class="space-y-4 sm:space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge *</label>
+                            <input type="text" id="team-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Notre équipe dirigeante">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
+                            <textarea id="team-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section équipe..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Sous-titre *</label>
+                            <textarea id="team-subtitle" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Sous-titre de la section équipe..."></textarea>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-4">Membres de l'équipe</h3>
+                            <div id="team-members-container" class="space-y-6">
+                                <div class="border border-gray-300 rounded-lg p-4">
+                                    <p class="text-gray-600 text-center text-sm sm:text-base">Aucun membre ajouté</p>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="add-member" class="mt-4 w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base">
+                                <i class="fas fa-plus mr-2"></i> Ajouter un membre
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-team" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Page CTA -->
+            <div id="cta-page" class="page-content">
+                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Section CTA (Call to Action)</h2>
+                    
+                    <form id="cta-form" class="space-y-4 sm:space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
+                            <textarea id="cta-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section CTA..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Texte *</label>
+                            <textarea id="cta-text" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Texte de la section CTA..."></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h3 class="text-base sm:text-lg font-bold text-gray-800">Bouton 1</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Texte *</label>
+                                        <input type="text" id="cta-btn1-text" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: S'inscrire maintenant">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Lien *</label>
+                                        <input type="text" id="cta-btn1-link" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: https://form.jotform.com/...">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <h3 class="text-base sm:text-lg font-bold text-gray-800">Bouton 2</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Texte *</label>
+                                        <input type="text" id="cta-btn2-text" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Nous contacter">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Lien *</label>
+                                        <input type="text" id="cta-btn2-link" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: contct.html">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="button" id="save-cta" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
+                                <i class="fas fa-save mr-2"></i> Sauvegarder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modals -->
+    <div id="stat-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="modal-content bg-white rounded-xl shadow-lg w-full max-w-md">
+            <div class="p-4 sm:p-6">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-6">Ajouter/Modifier une statistique</h3>
+                
+                <form id="stat-form" class="space-y-4">
+                    <input type="hidden" id="stat-index">
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Icône Font Awesome *</label>
+                        <input type="text" id="stat-icon" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: user-graduate">
+                        <p class="text-gray-500 text-xs sm:text-sm mt-2">Sans le préfixe "fa-"</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Couleur *</label>
+                        <select id="stat-color" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base">
+                            <option value="blue">Bleu</option>
+                            <option value="emerald">Vert émeraude</option>
+                            <option value="purple">Violet</option>
+                            <option value="red">Rouge</option>
+                            <option value="yellow">Jaune</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Nombre/Chiffre *</label>
+                        <input type="text" id="stat-number" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: +2,500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Label *</label>
+                        <input type="text" id="stat-label" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Étudiants formés">
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
+                        <button type="button" id="cancel-stat" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
+                            Annuler
+                        </button>
+                        <button type="submit" id="save-stat" class="btn-primary text-white font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="value-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="modal-content bg-white rounded-xl shadow-lg w-full max-w-lg">
+            <div class="p-4 sm:p-6">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-6">Ajouter/Modifier une valeur</h3>
+                
+                <form id="value-form" class="space-y-4">
+                    <input type="hidden" id="value-index">
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Icône Font Awesome *</label>
+                        <input type="text" id="value-icon" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: lightbulb">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Couleur *</label>
+                        <select id="value-color" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base">
+                            <option value="blue">Bleu</option>
+                            <option value="emerald">Vert émeraude</option>
+                            <option value="purple">Violet</option>
+                            <option value="red">Rouge</option>
+                            <option value="yellow">Jaune</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
+                        <input type="text" id="value-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Innovation pédagogique">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Description *</label>
+                        <textarea id="value-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Description de la valeur..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Points (un par ligne) *</label>
+                        <textarea id="value-points" required rows="4" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Point 1&#10;Point 2&#10;Point 3"></textarea>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
+                        <button type="button" id="cancel-value" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
+                            Annuler
+                        </button>
+                        <button type="submit" id="save-value" class="btn-primary text-white font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="member-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="modal-content bg-white rounded-xl shadow-lg w-full max-w-md">
+            <div class="p-4 sm:p-6">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-6">Ajouter/Modifier un membre</h3>
+                
+                <form id="member-form" class="space-y-4">
+                    <input type="hidden" id="member-index">
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Nom complet *</label>
+                        <input type="text" id="member-name" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Dr. Jean-Louis Pierre">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Position *</label>
+                        <input type="text" id="member-position" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Directeur Général">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Description *</label>
+                        <textarea id="member-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Description du membre..."></textarea>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
+                        <button type="button" id="cancel-member" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
+                            Annuler
+                        </button>
+                        <button type="submit" id="save-member" class="btn-primary text-white font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="navBulleContainer" class="fixed z-50">
+  <!-- Bulle principale -->
+  <button 
+    id="navBulleBtn" 
+    class="flex items-center justify-center w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white transition-all duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300/50"
+    aria-label="Ouvrir le menu de navigation"
+  >
+    <i id="navBulleIcon" class="fas fa-compass text-xl"></i>
+  </button>
+  
+  <!-- Fenêtre de navigation -->
+  <div 
+    id="navBulleWindow" 
+    class="absolute bottom-16 right-0 w-72 bg-white rounded-2xl shadow-2xl p-4 transform -translate-y-2 opacity-0 invisible transition-all duration-300"
+  >
+    <!-- En-tête de la fenêtre -->
+    <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800">Navigation rapide</h2>
+      <button 
+        id="navBulleCloseBtn" 
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+        aria-label="Fermer le menu"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Liste des liens -->
+    <ul class="space-y-2" id="navBulleLinks">
+      <!-- Les liens seront injectés par JavaScript -->
+    </ul>
+    
+    <!-- Indicateur de position (flèche) -->
+    <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white transform rotate-45"></div>
+  </div>
+</div>
+
+<script>
+// Configuration unique pour éviter les conflits
+const navBulleConfig = {
+  containerId: 'navBulleContainer',
+  buttonId: 'navBulleBtn',
+  windowId: 'navBulleWindow',
+  closeButtonId: 'navBulleCloseBtn',
+  linksContainerId: 'navBulleLinks',
+  iconId: 'navBulleIcon',
+  isOpen: false,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initialX: 0,
+  initialY: 0,
+  touchStartTime: 0,
+  touchMoved: false,
+  
+  // Liens de navigation
+  navLinks: [
+    {
+      id: 'navLinkAccueil',
+      title: 'Dashboard Accueil',
+      url: 'dashacceuil.html',
+      icon: 'fas fa-home',
+      color: 'text-blue-600'
+    },
+    {
+      id: 'navLinkActualites',
+      title: 'Dashboard Actualités',
+      url: 'dashacctualites.html',
+      icon: 'fas fa-newspaper',
+      color: 'text-green-600'
+    },
+    {
+      id: 'navLinkApropos',
+      title: 'Dashboard À propos',
+      url: 'dashapropo.html',
+      icon: 'fas fa-info-circle',
+      color: 'text-purple-600'
+    },
+    {
+      id: 'navLinkCours',
+      title: 'Dashboard Cours',
+      url: 'dashboardcours.html',
+      icon: 'fas fa-book-open',
+      color: 'text-amber-600'
+    },
+    {
+      id: 'navLinkContact',
+      title: 'Dashboard Contact',
+      url: 'dashcontact.html',
+      icon: 'fas fa-envelope',
+      color: 'text-red-600'
+    },
+    {
+      id: 'navLinkSoumissions',
+      title: 'Dashboard Soumissions',
+      url: 'dashboardsoumissions.html',
+      icon: 'fas fa-paper-plane',
+      color: 'text-indigo-600'
+    }
+  ],
+  
+  // Initialisation
+  init: function() {
+    this.setupElements();
+    this.renderLinks();
+    this.setupEventListeners();
+    this.positionBulleOnLoad();
+  },
+  
+  // Configuration des éléments DOM
+  setupElements: function() {
+    this.container = document.getElementById(this.containerId);
+    this.button = document.getElementById(this.buttonId);
+    this.window = document.getElementById(this.windowId);
+    this.closeButton = document.getElementById(this.closeButtonId);
+    this.linksContainer = document.getElementById(this.linksContainerId);
+    this.icon = document.getElementById(this.iconId);
+  },
+  
+  // Rendu des liens de navigation
+  renderLinks: function() {
+    this.linksContainer.innerHTML = '';
+    
+    this.navLinks.forEach(link => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a 
+          href="${link.url}" 
+          id="${link.id}"
+          class="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-colors group"
+        >
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg ${link.color} bg-opacity-10 group-hover:bg-opacity-20 mr-3">
+            <i class="${link.icon}"></i>
+          </div>
+          <span class="font-medium text-gray-800">${link.title}</span>
+        </a>
+      `;
+      this.linksContainer.appendChild(li);
+    });
+  },
+  
+  // Configuration des écouteurs d'événements
+  setupEventListeners: function() {
+    // Clic sur la bulle (ouvrir/fermer) - pour desktop
+    this.button.addEventListener('click', (e) => {
+      // Vérifier si ce n'était pas un drag
+      if (!this.isDragging && !this.touchMoved) {
+        e.stopPropagation();
+        this.toggleWindow();
+      }
+      this.touchMoved = false;
+    });
+    
+    // Clic sur le bouton de fermeture
+    this.closeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeWindow();
+    });
+    
+    // Fermer la fenêtre en cliquant à l'extérieur
+    document.addEventListener('click', (e) => {
+      if (this.isOpen && !this.window.contains(e.target) && !this.button.contains(e.target)) {
+        this.closeWindow();
+      }
+    });
+    
+    // Gestion du déplacement sur desktop (drag)
+    this.button.addEventListener('mousedown', this.startDrag.bind(this));
+    document.addEventListener('mousemove', this.drag.bind(this));
+    document.addEventListener('mouseup', this.stopDrag.bind(this));
+    
+    // Gestion des événements tactiles pour mobile - APPROCHE SIMPLIFIÉE
+    this.button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    this.button.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    this.button.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+    
+    // Fermer la fenêtre avec la touche Échap
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.closeWindow();
+      }
+    });
+    
+    // Ajuster la position lors du redimensionnement
+    window.addEventListener('resize', this.adjustPositionOnResize.bind(this));
+  },
+  
+  // Gestion du touchstart (mobile)
+  handleTouchStart: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    this.startX = touch.clientX;
+    this.startY = touch.clientY;
+    this.initialX = this.container.offsetLeft;
+    this.initialY = this.container.offsetTop;
+    this.touchStartTime = Date.now();
+    this.touchMoved = false;
+    this.isDragging = false;
+    
+    // Timer pour détecter un appui long (drag)
+    this.dragTimer = setTimeout(() => {
+      this.isDragging = true;
+      this.button.classList.add('cursor-grabbing', 'scale-105');
+    }, 300);
+  },
+  
+  // Gestion du touchmove (mobile)
+  handleTouchMove: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.startX;
+    const deltaY = touch.clientY - this.startY;
+    
+    // Si le mouvement est suffisant, c'est un drag
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      this.touchMoved = true;
+      clearTimeout(this.dragTimer);
+      
+      // Si ce n'était pas déjà un drag, le devenir
+      if (!this.isDragging) {
+        this.isDragging = true;
+        this.button.classList.add('cursor-grabbing', 'scale-105');
+      }
+      
+      // Calculer la nouvelle position
+      let newX = this.initialX + deltaX;
+      let newY = this.initialY + deltaY;
+      
+      // Limites de la fenêtre
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const buttonSize = 56; // w-14 = 56px
+      
+      // S'assurer que la bulle reste dans les limites
+      newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+      newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+      
+      // Appliquer la nouvelle position
+      this.container.style.left = `${newX}px`;
+      this.container.style.top = `${newY}px`;
+      this.container.style.right = 'auto';
+      this.container.style.bottom = 'auto';
+      
+      // Fermer la fenêtre si elle est ouverte pendant le drag
+      if (this.isOpen) {
+        this.closeWindow();
+      }
+    }
+  },
+  
+  // Gestion du touchend (mobile)
+  handleTouchEnd: function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    clearTimeout(this.dragTimer);
+    
+    // Si ce n'était pas un drag, c'est un clic
+    if (!this.isDragging && !this.touchMoved) {
+      const touchDuration = Date.now() - this.touchStartTime;
+      
+      // Si le touch était court (< 300ms), c'est un clic
+      if (touchDuration < 300) {
+        this.toggleWindow();
+      }
+    }
+    
+    // Nettoyer l'état de drag
+    if (this.isDragging) {
+      this.isDragging = false;
+      this.button.classList.remove('cursor-grabbing', 'scale-105');
+      
+      // Animation de retour
+      this.button.classList.add('scale-95');
+      setTimeout(() => {
+        this.button.classList.remove('scale-95');
+      }, 200);
+    }
+    
+    // Réinitialiser
+    this.touchMoved = false;
+  },
+  
+  // Ouvrir/fermer la fenêtre
+  toggleWindow: function() {
+    if (this.isOpen) {
+      this.closeWindow();
+    } else {
+      this.openWindow();
+    }
+  },
+  
+  // Ouvrir la fenêtre
+  openWindow: function() {
+    this.window.classList.remove('opacity-0', 'invisible', 'translate-y-2');
+    this.window.classList.add('opacity-100', 'visible', 'translate-y-0');
+    this.icon.classList.remove('fa-compass');
+    this.icon.classList.add('fa-times');
+    this.button.setAttribute('aria-expanded', 'true');
+    this.isOpen = true;
+    
+    // Animation de micro-interaction
+    this.button.classList.add('scale-110');
+    setTimeout(() => {
+      this.button.classList.remove('scale-110');
+    }, 300);
+  },
+  
+  // Fermer la fenêtre
+  closeWindow: function() {
+    this.window.classList.remove('opacity-100', 'visible', 'translate-y-0');
+    this.window.classList.add('opacity-0', 'invisible', 'translate-y-2');
+    this.icon.classList.remove('fa-times');
+    this.icon.classList.add('fa-compass');
+    this.button.setAttribute('aria-expanded', 'false');
+    this.isOpen = false;
+  },
+  
+  // Position initiale de la bulle
+  positionBulleOnLoad: function() {
+    // Position par défaut en bas à droite
+    this.container.style.bottom = '20px';
+    this.container.style.right = '20px';
+  },
+  
+  // Ajuster la position lors du redimensionnement
+  adjustPositionOnResize: function() {
+    const rect = this.container.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    // S'assurer que la bulle reste dans les limites de la fenêtre
+    if (rect.left < 0) {
+      this.container.style.left = '10px';
+      this.container.style.right = 'auto';
+    }
+    
+    if (rect.top < 0) {
+      this.container.style.top = '10px';
+      this.container.style.bottom = 'auto';
+    }
+    
+    if (rect.right > windowWidth) {
+      this.container.style.right = '10px';
+      this.container.style.left = 'auto';
+    }
+    
+    if (rect.bottom > windowHeight) {
+      this.container.style.bottom = '10px';
+      this.container.style.top = 'auto';
+    }
+  },
+  
+  // Début du drag (souris) - pour desktop
+  startDrag: function(e) {
+    e.preventDefault();
+    this.isDragging = true;
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    
+    // Enregistrer la position initiale
+    const rect = this.container.getBoundingClientRect();
+    this.initialX = rect.left;
+    this.initialY = rect.top;
+    
+    // Changer l'apparence pendant le drag
+    this.button.classList.add('cursor-grabbing', 'scale-105');
+  },
+  
+  // Déplacement (souris) - pour desktop
+  drag: function(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    
+    // Calculer le déplacement
+    const deltaX = e.clientX - this.startX;
+    const deltaY = e.clientY - this.startY;
+    
+    // Calculer la nouvelle position
+    let newX = this.initialX + deltaX;
+    let newY = this.initialY + deltaY;
+    
+    // Limites de la fenêtre
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const buttonSize = 56; // w-14 = 56px
+    
+    // S'assurer que la bulle reste dans les limites
+    newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+    newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+    
+    // Appliquer la nouvelle position
+    this.container.style.left = `${newX}px`;
+    this.container.style.top = `${newY}px`;
+    this.container.style.right = 'auto';
+    this.container.style.bottom = 'auto';
+    
+    // Fermer la fenêtre si elle est ouverte pendant le drag
+    if (this.isOpen) {
+      this.closeWindow();
+    }
+  },
+  
+  // Fin du drag (souris) - pour desktop
+  stopDrag: function() {
+    if (!this.isDragging) return;
+    
+    this.isDragging = false;
+    this.button.classList.remove('cursor-grabbing', 'scale-105');
+    
+    // Animation de retour
+    this.button.classList.add('scale-95');
+    setTimeout(() => {
+      this.button.classList.remove('scale-95');
+    }, 200);
+  }
+};
+
+// Initialiser la bulle de navigation quand le DOM est chargé
+document.addEventListener('DOMContentLoaded', () => {
+  navBulleConfig.init();
+});
+</script>
+
+<!-- Styles additionnels pour une meilleure expérience mobile -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+#navBulleContainer {
+  touch-action: none; /* Empêche le défilement pendant le drag sur mobile */
+}
+
+#navBulleBtn {
+  cursor: grab;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+#navBulleBtn:active {
+  cursor: grabbing;
+}
+
+#navBulleWindow {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: white; /* Assure un fond blanc */
+}
+
+/* Correction des couleurs des textes et liens */
+#navBulleWindow h2 {
+  color: #1f2937 !important; /* Couleur foncée pour le titre */
+}
+
+#navBulleLinks a {
+  color: #374151 !important; /* Couleur gris foncé pour les liens */
+}
+
+#navBulleLinks a span {
+  color: #374151 !important; /* Assure la couleur du texte des liens */
+}
+
+#navBulleCloseBtn {
+  color: #6b7280 !important; /* Couleur grise pour l'icône de fermeture */
+}
+
+#navBulleCloseBtn:hover {
+  color: #374151 !important;
+}
+
+/* Animation d'entrée pour les liens */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#navBulleLinks li {
+  animation: fadeInUp 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+#navBulleLinks li:nth-child(1) { animation-delay: 0.05s; }
+#navBulleLinks li:nth-child(2) { animation-delay: 0.1s; }
+#navBulleLinks li:nth-child(3) { animation-delay: 0.15s; }
+#navBulleLinks li:nth-child(4) { animation-delay: 0.2s; }
+#navBulleLinks li:nth-child(5) { animation-delay: 0.25s; }
+#navBulleLinks li:nth-child(6) { animation-delay: 0.3s; }
+
+/* Assurer la visibilité des icônes dans les cercles colorés */
+#navBulleLinks a div i {
+  color: inherit !important; /* Hérite la couleur définie par la classe */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #navBulleWindow {
+    width: calc(100vw - 40px);
+    max-width: 300px;
+    right: 0;
+    bottom: 70px;
+  }
+  
+  #navBulleWindow > div:last-child {
+    right: 20px;
+  }
+}
+
+/* Dark mode support - corrigé pour garder la lisibilité */
+@media (prefers-color-scheme: dark) {
+  #navBulleWindow {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  #navBulleWindow h2 {
+    color: #f9fafb !important; /* Blanc pour le titre en dark mode */
+  }
+  
+  #navBulleLinks a {
+    color: #e5e7eb !important; /* Gris clair pour les liens */
+  }
+  
+  #navBulleLinks a span {
+    color: #e5e7eb !important; /* Gris clair pour le texte */
+  }
+  
+  #navBulleLinks a:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  #navBulleCloseBtn {
+    color: #9ca3af !important;
+  }
+  
+  #navBulleCloseBtn:hover {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+  
+  #navBulleWindow > div:last-child {
+    background-color: #1f2937 !important;
+  }
+}
+
+/* Force la visibilité des éléments pendant les animations */
+#navBulleWindow.opacity-100.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Correction spécifique pour les couleurs des icônes dans les cercles */
+.bg-opacity-10 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.text-blue-600 { color: #2563eb !important; }
+.text-green-600 { color: #16a34a !important; }
+.text-purple-600 { color: #9333ea !important; }
+.text-amber-600 { color: #d97706 !important; }
+.text-red-600 { color: #dc2626 !important; }
+.text-indigo-600 { color: #4f46e5 !important; }
+</style>
+    <!-- JavaScript -->
+    <script>
+        // Configuration Firebase
+    const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Variables globales
+        let currentPage = 'hero';
+        let aboutData = null;
+        let stats = [];
+        let values = [];
+        let members = [];
+        
+        // Fonction pour charger les données depuis Firebase
+        async function loadAboutData() {
+            try {
+                showLoading();
+                const docRef = db.collection('about').doc('content');
+                const doc = await docRef.get();
+                
+                if (doc.exists) {
+                    aboutData = doc.data();
+                    updateFormsWithData();
+                    showNotification('Données chargées avec succès !', 'success');
+                } else {
+                    aboutData = getDefaultData();
+                    showNotification('Données par défaut chargées', 'info');
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement:', error);
+                aboutData = getDefaultData();
+                showNotification('Erreur de chargement, données par défaut utilisées', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Données par défaut
+        function getDefaultData() {
+            return {
+                hero: {
+                    badge: "À propos de nous",
+                    title: "Former la <span class='gradient-text'>jeunesse</span> de Delmas pour l'avenir",
+                    description: "Institut de formation en éducation, psychologie et technologie (URH HAITI) - Une référence en formation professionnelle à Delmas."
+                },
+                mission: {
+                    badge: "Notre mission & vision",
+                    title: "Éduquer, Inspirer, <span class='text-blue-600'>Transformer</span>",
+                    text1: "Fondé en 2024, l'URH HAITI s'est imposé comme un acteur majeur dans la formation professionnelle à l'échelle nationale et internationale. Notre approche combine théorie et pratique pour préparer les étudiants aux réalités du marché du travail.",
+                    text2: "Notre mission est de former des professionnels compétents, disciplinés, engagés, capable de répondre aux exigences du monde professionnel et de contribuer activement au développement économique et social d'Haïti et ailleurs.",
+                    video: "videoifept.mp4",
+                    stats: [
+                        {
+                            icon: "user-graduate",
+                            color: "blue",
+                            number: "+2,500",
+                            label: "Étudiants formés"
+                        },
+                        {
+                            icon: "briefcase",
+                            color: "emerald",
+                            number: "85%",
+                            label: "Taux d'insertion"
+                        }
+                    ]
+                },
+                values: {
+                    badge: "Nos valeurs fondamentales",
+                    title: "Ce qui nous <span class='text-emerald-600'>distingue</span>",
+                    subtitle: "Notre succès repose sur des valeurs fortes qui guident chaque aspect de notre formation.",
+                    items: [
+                        {
+                            icon: "lightbulb",
+                            color: "blue",
+                            title: "Innovation pédagogique",
+                            description: "Méthodes d'enseignement modernes adaptées aux réalités du marché du travail haïtien.",
+                            points: ["Apprentissage par projets réels", "Technologies éducatives de pointe"]
+                        },
+                        {
+                            icon: "users",
+                            color: "emerald",
+                            title: "Encadrement personnalisé",
+                            description: "Suivi individuel de chaque étudiant avec des mentors dédiés pour garantir sa réussite.",
+                            points: ["Tutorat individuel et en groupe", "Orientation professionnelle personnalisée"]
+                        },
+                        {
+                            icon: "handshake",
+                            color: "purple",
+                            title: "Partenariats stratégiques",
+                            description: "Réseau étendu d'entreprises partenaires pour stages et opportunités d'emploi.",
+                            points: ["+50 entreprises partenaires", "Programmes de stage garantis"]
+                        }
+                    ]
+                },
+                team: {
+                    badge: "Notre équipe dirigeante",
+                    title: "Rencontrez nos <span class='text-purple-600'>leaders</span>",
+                    subtitle: "Une équipe expérimentée dévouée à l'excellence éducative.",
+                    members: [
+                        {
+                            name: "Dr. Jean-Louis Pierre",
+                            position: "Directeur Général",
+                            description: "Docteur en Sciences de l'Éducation avec 15 ans d'expérience."
+                        },
+                        {
+                            name: "Mme. Marie-Claire Laurent",
+                            position: "Directrice Académique",
+                            description: "Spécialiste en pédagogie innovante et technologies éducatives."
+                        },
+                        {
+                            name: "M. Samuel Durocher",
+                            position: "Directeur des Partenariats",
+                            description: "Expert en relations entreprises et insertion professionnelle."
+                        }
+                    ]
+                },
+                cta: {
+                    title: "Prêt à transformer votre avenir avec nous ?",
+                    text: "Rejoignez l'URH HAITI et bénéficiez d'une formation d'excellence adaptée aux besoins du marché du travail.",
+                    button1: {
+                        text: "S'inscrire maintenant",
+                        link: "https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant"
+                    },
+                    button2: {
+                        text: "Nous contacter",
+                        link: "contct.html"
+                    }
+                }
+            };
+        }
+        
+        // Mettre à jour les formulaires avec les données
+        function updateFormsWithData() {
+            if (!aboutData) return;
+            
+            // Hero
+            if (aboutData.hero) {
+                document.getElementById('hero-badge').value = aboutData.hero.badge || '';
+                document.getElementById('hero-title').value = aboutData.hero.title || '';
+                document.getElementById('hero-description').value = aboutData.hero.description || '';
+            }
+            
+            // Mission
+            if (aboutData.mission) {
+                document.getElementById('mission-badge').value = aboutData.mission.badge || '';
+                document.getElementById('mission-title').value = aboutData.mission.title || '';
+                document.getElementById('mission-text1').value = aboutData.mission.text1 || '';
+                document.getElementById('mission-text2').value = aboutData.mission.text2 || '';
+                document.getElementById('mission-video').value = aboutData.mission.video || '';
+                
+                // Stats
+                stats = aboutData.mission.stats || [];
+                updateStatsList();
+            }
+            
+            // Values
+            if (aboutData.values) {
+                document.getElementById('values-badge').value = aboutData.values.badge || '';
+                document.getElementById('values-title').value = aboutData.values.title || '';
+                document.getElementById('values-subtitle').value = aboutData.values.subtitle || '';
+                
+                values = aboutData.values.items || [];
+                updateValuesList();
+            }
+            
+            // Team
+            if (aboutData.team) {
+                document.getElementById('team-badge').value = aboutData.team.badge || '';
+                document.getElementById('team-title').value = aboutData.team.title || '';
+                document.getElementById('team-subtitle').value = aboutData.team.subtitle || '';
+                
+                members = aboutData.team.members || [];
+                updateMembersList();
+            }
+            
+            // CTA
+            if (aboutData.cta) {
+                document.getElementById('cta-title').value = aboutData.cta.title || '';
+                document.getElementById('cta-text').value = aboutData.cta.text || '';
+                
+                if (aboutData.cta.button1) {
+                    document.getElementById('cta-btn1-text').value = aboutData.cta.button1.text || '';
+                    document.getElementById('cta-btn1-link').value = aboutData.cta.button1.link || '';
+                }
+                
+                if (aboutData.cta.button2) {
+                    document.getElementById('cta-btn2-text').value = aboutData.cta.button2.text || '';
+                    document.getElementById('cta-btn2-link').value = aboutData.cta.button2.link || '';
+                }
+            }
+        }
+        
+        // Mettre à jour la liste des statistiques
+        function updateStatsList() {
+            const container = document.getElementById('stats-container');
+            
+            if (!stats.length) {
+                container.innerHTML = `
+                    <div class="border border-gray-300 rounded-lg p-4">
+                        <p class="text-gray-600 text-center text-sm sm:text-base">Aucune statistique ajoutée</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = stats.map((stat, index) => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-${stat.color}-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-${stat.icon} text-${stat.color}-600 text-sm"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-medium text-gray-800 truncate text-sm sm:text-base">${stat.number}</h4>
+                                <p class="text-xs sm:text-sm text-gray-600 truncate">${stat.label}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end sm:justify-start space-x-2">
+                            <button type="button" class="edit-stat-btn text-blue-600 hover:text-blue-800 p-1" data-index="${index}" aria-label="Éditer">
+                                <i class="fas fa-edit text-sm"></i>
+                            </button>
+                            <button type="button" class="delete-stat-btn text-red-600 hover:text-red-800 p-1" data-index="${index}" aria-label="Supprimer">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Mettre à jour la liste des valeurs
+        function updateValuesList() {
+            const container = document.getElementById('values-list-container');
+            
+            if (!values.length) {
+                container.innerHTML = `
+                    <div class="border border-gray-300 rounded-lg p-4">
+                        <p class="text-gray-600 text-center text-sm sm:text-base">Aucune valeur ajoutée</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = values.map((value, index) => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-${value.color}-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 mt-1">
+                                <i class="fas fa-${value.icon} text-${value.color}-600"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-medium text-gray-800 text-sm sm:text-base">${value.title}</h4>
+                                <p class="text-xs sm:text-sm text-gray-600 line-clamp-2 mt-1">${value.description}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end sm:justify-start space-x-2">
+                            <button type="button" class="edit-value-btn text-blue-600 hover:text-blue-800 p-1" data-index="${index}" aria-label="Éditer">
+                                <i class="fas fa-edit text-sm"></i>
+                            </button>
+                            <button type="button" class="delete-value-btn text-red-600 hover:text-red-800 p-1" data-index="${index}" aria-label="Supprimer">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <ul class="space-y-1 ml-0 sm:ml-14">
+                        ${value.points.map(point => `
+                            <li class="flex items-center text-xs sm:text-sm text-gray-600">
+                                <i class="fas fa-check-circle text-emerald-500 text-xs mr-2 flex-shrink-0"></i>
+                                <span>${point}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+        
+        // Mettre à jour la liste des membres
+        function updateMembersList() {
+            const container = document.getElementById('team-members-container');
+            
+            if (!members.length) {
+                container.innerHTML = `
+                    <div class="border border-gray-300 rounded-lg p-4">
+                        <p class="text-gray-600 text-center text-sm sm:text-base">Aucun membre ajouté</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = members.map((member, index) => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <div class="min-w-0">
+                            <h4 class="font-medium text-gray-800 text-sm sm:text-base">${member.name}</h4>
+                            <p class="text-blue-600 text-xs sm:text-sm mb-2">${member.position}</p>
+                            <p class="text-xs sm:text-sm text-gray-600 line-clamp-3">${member.description}</p>
+                        </div>
+                        <div class="flex justify-end sm:justify-start space-x-2">
+                            <button type="button" class="edit-member-btn text-blue-600 hover:text-blue-800 p-1" data-index="${index}" aria-label="Éditer">
+                                <i class="fas fa-edit text-sm"></i>
+                            </button>
+                            <button type="button" class="delete-member-btn text-red-600 hover:text-red-800 p-1" data-index="${index}" aria-label="Supprimer">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Sauvegarder les données dans Firebase
+        async function saveAboutData() {
+            try {
+                showLoading();
+                
+                // Construire l'objet de données
+                const dataToSave = {
+                    hero: {
+                        badge: document.getElementById('hero-badge').value,
+                        title: document.getElementById('hero-title').value,
+                        description: document.getElementById('hero-description').value
+                    },
+                    mission: {
+                        badge: document.getElementById('mission-badge').value,
+                        title: document.getElementById('mission-title').value,
+                        text1: document.getElementById('mission-text1').value,
+                        text2: document.getElementById('mission-text2').value,
+                        video: document.getElementById('mission-video').value,
+                        stats: stats
+                    },
+                    values: {
+                        badge: document.getElementById('values-badge').value,
+                        title: document.getElementById('values-title').value,
+                        subtitle: document.getElementById('values-subtitle').value,
+                        items: values
+                    },
+                    team: {
+                        badge: document.getElementById('team-badge').value,
+                        title: document.getElementById('team-title').value,
+                        subtitle: document.getElementById('team-subtitle').value,
+                        members: members
+                    },
+                    cta: {
+                        title: document.getElementById('cta-title').value,
+                        text: document.getElementById('cta-text').value,
+                        button1: {
+                            text: document.getElementById('cta-btn1-text').value,
+                            link: document.getElementById('cta-btn1-link').value
+                        },
+                        button2: {
+                            text: document.getElementById('cta-btn2-text').value,
+                            link: document.getElementById('cta-btn2-link').value
+                        }
+                    },
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // Sauvegarder dans Firebase
+                await db.collection('about').doc('content').set(dataToSave, { merge: true });
+                
+                showNotification('Données sauvegardées avec succès !', 'success');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde:', error);
+                showNotification('Erreur lors de la sauvegarde. Veuillez réessayer.', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Fonction pour changer de page
+        function navigateToPage(pageId) {
+            // Fermer le menu mobile si ouvert
+            closeMobileMenu();
+            
+            // Mettre à jour le menu actif
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+                item.classList.add('text-gray-300');
+            });
+            
+            document.querySelectorAll(`[data-page="${pageId}"]`).forEach(item => {
+                item.classList.add('active');
+                item.classList.remove('text-gray-300');
+            });
+            
+            // Mettre à jour les titres de page
+            const pageTitles = {
+                hero: "Section Hero",
+                mission: "Mission & Vision", 
+                values: "Nos Valeurs",
+                team: "Équipe Dirigeante",
+                cta: "Section CTA"
+            };
+            
+            const pageSubtitles = {
+                hero: "Gérez le contenu de la section hero de la page À Propos",
+                mission: "Gérez la section mission et vision",
+                values: "Gérez les valeurs fondamentales",
+                team: "Gérez les membres de l'équipe dirigeante",
+                cta: "Gérez la section call to action"
+            };
+            
+            document.getElementById('page-title').textContent = pageTitles[pageId] || 'Dashboard';
+            document.getElementById('page-subtitle').textContent = pageSubtitles[pageId] || '';
+            
+            // Cacher toutes les pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Afficher la page sélectionnée
+            document.getElementById(`${pageId}-page`).classList.add('active');
+            
+            currentPage = pageId;
+            
+            // Scroll vers le haut sur mobile
+            if (window.innerWidth < 1024) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+        
+        // Gestion du menu mobile
+        function openMobileMenu() {
+            document.getElementById('mobile-sidebar').classList.add('open');
+            document.getElementById('mobile-overlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileMenu() {
+            document.getElementById('mobile-sidebar').classList.remove('open');
+            document.getElementById('mobile-overlay').classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Gestion des modals
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Supprimer les notifications existantes
+            const existingNotifications = document.querySelectorAll('.custom-notification');
+            existingNotifications.forEach(notification => notification.remove());
+            
+            const colors = {
+                success: 'bg-emerald-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const icon = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle',
+                warning: 'fa-exclamation-triangle'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `custom-notification fixed top-4 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-3 max-w-sm animate-slide-in`;
+            notification.innerHTML = `
+                <i class="fas ${icon[type]} text-xl"></i>
+                <span class="text-sm">${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slide-out 0.3s ease forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Loading indicator
+        function showLoading() {
+            let loader = document.getElementById('global-loader');
+            if (!loader) {
+                loader = document.createElement('div');
+                loader.id = 'global-loader';
+                loader.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                loader.innerHTML = `
+                    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center space-y-4">
+                        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-gray-700 font-medium">Chargement...</p>
+                    </div>
+                `;
+                document.body.appendChild(loader);
+            }
+        }
+        
+        function hideLoading() {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.remove();
+            }
+        }
+        
+        // Initialisation
+        async function initDashboard() {
+            // Charger les données
+            await loadAboutData();
+            
+            // Configurer les écouteurs d'événements
+            setupEventListeners();
+            
+            // Ajouter les styles d'animation pour les notifications
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slide-in {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slide-out {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                .animate-slide-in {
+                    animation: slide-in 0.3s ease forwards;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                .animate-spin {
+                    animation: spin 1s linear infinite;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            showNotification('Dashboard chargé avec succès !', 'success');
+        }
+        
+        // Configurer les écouteurs d'événements
+        function setupEventListeners() {
+            // Menu mobile
+            document.getElementById('mobile-menu-btn').addEventListener('click', openMobileMenu);
+            document.getElementById('close-mobile-menu').addEventListener('click', closeMobileMenu);
+            document.getElementById('mobile-overlay').addEventListener('click', closeMobileMenu);
+            document.getElementById('mobile-save-btn').addEventListener('click', saveAboutData);
+            
+            // Navigation
+            document.querySelectorAll('.menu-item[data-page]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navigateToPage(item.dataset.page);
+                });
+            });
+            
+            // Sauvegarde par section
+            document.getElementById('save-hero').addEventListener('click', saveAboutData);
+            document.getElementById('save-mission').addEventListener('click', saveAboutData);
+            document.getElementById('save-values').addEventListener('click', saveAboutData);
+            document.getElementById('save-team').addEventListener('click', saveAboutData);
+            document.getElementById('save-cta').addEventListener('click', saveAboutData);
+            
+            // Sauvegarde globale
+            document.getElementById('save-all').addEventListener('click', saveAboutData);
+            
+            // Gestion des statistiques
+            document.getElementById('add-stat').addEventListener('click', () => {
+                document.getElementById('stat-index').value = '';
+                document.getElementById('stat-form').reset();
+                openModal('stat-modal');
+            });
+            
+            // Gestion des valeurs
+            document.getElementById('add-value').addEventListener('click', () => {
+                document.getElementById('value-index').value = '';
+                document.getElementById('value-form').reset();
+                document.getElementById('value-points').value = '';
+                openModal('value-modal');
+            });
+            
+            // Gestion des membres
+            document.getElementById('add-member').addEventListener('click', () => {
+                document.getElementById('member-index').value = '';
+                document.getElementById('member-form').reset();
+                openModal('member-modal');
+            });
+            
+            // Fermer les modals
+            document.getElementById('cancel-stat').addEventListener('click', () => closeModal('stat-modal'));
+            document.getElementById('cancel-value').addEventListener('click', () => closeModal('value-modal'));
+            document.getElementById('cancel-member').addEventListener('click', () => closeModal('member-modal'));
+            
+            // Fermer modals avec Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal('stat-modal');
+                    closeModal('value-modal');
+                    closeModal('member-modal');
+                    closeMobileMenu();
+                }
+            });
+            
+            // Gestion via délégation d'événements
+            document.addEventListener('click', (e) => {
+                // Éditer une statistique
+                if (e.target.closest('.edit-stat-btn')) {
+                    const index = e.target.closest('.edit-stat-btn').dataset.index;
+                    const stat = stats[index];
+                    
+                    if (stat) {
+                        document.getElementById('stat-index').value = index;
+                        document.getElementById('stat-icon').value = stat.icon;
+                        document.getElementById('stat-color').value = stat.color;
+                        document.getElementById('stat-number').value = stat.number;
+                        document.getElementById('stat-label').value = stat.label;
+                        
+                        openModal('stat-modal');
+                    }
+                }
+                
+                // Supprimer une statistique
+                if (e.target.closest('.delete-stat-btn')) {
+                    const index = e.target.closest('.delete-stat-btn').dataset.index;
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette statistique ?')) {
+                        stats.splice(index, 1);
+                        updateStatsList();
+                        showNotification('Statistique supprimée', 'success');
+                    }
+                }
+                
+                // Éditer une valeur
+                if (e.target.closest('.edit-value-btn')) {
+                    const index = e.target.closest('.edit-value-btn').dataset.index;
+                    const value = values[index];
+                    
+                    if (value) {
+                        document.getElementById('value-index').value = index;
+                        document.getElementById('value-icon').value = value.icon;
+                        document.getElementById('value-color').value = value.color;
+                        document.getElementById('value-title').value = value.title;
+                        document.getElementById('value-description').value = value.description;
+                        document.getElementById('value-points').value = value.points.join('\n');
+                        
+                        openModal('value-modal');
+                    }
+                }
+                
+                // Supprimer une valeur
+                if (e.target.closest('.delete-value-btn')) {
+                    const index = e.target.closest('.delete-value-btn').dataset.index;
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette valeur ?')) {
+                        values.splice(index, 1);
+                        updateValuesList();
+                        showNotification('Valeur supprimée', 'success');
+                    }
+                }
+                
+                // Éditer un membre
+                if (e.target.closest('.edit-member-btn')) {
+                    const index = e.target.closest('.edit-member-btn').dataset.index;
+                    const member = members[index];
+                    
+                    if (member) {
+                        document.getElementById('member-index').value = index;
+                        document.getElementById('member-name').value = member.name;
+                        document.getElementById('member-position').value = member.position;
+                        document.getElementById('member-description').value = member.description;
+                        
+                        openModal('member-modal');
+                    }
+                }
+                
+                // Supprimer un membre
+                if (e.target.closest('.delete-member-btn')) {
+                    const index = e.target.closest('.delete-member-btn').dataset.index;
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
+                        members.splice(index, 1);
+                        updateMembersList();
+                        showNotification('Membre supprimé', 'success');
+                    }
+                }
+            });
+            
+            // Formulaire statistique
+            document.getElementById('stat-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const stat = {
+                    icon: document.getElementById('stat-icon').value,
+                    color: document.getElementById('stat-color').value,
+                    number: document.getElementById('stat-number').value,
+                    label: document.getElementById('stat-label').value
+                };
+                
+                const index = document.getElementById('stat-index').value;
+                
+                if (index === '') {
+                    stats.push(stat);
+                    showNotification('Statistique ajoutée', 'success');
+                } else {
+                    stats[index] = stat;
+                    showNotification('Statistique modifiée', 'success');
+                }
+                
+                updateStatsList();
+                closeModal('stat-modal');
+            });
+            
+            // Formulaire valeur
+            document.getElementById('value-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const value = {
+                    icon: document.getElementById('value-icon').value,
+                    color: document.getElementById('value-color').value,
+                    title: document.getElementById('value-title').value,
+                    description: document.getElementById('value-description').value,
+                    points: document.getElementById('value-points').value.split('\n').filter(p => p.trim() !== '')
+                };
+                
+                const index = document.getElementById('value-index').value;
+                
+                if (index === '') {
+                    values.push(value);
+                    showNotification('Valeur ajoutée', 'success');
+                } else {
+                    values[index] = value;
+                    showNotification('Valeur modifiée', 'success');
+                }
+                
+                updateValuesList();
+                closeModal('value-modal');
+            });
+            
+            // Formulaire membre
+            document.getElementById('member-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const member = {
+                    name: document.getElementById('member-name').value,
+                    position: document.getElementById('member-position').value,
+                    description: document.getElementById('member-description').value
+                };
+                
+                const index = document.getElementById('member-index').value;
+                
+                if (index === '') {
+                    members.push(member);
+                    showNotification('Membre ajouté', 'success');
+                } else {
+                    members[index] = member;
+                    showNotification('Membre modifié', 'success');
+                }
+                
+                updateMembersList();
+                closeModal('member-modal');
+            });
+            
+            // Touches rapides pour sauvegarde
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    saveAboutData();
+                }
+            });
+        }
+        
+        // Initialiser au chargement
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

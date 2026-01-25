@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement du cours | Plateforme e-learning</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .step {
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            border-left: 4px solid #3b82f6;
+            background-color: #f8fafc;
+        }
+        
+        .payment-method {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .payment-method:hover {
+            border-color: #93c5fd;
+            background-color: #f0f9ff;
+        }
+        
+        .payment-method.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        input:disabled, button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .user-menu-hidden {
+            display: none !important;
+        }
+        
+        .auth-buttons-hidden {
+            display: none !important;
+        }
+        
+        .user-avatar {
+            transition: transform 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header Fixe -->
+    <header class="fixed w-full z-50 bg-white shadow-md">
+        <nav class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center">
+                        <img src="logo.png" alt="URH Logo" class="h-10">
+                    </div>
+                    <span class="font-bold text-xl text-green-700">URH</span>
+                </div>
+
+                <!-- Navigation Desktop -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-green-700 font-medium">Accueil</a>
+                    <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium">Cours</a>
+                    <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium">Admission</a>
+                    <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium">Actualités</a>
+                    <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium">Contact</a>
+                    
+                    <!-- Boutons d'authentification -->
+                    <div id="auth-buttons-desktop" class="flex items-center space-x-4">
+                        <a href="connexion.html" class="text-green-600 hover:text-green-800 font-medium">
+                            Connexion
+                        </a>
+                        <a href="inscription.html" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                            Inscription
+                        </a>
+                    </div>
+                    
+                    <!-- Menu utilisateur -->
+                    <div id="user-menu-desktop" class="user-menu-hidden flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center focus:outline-none">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center user-avatar">
+                                    <i class="fas fa-user text-green-600"></i>
+                                </div>
+                            </button>
+                            
+                            <!-- Dropdown menu utilisateur -->
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+                                <a href="profil.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user-circle mr-2"></i> Mon profil
+                                </a>
+                                <button id="logout-button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton menu mobile -->
+                <button class="md:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="md:hidden bg-white shadow-lg px-4 py-3 hidden">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-green-700 font-medium py-2">Accueil</a>
+                <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Cours</a>
+                <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Actualité</a>
+                <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Admissions</a>
+                <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Contact</a>
+                
+                <!-- Boutons d'authentification mobile -->
+                <div id="auth-buttons-mobile" class="pt-4 border-t border-gray-200">
+                    <a href="connexion.html" class="block text-center text-green-600 hover:text-green-800 font-medium py-2">
+                        Connexion
+                    </a>
+                    <a href="inscription.html" class="block text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg mt-2 transition duration-300">
+                        Inscription
+                    </a>
+                </div>
+                
+                <!-- Menu utilisateur mobile -->
+                <div id="user-menu-mobile" class="user-menu-hidden pt-4 border-t border-gray-200">
+                    <a href="profil.html" class="flex items-center text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-green-600"></i>
+                        </div>
+                        Mon profil
+                    </a>
+                    <button id="logout-button-mobile" class="w-full flex items-center text-left text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        </div>
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-16"></div> <!-- Espace pour le header fixe -->
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Titre de la page -->
+        <div class="mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Paiement du cours</h1>
+            <p class="text-gray-600">Effectuez votre paiement pour accéder au cours. Votre inscription sera validée sous 24h après vérification.</p>
+        </div>
+        
+        <!-- Conteneur principal -->
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Étapes de paiement (colonne gauche) -->
+            <div class="lg:w-2/3">
+                <!-- Stepper visuel -->
+                <div class="mb-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold mb-2">1</div>
+                            <span class="text-sm font-medium">Cours</span>
+                        </div>
+                        <div class="h-1 w-1/4 bg-green-600"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold mb-2">2</div>
+                            <span class="text-sm font-medium">Moyen de paiement</span>
+                        </div>
+                        <div class="h-1 w-1/4 bg-gray-300"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center font-bold mb-2">3</div>
+                            <span class="text-sm font-medium">Coordonnées</span>
+                        </div>
+                        <div class="h-1 w-1/4 bg-gray-300"></div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center font-bold mb-2">4</div>
+                            <span class="text-sm font-medium">Validation</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ÉTAPE 1: Détails du cours -->
+                <div id="step-1" class="step active bg-white rounded-xl shadow-md p-6 mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h2 class="text-xl font-bold">Cours sélectionné</h2>
+                    </div>
+                    
+                    <div id="course-details" class="mb-6 p-4 bg-green-50 rounded-lg">
+                        <div class="text-center py-8">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500 mb-4"></div>
+                            <p class="text-gray-600">Chargement des détails du cours...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button id="next-step-1" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <span>Continuer</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- ÉTAPE 2: Moyen de paiement -->
+                <div id="step-2" class="step bg-white rounded-xl shadow-md p-6 mb-6 hidden">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h2 class="text-xl font-bold">Choisissez votre moyen de paiement</h2>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-6">Sélectionnez l'une des options ci-dessous pour effectuer votre paiement.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <div id="method-moncash" class="payment-method p-5">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                    <i class="fas fa-mobile-alt text-orange-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg">MonCash</h3>
+                                    <p class="text-gray-600 text-sm">Paiement par téléphone mobile</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span class="text-sm">Disponible 24h/24</span>
+                                </div>
+                                <div class="flex items-center text-green-600 mt-1">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span class="text-sm">Transaction instantanée</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="method-natcash" class="payment-method p-5">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                    <i class="fas fa-university text-purple-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg">NatCash</h3>
+                                    <p class="text-gray-600 text-sm">Paiement bancaire mobile</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span class="text-sm">Sécurisé</span>
+                                </div>
+                                <div class="flex items-center text-green-600 mt-1">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span class="text-sm">Support bancaire</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button id="prev-step-2" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            <span>Retour</span>
+                        </button>
+                        <button id="next-step-2" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <span>Continuer</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- ÉTAPE 3: Coordonnées de paiement -->
+                <div id="step-3" class="step bg-white rounded-xl shadow-md p-6 mb-6 hidden">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <h2 class="text-xl font-bold">Coordonnées de paiement</h2>
+                    </div>
+                    
+                    <div id="payment-details" class="mb-8">
+                        <!-- Les détails seront injectés dynamiquement selon la méthode choisie -->
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button id="prev-step-3" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            <span>Retour</span>
+                        </button>
+                        <button id="next-step-3" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <span>Continuer</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- ÉTAPE 4: Formulaire de soumission -->
+                <div id="step-4" class="step bg-white rounded-xl shadow-md p-6 mb-6 hidden">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <h2 class="text-xl font-bold">Détails du transfert</h2>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-6">Veuillez remplir les informations concernant votre transfert. Ces informations seront utilisées pour vérifier votre paiement.</p>
+                    
+                    <form id="payment-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="sender-name" class="block text-gray-700 font-medium mb-2">Nom de l'expéditeur *</label>
+                                <input type="text" id="sender-name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Votre nom ou nom de l'entreprise" required>
+                                <p class="text-gray-500 text-sm mt-1">Le nom tel qu'il apparaît sur le transfert</p>
+                            </div>
+                            
+                            <div>
+                                <label for="sender-number" class="block text-gray-700 font-medium mb-2">Numéro ayant effectué le transfert *</label>
+                                <input type="text" id="sender-number" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: 509XXXXXXXX" required>
+                                <p class="text-gray-500 text-sm mt-1">Numéro de téléphone utilisé pour le transfert</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="transaction-id" class="block text-gray-700 font-medium mb-2">ID / Référence de transaction *</label>
+                            <input type="text" id="transaction-id" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: MC123456789" required>
+                            <p class="text-gray-500 text-sm mt-1">Numéro de référence fourni lors du transfert</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="transfer-date" class="block text-gray-700 font-medium mb-2">Date du transfert *</label>
+                                <input type="date" id="transfer-date" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                            </div>
+                            
+                            <div>
+                                <label for="transfer-time" class="block text-gray-700 font-medium mb-2">Heure du transfert *</label>
+                                <input type="time" id="transfer-time" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-yellow-800">Important</h3>
+                                    <div class="mt-2 text-sm text-yellow-700">
+                                        <p>Votre accès au cours sera activé uniquement après validation manuelle de votre paiement par notre équipe. Cette vérification peut prendre jusqu'à 24 heures.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button id="prev-step-4" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            <span>Retour</span>
+                        </button>
+                        <button id="submit-payment" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            <span>Soumettre la demande de vérification</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- ÉTAPE 5: Confirmation -->
+                <div id="step-5" class="step bg-white rounded-xl shadow-md p-6 mb-6 hidden">
+                    <div class="text-center py-10">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-6">
+                            <i class="fas fa-check text-3xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-3">Demande envoyée avec succès !</h2>
+                        <p class="text-gray-600 mb-8 max-w-lg mx-auto">Votre demande de vérification de paiement a été enregistrée. Vous recevrez une notification par email dès que votre paiement sera validé par notre équipe.</p>
+                        
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6 max-w-lg mx-auto mb-8">
+                            <h3 class="font-bold text-lg text-green-800 mb-3">Prochaines étapes</h3>
+                            <ul class="text-left text-green-700 space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fas fa-clock mt-1 mr-3 text-green-600"></i>
+                                    <span>Notre équipe va vérifier votre paiement sous 24 heures</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-envelope mt-1 mr-3 text-green-600"></i>
+                                    <span>Vous recevrez un email de confirmation une fois validé</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-book-open mt-1 mr-3 text-green-600"></i>
+                                    <span>L'accès au cours sera automatiquement débloqué</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a href="index.html" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300 inline-flex items-center justify-center">
+                                <i class="fas fa-home mr-2"></i>
+                                <span>Retour à l'accueil</span>
+                            </a>
+                            <a href="cours.html" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 inline-flex items-center justify-center">
+                                <i class="fas fa-graduation-cap mr-2"></i>
+                                <span>Voir tous les cours</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Suivi du statut (colonne droite) -->
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-xl shadow-md p-6 sticky top-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h2 class="text-xl font-bold">Statut de votre paiement</h2>
+                    </div>
+                    
+                    <div id="payment-status-container">
+                        <div class="text-center py-8">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500 mb-4"></div>
+                            <p class="text-gray-600">Chargement du statut...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="font-bold text-gray-700 mb-3">Besoin d'aide ?</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <i class="fas fa-phone text-green-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-700">Support téléphonique</p>
+                                    <p class="text-sm text-gray-600">+509 1234 5678</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <i class="fas fa-envelope text-green-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-700">Email</p>
+                                    <p class="text-sm text-gray-600">support@izipret.com</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <i class="fas fa-clock text-green-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-700">Temps de vérification</p>
+                                    <p class="text-sm text-gray-600">24 heures maximum</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+      <footer class="bg-gray-900 text-white pt-12 pb-8">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-4 gap-8 mb-8">
+                    <!-- Logo et description -->
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-6">
+                          <div class="mr-3">
+        <img src="logo.png" alt="Logo URH HAITI" class="h-12 w-auto object-contain">
+    </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">URH HAITI</h2>
+                                <p class="text-sm text-gray-300">Plateforme d'enseignement en ligne</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mb-6">École de référence en matière de formation à l'échelle nationale et internationale</p>
+                        <div class="flex space-x-4">
+                            <a href="https://www.facebook.com/share/1BnXZxoXJr/" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-400 transition">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-700 transition">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Liens rapides -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Liens rapides</h3>
+                        <ul class="space-y-3">
+                            <li><a href="index.html" class="text-gray-400 hover:text-white transition">Accueil</a></li>
+                            <li><a href="formation.html" class="text-gray-400 hover:text-white transition">Formations</a></li>
+                            <li><a href="apropos.html" class="text-gray-400 hover:text-white transition">À propos</a></li>
+                            <li><a href="https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant" class="text-gray-400 hover:text-white transition">Admission</a></li>
+                            <li><a href="contct.html" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Contact footer -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-6">Contact</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-map-marker-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-phone-alt text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">A definir </span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-envelope text-green-400 mt-1 mr-3"></i>
+                                <span class="text-gray-400">urh.educ@gmail.com</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Copyright -->
+                <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+                    <p>&copy; 2026 URH. Tous droits réservés.</p>
+                    <p class="mt-2">Site conçu avec <i class="fas fa-heart text-red-500"></i></p>
+                </div>
+            </div>
+        </footer>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            collection, 
+            addDoc, 
+            serverTimestamp, 
+            onSnapshot,
+            query,
+            where,
+            orderBy,
+            limit
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // Configuration Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Variables globales
+        let currentUser = null;
+        let paymentStatusListener = null;
+
+        // ============================================
+        // GESTION DU HEADER
+        // ============================================
+
+        function setupHeaderEventListeners() {
+            // Menu mobile
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Dropdown menu utilisateur (desktop)
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuButton && userDropdown) {
+                userMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                
+                // Fermer le dropdown en cliquant ailleurs
+                document.addEventListener('click', () => {
+                    userDropdown.classList.add('hidden');
+                });
+                
+                // Empêcher la fermeture quand on clique dans le dropdown
+                userDropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Boutons de déconnexion
+            const logoutButton = document.getElementById('logout-button');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', handleLogout);
+            }
+            
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', handleLogout);
+            }
+        }
+
+        function updateHeaderForAuthState(user) {
+            const authButtonsDesktop = document.getElementById('auth-buttons-desktop');
+            const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+            const userMenuDesktop = document.getElementById('user-menu-desktop');
+            const userMenuMobile = document.getElementById('user-menu-mobile');
+            
+            if (user) {
+                // Utilisateur connecté
+                if (authButtonsDesktop) authButtonsDesktop.classList.add('auth-buttons-hidden');
+                if (authButtonsMobile) authButtonsMobile.classList.add('auth-buttons-hidden');
+                if (userMenuDesktop) userMenuDesktop.classList.remove('user-menu-hidden');
+                if (userMenuMobile) userMenuMobile.classList.remove('user-menu-hidden');
+            } else {
+                // Utilisateur non connecté
+                if (authButtonsDesktop) authButtonsDesktop.classList.remove('auth-buttons-hidden');
+                if (authButtonsMobile) authButtonsMobile.classList.remove('auth-buttons-hidden');
+                if (userMenuDesktop) userMenuDesktop.classList.add('user-menu-hidden');
+                if (userMenuMobile) userMenuMobile.classList.add('user-menu-hidden');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                window.location.href = 'connexion.html';
+            } catch (error) {
+                console.error("Erreur lors de la déconnexion:", error);
+                alert("Erreur lors de la déconnexion");
+            }
+        }
+
+        // ============================================
+        // LOGIQUE DE PAIEMENT
+        // ============================================
+
+        // Initialiser la page de paiement au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Initialisation de la page de paiement...");
+            
+            // 1. Configurer le header
+            setupHeaderEventListeners();
+            
+            // 2. Vérifier l'authentification
+            checkAuthState();
+            
+            // 3. Initialiser la logique de paiement
+            initPaymentPage();
+        });
+
+        function checkAuthState() {
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                updateHeaderForAuthState(user);
+                
+                if (user) {
+                    console.log("Utilisateur connecté:", user.email);
+                } else {
+                    console.log("Utilisateur non connecté, redirection...");
+                    // Rediriger vers la page de connexion
+                    window.location.href = 'connexion.html?redirect=admission.html' + window.location.search;
+                }
+            });
+        }
+
+        // Fonction d'initialisation de la page de paiement
+        function initPaymentPage() {
+            console.log("Initialisation de la logique de paiement...");
+            
+            // Variables globales de l'application
+            const appState = {
+                courseId: null,
+                courseDetails: null,
+                selectedPaymentMethod: null
+            };
+            
+            // Éléments DOM
+            const elements = {
+                // Steps
+                step1: document.getElementById('step-1'),
+                step2: document.getElementById('step-2'),
+                step3: document.getElementById('step-3'),
+                step4: document.getElementById('step-4'),
+                step5: document.getElementById('step-5'),
+                
+                // Boutons de navigation
+                nextStep1: document.getElementById('next-step-1'),
+                nextStep2: document.getElementById('next-step-2'),
+                nextStep3: document.getElementById('next-step-3'),
+                prevStep2: document.getElementById('prev-step-2'),
+                prevStep3: document.getElementById('prev-step-3'),
+                prevStep4: document.getElementById('prev-step-4'),
+                submitPayment: document.getElementById('submit-payment'),
+                
+                // Conteneurs
+                courseDetails: document.getElementById('course-details'),
+                paymentDetails: document.getElementById('payment-details'),
+                paymentStatusContainer: document.getElementById('payment-status-container'),
+                
+                // Méthodes de paiement
+                methodMoncash: document.getElementById('method-moncash'),
+                methodNatcash: document.getElementById('method-natcash'),
+                
+                // Formulaire
+                paymentForm: document.getElementById('payment-form'),
+                senderName: document.getElementById('sender-name'),
+                senderNumber: document.getElementById('sender-number'),
+                transactionId: document.getElementById('transaction-id'),
+                transferDate: document.getElementById('transfer-date'),
+                transferTime: document.getElementById('transfer-time')
+            };
+            
+            // Définir la date du jour comme date par défaut
+            const today = new Date().toISOString().split('T')[0];
+            elements.transferDate.value = today;
+            
+            // Étape 1: Récupérer le cours depuis l'URL et charger les détails
+            async function initializePaymentProcess() {
+                console.log("Initialisation du processus de paiement...");
+                
+                // Récupérer l'ID du cours depuis l'URL
+                appState.courseId = getCourseIdFromURL();
+                
+                if (!appState.courseId) {
+                    showError("Aucun cours sélectionné. Veuillez sélectionner un cours avant de procéder au paiement.");
+                    elements.courseDetails.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                            <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+                            <h3 class="text-xl font-bold text-red-700 mb-2">Aucun cours sélectionné</h3>
+                            <p class="text-red-600 mb-4">Veuillez sélectionner un cours avant de procéder au paiement.</p>
+                            <a href="cours.html" class="inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                                <i class="fas fa-book-open mr-2"></i>
+                                <span>Voir les cours disponibles</span>
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                console.log("Course ID récupéré:", appState.courseId);
+                
+                // Charger les détails du cours depuis Firestore
+                await loadCourseDetails(appState.courseId);
+                
+                // Vérifier si l'utilisateur a déjà payé ce cours
+                await checkExistingPayment();
+            }
+            
+            // Fonction pour récupérer l'ID du cours depuis l'URL
+            function getCourseIdFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('courseId');
+            }
+            
+            // Fonction pour charger les détails du cours depuis Firestore
+            async function loadCourseDetails(courseId) {
+                console.log(`Chargement des détails du cours: ${courseId}`);
+                
+                try {
+                    // Récupérer le document du cours depuis Firestore
+                    const courseRef = doc(db, 'courses', courseId);
+                    const courseSnap = await getDoc(courseRef);
+                    
+                    if (courseSnap.exists()) {
+                        const courseData = courseSnap.data();
+                        appState.courseDetails = {
+                            id: courseId,
+                            title: courseData.title || "Cours sans titre",
+                            price: courseData.price || 0,
+                            description: courseData.description || "Aucune description disponible.",
+                            duration: courseData.duration || "Durée non spécifiée",
+                            level: courseData.level || "Niveau non spécifié"
+                        };
+                        
+                        console.log("Détails du cours chargés:", appState.courseDetails);
+                        displayCourseDetails(appState.courseDetails);
+                        enableButton(elements.nextStep1);
+                        
+                    } else {
+                        // Cours non trouvé dans Firestore
+                        console.error("Cours non trouvé dans Firestore:", courseId);
+                        throw new Error('Cours non trouvé');
+                    }
+                    
+                } catch (error) {
+                    console.error("Erreur lors du chargement du cours:", error);
+                    
+                    let errorMessage = "Impossible de charger les détails du cours. ";
+                    
+                    if (error.message.includes('Cours non trouvé')) {
+                        errorMessage += "Le cours sélectionné n'existe pas ou n'est plus disponible.";
+                    } else if (error.message.includes('permission')) {
+                        errorMessage += "Vous n'avez pas les permissions nécessaires pour accéder à ce cours.";
+                    } else {
+                        errorMessage += "Veuillez vérifier votre connexion internet et réessayer.";
+                    }
+                    
+                    showError(errorMessage);
+                    
+                    elements.courseDetails.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                            <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+                            <h3 class="text-xl font-bold text-red-700 mb-2">Erreur de chargement</h3>
+                            <p class="text-red-600 mb-4">${errorMessage}</p>
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <a href="cours.html" class="inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                                    <i class="fas fa-book-open mr-2"></i>
+                                    <span>Voir les cours disponibles</span>
+                                </a>
+                                <button onclick="window.location.reload()" class="inline-block bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                                    <i class="fas fa-redo mr-2"></i>
+                                    <span>Réessayer</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Fonction pour afficher les détails du cours
+            function displayCourseDetails(course) {
+                console.log("Affichage des détails du cours:", course);
+                
+                // Formater le prix (HTG ou autre devise)
+                let formattedPrice;
+                try {
+                    formattedPrice = new Intl.NumberFormat('fr-HT', {
+                        style: 'currency',
+                        currency: 'HTG'
+                    }).format(course.price);
+                } catch (error) {
+                    formattedPrice = `${course.price} HTG`;
+                }
+                
+                elements.courseDetails.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-lg p-5">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">${course.title}</h3>
+                        <div class="flex items-center text-gray-700 mb-4">
+                            <i class="fas fa-clock text-green-600 mr-2"></i>
+                            <span class="mr-4">${course.duration}</span>
+                            <i class="fas fa-signal text-green-600 mr-2"></i>
+                            <span>${course.level}</span>
+                        </div>
+                        <p class="text-gray-600 mb-5">${course.description}</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Prix du cours</p>
+                                <p class="text-2xl font-bold text-green-700">${formattedPrice}</p>
+                            </div>
+                            <div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <span>Accès après validation</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Fonction pour vérifier si un paiement existe déjà pour ce cours
+            async function checkExistingPayment() {
+                if (!currentUser || !appState.courseId) return;
+                
+                console.log("Vérification des paiements existants...");
+                
+                try {
+                    // Vérifier dans users/courses
+                    const userRef = doc(db, 'users', currentUser.uid);
+                    const userSnap = await getDoc(userRef);
+                    
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        if (userData.courses && userData.courses[appState.courseId]) {
+                            const courseStatus = userData.courses[appState.courseId].status;
+                            
+                            // Si déjà approuvé
+                            if (courseStatus === 'approved') {
+                                showInfo("Vous avez déjà accès à ce cours.");
+                                disableButton(elements.nextStep1);
+                                
+                                elements.courseDetails.innerHTML += `
+                                    <div class="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                                            <div>
+                                                <h4 class="font-bold text-green-800">Accès déjà accordé</h4>
+                                                <p class="text-green-700">Vous avez déjà accès à ce cours. Vous pouvez y accéder depuis la page des cours.</p>
+                                                <a href="cours.html" class="inline-block mt-2 text-green-600 hover:text-green-800 font-medium">
+                                                    <i class="fas fa-external-link-alt mr-1"></i>
+                                                    <span>Accéder au cours</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            } 
+                            // Si en attente
+                            else if (courseStatus === 'pending') {
+                                showInfo("Vous avez déjà une demande de paiement en attente pour ce cours.");
+                                
+                                elements.courseDetails.innerHTML += `
+                                    <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-clock text-yellow-600 text-xl mr-3"></i>
+                                            <div>
+                                                <h4 class="font-bold text-yellow-800">Paiement en attente</h4>
+                                                <p class="text-yellow-700">Vous avez déjà soumis une demande de paiement pour ce cours. Vous pouvez suivre son statut dans la colonne de droite.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    }
+                    
+                    // Écouter les changements de statut de paiement
+                    listenPaymentStatus();
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la vérification du paiement existant:", error);
+                }
+            }
+            
+            // Fonction pour sélectionner une méthode de paiement
+            function selectPaymentMethod(method) {
+                console.log(`Méthode de paiement sélectionnée: ${method}`);
+                
+                // Désélectionner toutes les méthodes
+                elements.methodMoncash.classList.remove('selected');
+                elements.methodNatcash.classList.remove('selected');
+                
+                // Sélectionner la méthode choisie
+                if (method === 'MonCash') {
+                    elements.methodMoncash.classList.add('selected');
+                    appState.selectedPaymentMethod = 'MonCash';
+                } else if (method === 'NatCash') {
+                    elements.methodNatcash.classList.add('selected');
+                    appState.selectedPaymentMethod = 'NatCash';
+                }
+                
+                // Activer le bouton suivant
+                enableButton(elements.nextStep2);
+            }
+            
+            // Fonction pour afficher les coordonnées de paiement
+            function displayPaymentDetails(method) {
+                console.log(`Affichage des détails de paiement pour: ${method}`);
+                
+                let paymentInfo = {};
+                
+                if (method === 'MonCash') {
+                    paymentInfo = {
+                        accountName: "Institut Zipline",
+                        accountNumber: "509 1234 5678",
+                        qrCode: "qrcode-moncash.png",
+                        instructions: [
+                            "Sur votre téléphone, ouvrez l'application MonCash",
+                            "Sélectionnez l'option 'Envoyer de l'argent'",
+                            "Entrez le numéro de compte indiqué ci-dessus",
+                            "Saisissez le montant exact du cours",
+                            "Confirmez la transaction et notez l'ID de transaction"
+                        ]
+                    };
+                } else if (method === 'NatCash') {
+                    paymentInfo = {
+                        accountName: "Institut Zipline",
+                        accountNumber: "509 8765 4321",
+                        qrCode: "qrcode-natcash.png",
+                        instructions: [
+                            "Sur votre téléphone, ouvrez l'application NatCash",
+                            "Sélectionnez 'Paiement' ou 'Transfert'",
+                            "Entrez le numéro de compte indiqué ci-dessus",
+                            "Saisissez le montant exact du cours",
+                            "Confirmez la transaction et notez l'ID de transaction"
+                        ]
+                    };
+                }
+                
+                // Afficher les détails
+                elements.paymentDetails.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
+                        <div class="flex flex-col md:flex-row items-center justify-between mb-6">
+                            <div class="mb-6 md:mb-0 md:mr-6">
+                                <h3 class="text-lg font-bold text-green-800 mb-2">Informations de paiement</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-sm text-green-600">Nom du compte</p>
+                                        <p class="font-bold text-lg text-green-900">${paymentInfo.accountName}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-green-600">Numéro de compte</p>
+                                        <p class="font-bold text-lg text-green-900">${paymentInfo.accountNumber}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-green-300">
+                                <div class="text-center mb-2">
+                                    <p class="text-sm font-medium text-green-700">Scanner pour payer</p>
+                                </div>
+                                <div class="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-qrcode text-gray-400 text-6xl mb-2"></i>
+                                        <p class="text-xs text-gray-500">${paymentInfo.qrCode}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-green-100 rounded-lg p-5">
+                            <h4 class="font-bold text-green-800 mb-3">Instructions de paiement</h4>
+                            <ol class="space-y-3">
+                                ${paymentInfo.instructions.map((instruction, index) => `
+                                    <li class="flex items-start">
+                                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-sm font-bold mr-3">${index + 1}</span>
+                                        <span class="text-green-700">${instruction}</span>
+                                    </li>
+                                `).join('')}
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">Attention</h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p>Veuillez effectuer le paiement <span class="font-bold">exactement</span> au montant indiqué pour le cours. Tout écart pourrait retarder la validation de votre paiement.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Activer le bouton suivant
+                enableButton(elements.nextStep3);
+            }
+            
+            // Fonction pour soumettre la demande de paiement
+            async function submitPaymentRequest() {
+                console.log("Soumission de la demande de paiement...");
+                
+                // Récupérer les données du formulaire
+                const paymentData = {
+                    userId: currentUser.uid,
+                    courseId: appState.courseId,
+                    courseTitle: appState.courseDetails.title,
+                    price: appState.courseDetails.price,
+                    method: appState.selectedPaymentMethod,
+                    senderName: elements.senderName.value.trim(),
+                    senderNumber: elements.senderNumber.value.trim(),
+                    transactionId: elements.transactionId.value.trim(),
+                    transferDate: elements.transferDate.value,
+                    transferTime: elements.transferTime.value,
+                    status: "pending",
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Validation des données
+                if (!validatePaymentData(paymentData)) {
+                    return;
+                }
+                
+                // Désactiver le bouton pour éviter les doubles soumissions
+                disableButton(elements.submitPayment);
+                elements.submitPayment.innerHTML = `
+                    <div class="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                    <span>Traitement en cours...</span>
+                `;
+                
+                try {
+                    // 1. Créer un document dans la collection 'payments'
+                    const paymentRef = await addDoc(collection(db, 'payments'), {
+                        ...paymentData,
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    console.log("Paiement enregistré avec ID:", paymentRef.id);
+                    
+                    // 2. Mettre à jour le document de l'utilisateur
+                    const userRef = doc(db, 'users', currentUser.uid);
+                    
+                    // Récupérer d'abord les données existantes
+                    const userSnap = await getDoc(userRef);
+                    
+                    let userUpdateData = {};
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        userUpdateData.courses = {
+                            ...userData.courses,
+                            [appState.courseId]: {
+                                status: "pending",
+                                paidAt: serverTimestamp()
+                            }
+                        };
+                    } else {
+                        // Créer l'entrée si elle n'existe pas
+                        userUpdateData.courses = {
+                            [appState.courseId]: {
+                                status: "pending",
+                                paidAt: serverTimestamp()
+                            }
+                        };
+                    }
+                    
+                    await updateDoc(userRef, userUpdateData);
+                    
+                    console.log("Statut de l'utilisateur mis à jour avec succès");
+                    
+                    // 3. Afficher l'étape de confirmation
+                    showStep(5);
+                    
+                    // 4. Démarrer l'écoute du statut pour ce paiement
+                    if (paymentStatusListener) {
+                        paymentStatusListener(); // Détacher l'ancien listener
+                    }
+                    setupPaymentStatusListener(paymentRef.id);
+                    
+                } catch (error) {
+                    console.error("Erreur lors de l'enregistrement du paiement:", error);
+                    showError("Une erreur est survenue lors de l'enregistrement de votre paiement. Veuillez réessayer.");
+                    
+                    // Réactiver le bouton
+                    enableButton(elements.submitPayment);
+                    elements.submitPayment.innerHTML = `
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        <span>Soumettre la demande de vérification</span>
+                    `;
+                }
+            }
+            
+            // Fonction pour valider les données de paiement
+            function validatePaymentData(data) {
+                // Vérifier que tous les champs requis sont remplis
+                const requiredFields = ['senderName', 'senderNumber', 'transactionId', 'transferDate', 'transferTime'];
+                const missingFields = [];
+                
+                for (const field of requiredFields) {
+                    if (!data[field] || data[field].trim() === '') {
+                        missingFields.push(field);
+                    }
+                }
+                
+                if (missingFields.length > 0) {
+                    showError(`Veuillez remplir tous les champs obligatoires: ${missingFields.join(', ')}`);
+                    return false;
+                }
+                
+                // Valider le format du numéro de téléphone (simplifié)
+                const phoneRegex = /^[0-9\s\+]{8,15}$/;
+                if (!phoneRegex.test(data.senderNumber)) {
+                    showError("Veuillez entrer un numéro de téléphone valide.");
+                    return false;
+                }
+                
+                // Valider que la date n'est pas dans le futur
+                const transferDate = new Date(data.transferDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (transferDate > today) {
+                    showError("La date de transfert ne peut pas être dans le futur.");
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Fonction pour écouter les changements de statut de paiement
+            async function listenPaymentStatus() {
+                console.log("Écoute des changements de statut de paiement...");
+                
+                if (!currentUser || !appState.courseId) return;
+                
+                try {
+                    // Rechercher les paiements pour cet utilisateur et ce cours
+                    const paymentsQuery = query(
+                        collection(db, 'payments'),
+                        where('userId', '==', currentUser.uid),
+                        where('courseId', '==', appState.courseId),
+                        orderBy('createdAt', 'desc'),
+                        limit(1)
+                    );
+                    
+                    // Écouter les changements
+                    paymentStatusListener = onSnapshot(paymentsQuery, (snapshot) => {
+                        if (!snapshot.empty) {
+                            const paymentData = snapshot.docs[0].data();
+                            displayPaymentStatus(paymentData);
+                        } else {
+                            // Aucun paiement trouvé
+                            displayNoPaymentStatus();
+                        }
+                    }, (error) => {
+                        console.error("Erreur lors de l'écoute du statut:", error);
+                        displayPaymentStatusError();
+                    });
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la configuration de l'écoute du statut:", error);
+                    displayPaymentStatusError();
+                }
+            }
+            
+            // Fonction pour afficher l'état "aucun paiement"
+            function displayNoPaymentStatus() {
+                elements.paymentStatusContainer.innerHTML = `
+                    <div class="bg-gray-100 rounded-lg p-5 text-center">
+                        <i class="fas fa-info-circle text-gray-400 text-3xl mb-3"></i>
+                        <h3 class="font-bold text-gray-700 mb-2">Aucun paiement enregistré</h3>
+                        <p class="text-gray-600 text-sm">Vous n'avez pas encore soumis de demande de paiement pour ce cours.</p>
+                    </div>
+                `;
+            }
+            
+            // Fonction pour afficher une erreur de chargement du statut
+            function displayPaymentStatusError() {
+                elements.paymentStatusContainer.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-5 text-center">
+                        <i class="fas fa-exclamation-triangle text-red-400 text-3xl mb-3"></i>
+                        <h3 class="font-bold text-red-700 mb-2">Erreur de chargement</h3>
+                        <p class="text-red-600 text-sm">Impossible de charger le statut de paiement.</p>
+                    </div>
+                `;
+            }
+            
+            // Fonction pour configurer l'écoute du statut pour un ID de paiement spécifique
+            function setupPaymentStatusListener(paymentId) {
+                console.log(`Configuration de l'écoute pour le paiement: ${paymentId}`);
+                
+                try {
+                    // Écouter les changements pour ce paiement spécifique
+                    const paymentRef = doc(db, 'payments', paymentId);
+                    
+                    paymentStatusListener = onSnapshot(paymentRef, (doc) => {
+                        if (doc.exists()) {
+                            const paymentData = doc.data();
+                            displayPaymentStatus(paymentData);
+                        }
+                    }, (error) => {
+                        console.error("Erreur lors de l'écoute du statut:", error);
+                        displayPaymentStatusError();
+                    });
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la configuration de l'écoute du statut:", error);
+                    displayPaymentStatusError();
+                }
+            }
+            
+            // Fonction pour afficher le statut du paiement
+            function displayPaymentStatus(paymentData) {
+                console.log("Affichage du statut de paiement:", paymentData.status);
+                
+                let statusHTML = '';
+                let statusClass = '';
+                let statusIcon = '';
+                let statusMessage = '';
+                
+                switch(paymentData.status) {
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        statusIcon = 'fa-clock';
+                        statusMessage = 'Votre paiement est en attente de vérification par notre équipe.';
+                        break;
+                    case 'approved':
+                        statusClass = 'status-approved';
+                        statusIcon = 'fa-check-circle';
+                        statusMessage = 'Votre paiement a été validé ! Vous pouvez maintenant accéder au cours.';
+                        break;
+                    case 'rejected':
+                        statusClass = 'status-rejected';
+                        statusIcon = 'fa-times-circle';
+                        statusMessage = 'Votre paiement a été rejeté. Veuillez contacter le support pour plus d\'informations.';
+                        break;
+                    default:
+                        statusClass = 'status-pending';
+                        statusIcon = 'fa-question-circle';
+                        statusMessage = 'Statut inconnu';
+                }
+                
+                statusHTML = `
+                    <div class="${statusClass} rounded-lg p-5 mb-6">
+                        <div class="flex items-center mb-3">
+                            <i class="fas ${statusIcon} text-2xl mr-3"></i>
+                            <div>
+                                <h3 class="font-bold text-lg">Statut: ${paymentData.status === 'pending' ? 'En attente' : paymentData.status === 'approved' ? 'Validé' : 'Rejeté'}</h3>
+                                <p class="text-sm opacity-90">${statusMessage}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white bg-opacity-50 rounded p-4">
+                            <h4 class="font-bold mb-2">Détails de la demande</h4>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <p class="font-medium">Méthode</p>
+                                    <p>${paymentData.method || 'Non spécifié'}</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Montant</p>
+                                    <p>${paymentData.price ? new Intl.NumberFormat('fr-HT', { style: 'currency', currency: 'HTG' }).format(paymentData.price) : 'Non spécifié'}</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">ID Transaction</p>
+                                    <p class="font-mono">${paymentData.transactionId || 'Non spécifié'}</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Date</p>
+                                    <p>${paymentData.transferDate || 'Non spécifié'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${paymentData.status === 'approved' ? `
+                        <div class="text-center">
+                            <a href="cours.html?courseId=${appState.courseId}" class="inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                                <i class="fas fa-graduation-cap mr-2"></i>
+                                <span>Accéder au cours</span>
+                            </a>
+                        </div>
+                    ` : ''}
+                    
+                    ${paymentData.status === 'rejected' ? `
+                        <div class="text-center">
+                            <button id="retry-payment" class="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                                <i class="fas fa-redo mr-2"></i>
+                                <span>Réessayer le paiement</span>
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
+                
+                elements.paymentStatusContainer.innerHTML = statusHTML;
+                
+                // Ajouter un écouteur pour le bouton de réessai
+                const retryButton = document.getElementById('retry-payment');
+                if (retryButton) {
+                    retryButton.addEventListener('click', function() {
+                        // Revenir à l'étape 2 pour choisir une méthode de paiement
+                        showStep(2);
+                    });
+                }
+            }
+            
+            // Fonction pour afficher une étape spécifique
+            function showStep(stepNumber) {
+                console.log(`Affichage de l'étape ${stepNumber}`);
+                
+                // Masquer toutes les étapes
+                elements.step1.classList.add('hidden');
+                elements.step2.classList.add('hidden');
+                elements.step3.classList.add('hidden');
+                elements.step4.classList.add('hidden');
+                elements.step5.classList.add('hidden');
+                
+                // Retirer la classe active de toutes les étapes
+                elements.step1.classList.remove('active');
+                elements.step2.classList.remove('active');
+                elements.step3.classList.remove('active');
+                elements.step4.classList.remove('active');
+                elements.step5.classList.remove('active');
+                
+                // Afficher l'étape demandée
+                const stepElement = elements[`step${stepNumber}`];
+                if (stepElement) {
+                    stepElement.classList.remove('hidden');
+                    stepElement.classList.add('active');
+                    
+                    // Faire défiler vers le haut de l'étape
+                    stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            
+            // Fonctions utilitaires
+            function enableButton(button) {
+                button.disabled = false;
+                button.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
+            }
+            
+            function disableButton(button) {
+                button.disabled = true;
+                button.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
+            }
+            
+            function showError(message) {
+                // Afficher une notification d'erreur
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50 max-w-md';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle mr-3"></i>
+                        <div>
+                            <p class="font-bold">Erreur</p>
+                            <p class="text-sm">${message}</p>
+                        </div>
+                        <button class="ml-auto text-red-700 hover:text-red-900">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Supprimer la notification après 5 secondes
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+                
+                // Ajouter un écouteur pour fermer la notification
+                notification.querySelector('button').addEventListener('click', function() {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                });
+            }
+            
+            function showInfo(message) {
+                // Afficher une notification d'information
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 max-w-md';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle mr-3"></i>
+                        <div>
+                            <p class="font-bold">Information</p>
+                            <p class="text-sm">${message}</p>
+                        </div>
+                        <button class="ml-auto text-green-700 hover:text-green-900">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Supprimer la notification après 5 secondes
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+                
+                // Ajouter un écouteur pour fermer la notification
+                notification.querySelector('button').addEventListener('click', function() {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                });
+            }
+            
+            // Écouteurs d'événements
+            
+            // Navigation entre les étapes
+            elements.nextStep1.addEventListener('click', () => showStep(2));
+            elements.nextStep2.addEventListener('click', () => {
+                displayPaymentDetails(appState.selectedPaymentMethod);
+                showStep(3);
+            });
+            elements.nextStep3.addEventListener('click', () => showStep(4));
+            
+            elements.prevStep2.addEventListener('click', () => showStep(1));
+            elements.prevStep3.addEventListener('click', () => showStep(2));
+            elements.prevStep4.addEventListener('click', () => showStep(3));
+            
+            // Sélection de la méthode de paiement
+            elements.methodMoncash.addEventListener('click', () => selectPaymentMethod('MonCash'));
+            elements.methodNatcash.addEventListener('click', () => selectPaymentMethod('NatCash'));
+            
+            // Soumission du formulaire
+            elements.submitPayment.addEventListener('click', submitPaymentRequest);
+            
+            // Validation du formulaire en temps réel
+            const formInputs = [
+                elements.senderName, 
+                elements.senderNumber, 
+                elements.transactionId,
+                elements.transferDate,
+                elements.transferTime
+            ];
+            
+            formInputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    // Vérifier si tous les champs sont remplis
+                    const allFilled = formInputs.every(input => input.value.trim() !== '');
+                    
+                    if (allFilled) {
+                        enableButton(elements.submitPayment);
+                    } else {
+                        disableButton(elements.submitPayment);
+                    }
+                });
+            });
+            
+            // Démarrer l'initialisation
+            initializePaymentProcess();
+            
+            console.log("Page de paiement initialisée avec succès");
+        }
+    </script>
+</body>
+</html>

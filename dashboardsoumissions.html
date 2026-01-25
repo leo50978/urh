@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Soumissions de Paiement | Plateforme e-learning</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            doc, 
+            getDoc,
+            updateDoc,
+            query,
+            where,
+            orderBy,
+            serverTimestamp,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+  authDomain: "izipret-c669d.firebaseapp.com",
+  projectId: "izipret-c669d",
+  storageBucket: "izipret-c669d.firebasestorage.app",
+  messagingSenderId: "483506445126",
+  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+  measurementId: "G-0SKSRSFHZ4"
+};
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Exposer les objets Firebase globalement pour les fonctions de la page
+        window.firebaseDb = db;
+        window.firebaseModules = {
+            collection, getDocs, doc, getDoc, updateDoc, query, 
+            where, orderBy, serverTimestamp, onSnapshot
+        };
+    </script>
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .status-pending {
+            background-color: #fed7aa;
+            color: #9a3412;
+        }
+        
+        .status-approved {
+            background-color: #bbf7d0;
+            color: #166534;
+        }
+        
+        .status-rejected {
+            background-color: #fecaca;
+            color: #991b1b;
+        }
+        
+        .payment-card {
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .payment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .payment-card.pending {
+            border-left-color: #f97316;
+        }
+        
+        .payment-card.approved {
+            border-left-color: #22c55e;
+        }
+        
+        .payment-card.rejected {
+            border-left-color: #ef4444;
+        }
+        
+        .filter-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .action-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header simplifié pour le dashboard admin -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center mr-3">
+                        <i class="fas fa-graduation-cap text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Dashboard Admin</h1>
+                        <p class="text-sm text-gray-600">Gestion des soumissions de paiement</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:block">
+                        <span class="text-sm text-gray-600">Connecté en tant qu'administrateur</span>
+                    </div>
+                    <a href="index.html" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-300">
+                        <i class="fas fa-home mr-2"></i>
+                        <span>Accueil</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container mx-auto px-4 py-8">
+        <!-- En-tête du dashboard -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Soumissions de Paiement</h2>
+                    <p class="text-gray-600">Gérez et validez les demandes de paiement des étudiants pour l'accès aux cours.</p>
+                </div>
+                
+                <div class="mt-4 md:mt-0">
+                    <div class="inline-flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        <span id="last-update">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistiques -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">En attente</p>
+                            <p id="pending-count" class="text-3xl font-bold text-orange-600 mt-1">0</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="pending-bar" class="h-full bg-orange-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Validés</p>
+                            <p id="approved-count" class="text-3xl font-bold text-green-600 mt-1">0</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="approved-bar" class="h-full bg-green-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium">Rejetés</p>
+                            <p id="rejected-count" class="text-3xl font-bold text-red-600 mt-1">0</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="rejected-bar" class="h-full bg-red-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtres et contrôles -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-3">Filtrer par statut</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="filter-all" class="filter-btn bg-blue-100 hover:bg-blue-200 text-blue-800 py-2 px-4 rounded-lg active">
+                            <i class="fas fa-layer-group mr-2"></i>
+                            <span>Toutes</span>
+                        </button>
+                        <button id="filter-pending" class="filter-btn bg-orange-100 hover:bg-orange-200 text-orange-800 py-2 px-4 rounded-lg">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>En attente</span>
+                        </button>
+                        <button id="filter-approved" class="filter-btn bg-green-100 hover:bg-green-200 text-green-800 py-2 px-4 rounded-lg">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span>Validés</span>
+                        </button>
+                        <button id="filter-rejected" class="filter-btn bg-red-100 hover:bg-red-200 text-red-800 py-2 px-4 rounded-lg">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            <span>Rejetés</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" id="search-input" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Rechercher...">
+                    </div>
+                    
+                    <button id="refresh-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-300">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        <span>Actualiser</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Liste des soumissions -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900">Demandes de paiement</h3>
+                <p id="results-count" class="text-gray-600 text-sm mt-1">Chargement des demandes...</p>
+            </div>
+            
+            <!-- Tableau pour desktop -->
+            <div class="hidden lg:block overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Cours & Utilisateur
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Paiement
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Statut
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Les lignes seront insérées dynamiquement par JavaScript -->
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                                <p class="text-gray-600">Chargement des demandes de paiement...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Cartes pour mobile -->
+            <div id="payments-cards-container" class="lg:hidden p-4 space-y-4">
+                <!-- Les cartes seront insérées dynamiquement par JavaScript -->
+                <div class="payment-card bg-white border border-gray-200 rounded-lg p-5 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                    <p class="text-gray-600">Chargement des demandes de paiement...</p>
+                </div>
+            </div>
+            
+            <!-- Pagination (optionnelle) -->
+            <div id="pagination-container" class="px-6 py-4 border-t border-gray-200 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Affichage de <span id="pagination-start">1</span> à <span id="pagination-end">10</span> sur <span id="pagination-total">0</span> résultats
+                        </p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            Précédent
+                        </button>
+                        <button id="next-page" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            Suivant
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aide et informations -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-bold text-blue-800 mb-2">Guide d'utilisation du dashboard</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-blue-700">
+                        <div>
+                            <h4 class="font-bold mb-1">Validation d'un paiement</h4>
+                            <p class="text-sm">Cliquez sur "Valider" pour approuver un paiement. Cela débloquera immédiatement l'accès au cours pour l'utilisateur.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-1">Rejet d'un paiement</h4>
+                            <p class="text-sm">Cliquez sur "Rejeter" si les informations de paiement sont incorrectes ou incomplètes. L'utilisateur devra soumettre une nouvelle demande.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-1">Vérification des informations</h4>
+                            <p class="text-sm">Cliquez sur "Voir détails" pour afficher toutes les informations de paiement (ID de transaction, numéro d'expéditeur, etc.)</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-1">Mises à jour en temps réel</h4>
+                            <p class="text-sm">Les données sont mises à jour automatiquement. Vous pouvez aussi utiliser le bouton "Actualiser" pour forcer une mise à jour.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal pour les détails du paiement -->
+    <div id="payment-detail-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="modal-overlay fixed inset-0 bg-black opacity-50"></div>
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="modal-content inline-block align-bottom bg-white rounded-xl shadow-xl text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <!-- En-tête du modal -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-gray-900">Détails du paiement</h3>
+                        <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Contenu du modal -->
+                <div class="px-6 py-4">
+                    <div id="modal-loading" class="py-10 text-center">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                        <p class="text-gray-600">Chargement des détails...</p>
+                    </div>
+                    
+                    <div id="modal-content" class="hidden">
+                        <!-- Informations sur le cours -->
+                        <div class="mb-6">
+                            <h4 class="font-bold text-gray-700 mb-3">Informations du cours</h4>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Nom du cours</p>
+                                        <p id="modal-course-title" class="font-bold text-lg text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Prix</p>
+                                        <p id="modal-course-price" class="font-bold text-lg text-blue-700"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informations sur l'utilisateur -->
+                        <div class="mb-6">
+                            <h4 class="font-bold text-gray-700 mb-3">Informations de l'utilisateur</h4>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Nom de l'utilisateur</p>
+                                        <p id="modal-user-name" class="font-medium text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ID utilisateur</p>
+                                        <p id="modal-user-id" class="font-mono text-sm text-gray-700"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informations de paiement -->
+                        <div class="mb-6">
+                            <h4 class="font-bold text-gray-700 mb-3">Informations de paiement</h4>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Méthode de paiement</p>
+                                        <p id="modal-payment-method" class="font-medium text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Statut</p>
+                                        <span id="modal-payment-status" class="status-badge"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Nom de l'expéditeur</p>
+                                        <p id="modal-sender-name" class="font-medium text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Numéro de l'expéditeur</p>
+                                        <p id="modal-sender-number" class="font-medium text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ID de transaction</p>
+                                        <p id="modal-transaction-id" class="font-mono text-sm text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Date et heure</p>
+                                        <p id="modal-transfer-datetime" class="font-medium text-gray-900"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notes (optionnel) -->
+                        <div class="mb-6">
+                            <h4 class="font-bold text-gray-700 mb-3">Notes de vérification</h4>
+                            <textarea id="verification-notes" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Ajoutez des notes sur la vérification du paiement..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pied du modal -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:space-x-3">
+                        <button id="modal-reject-btn" class="mb-3 sm:mb-0 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 action-btn">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            <span>Rejeter le paiement</span>
+                        </button>
+                        <div class="flex flex-col sm:flex-row sm:space-x-3">
+                            <button id="modal-close-btn" class="mb-3 sm:mb-0 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300">
+                                <span>Fermer</span>
+                            </button>
+                            <button id="modal-approve-btn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 action-btn">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                <span>Valider le paiement</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="navBulleContainer" class="fixed z-50">
+  <!-- Bulle principale -->
+  <button 
+    id="navBulleBtn" 
+    class="flex items-center justify-center w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white transition-all duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300/50"
+    aria-label="Ouvrir le menu de navigation"
+  >
+    <i id="navBulleIcon" class="fas fa-compass text-xl"></i>
+  </button>
+  
+  <!-- Fenêtre de navigation -->
+  <div 
+    id="navBulleWindow" 
+    class="absolute bottom-16 right-0 w-72 bg-white rounded-2xl shadow-2xl p-4 transform -translate-y-2 opacity-0 invisible transition-all duration-300"
+  >
+    <!-- En-tête de la fenêtre -->
+    <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800">Navigation rapide</h2>
+      <button 
+        id="navBulleCloseBtn" 
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+        aria-label="Fermer le menu"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Liste des liens -->
+    <ul class="space-y-2" id="navBulleLinks">
+      <!-- Les liens seront injectés par JavaScript -->
+    </ul>
+    
+    <!-- Indicateur de position (flèche) -->
+    <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white transform rotate-45"></div>
+  </div>
+</div>
+
+<script>
+// Configuration unique pour éviter les conflits
+const navBulleConfig = {
+  containerId: 'navBulleContainer',
+  buttonId: 'navBulleBtn',
+  windowId: 'navBulleWindow',
+  closeButtonId: 'navBulleCloseBtn',
+  linksContainerId: 'navBulleLinks',
+  iconId: 'navBulleIcon',
+  isOpen: false,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initialX: 0,
+  initialY: 0,
+  touchStartTime: 0,
+  touchMoved: false,
+  
+  // Liens de navigation
+  navLinks: [
+    {
+      id: 'navLinkAccueil',
+      title: 'Dashboard Accueil',
+      url: 'dashacceuil.html',
+      icon: 'fas fa-home',
+      color: 'text-blue-600'
+    },
+    {
+      id: 'navLinkActualites',
+      title: 'Dashboard Actualités',
+      url: 'dashacctualites.html',
+      icon: 'fas fa-newspaper',
+      color: 'text-green-600'
+    },
+    {
+      id: 'navLinkApropos',
+      title: 'Dashboard À propos',
+      url: 'dashapropo.html',
+      icon: 'fas fa-info-circle',
+      color: 'text-purple-600'
+    },
+    {
+      id: 'navLinkCours',
+      title: 'Dashboard Cours',
+      url: 'dashboardcours.html',
+      icon: 'fas fa-book-open',
+      color: 'text-amber-600'
+    },
+    {
+      id: 'navLinkContact',
+      title: 'Dashboard Contact',
+      url: 'dashcontact.html',
+      icon: 'fas fa-envelope',
+      color: 'text-red-600'
+    },
+    {
+      id: 'navLinkSoumissions',
+      title: 'Dashboard Soumissions',
+      url: 'dashboardsoumissions.html',
+      icon: 'fas fa-paper-plane',
+      color: 'text-indigo-600'
+    }
+  ],
+  
+  // Initialisation
+  init: function() {
+    this.setupElements();
+    this.renderLinks();
+    this.setupEventListeners();
+    this.positionBulleOnLoad();
+  },
+  
+  // Configuration des éléments DOM
+  setupElements: function() {
+    this.container = document.getElementById(this.containerId);
+    this.button = document.getElementById(this.buttonId);
+    this.window = document.getElementById(this.windowId);
+    this.closeButton = document.getElementById(this.closeButtonId);
+    this.linksContainer = document.getElementById(this.linksContainerId);
+    this.icon = document.getElementById(this.iconId);
+  },
+  
+  // Rendu des liens de navigation
+  renderLinks: function() {
+    this.linksContainer.innerHTML = '';
+    
+    this.navLinks.forEach(link => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a 
+          href="${link.url}" 
+          id="${link.id}"
+          class="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-colors group"
+        >
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg ${link.color} bg-opacity-10 group-hover:bg-opacity-20 mr-3">
+            <i class="${link.icon}"></i>
+          </div>
+          <span class="font-medium text-gray-800">${link.title}</span>
+        </a>
+      `;
+      this.linksContainer.appendChild(li);
+    });
+  },
+  
+  // Configuration des écouteurs d'événements
+  setupEventListeners: function() {
+    // Clic sur la bulle (ouvrir/fermer) - pour desktop
+    this.button.addEventListener('click', (e) => {
+      // Vérifier si ce n'était pas un drag
+      if (!this.isDragging && !this.touchMoved) {
+        e.stopPropagation();
+        this.toggleWindow();
+      }
+      this.touchMoved = false;
+    });
+    
+    // Clic sur le bouton de fermeture
+    this.closeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeWindow();
+    });
+    
+    // Fermer la fenêtre en cliquant à l'extérieur
+    document.addEventListener('click', (e) => {
+      if (this.isOpen && !this.window.contains(e.target) && !this.button.contains(e.target)) {
+        this.closeWindow();
+      }
+    });
+    
+    // Gestion du déplacement sur desktop (drag)
+    this.button.addEventListener('mousedown', this.startDrag.bind(this));
+    document.addEventListener('mousemove', this.drag.bind(this));
+    document.addEventListener('mouseup', this.stopDrag.bind(this));
+    
+    // Gestion des événements tactiles pour mobile - APPROCHE SIMPLIFIÉE
+    this.button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    this.button.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    this.button.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+    
+    // Fermer la fenêtre avec la touche Échap
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.closeWindow();
+      }
+    });
+    
+    // Ajuster la position lors du redimensionnement
+    window.addEventListener('resize', this.adjustPositionOnResize.bind(this));
+  },
+  
+  // Gestion du touchstart (mobile)
+  handleTouchStart: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    this.startX = touch.clientX;
+    this.startY = touch.clientY;
+    this.initialX = this.container.offsetLeft;
+    this.initialY = this.container.offsetTop;
+    this.touchStartTime = Date.now();
+    this.touchMoved = false;
+    this.isDragging = false;
+    
+    // Timer pour détecter un appui long (drag)
+    this.dragTimer = setTimeout(() => {
+      this.isDragging = true;
+      this.button.classList.add('cursor-grabbing', 'scale-105');
+    }, 300);
+  },
+  
+  // Gestion du touchmove (mobile)
+  handleTouchMove: function(e) {
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.startX;
+    const deltaY = touch.clientY - this.startY;
+    
+    // Si le mouvement est suffisant, c'est un drag
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      this.touchMoved = true;
+      clearTimeout(this.dragTimer);
+      
+      // Si ce n'était pas déjà un drag, le devenir
+      if (!this.isDragging) {
+        this.isDragging = true;
+        this.button.classList.add('cursor-grabbing', 'scale-105');
+      }
+      
+      // Calculer la nouvelle position
+      let newX = this.initialX + deltaX;
+      let newY = this.initialY + deltaY;
+      
+      // Limites de la fenêtre
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const buttonSize = 56; // w-14 = 56px
+      
+      // S'assurer que la bulle reste dans les limites
+      newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+      newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+      
+      // Appliquer la nouvelle position
+      this.container.style.left = `${newX}px`;
+      this.container.style.top = `${newY}px`;
+      this.container.style.right = 'auto';
+      this.container.style.bottom = 'auto';
+      
+      // Fermer la fenêtre si elle est ouverte pendant le drag
+      if (this.isOpen) {
+        this.closeWindow();
+      }
+    }
+  },
+  
+  // Gestion du touchend (mobile)
+  handleTouchEnd: function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    clearTimeout(this.dragTimer);
+    
+    // Si ce n'était pas un drag, c'est un clic
+    if (!this.isDragging && !this.touchMoved) {
+      const touchDuration = Date.now() - this.touchStartTime;
+      
+      // Si le touch était court (< 300ms), c'est un clic
+      if (touchDuration < 300) {
+        this.toggleWindow();
+      }
+    }
+    
+    // Nettoyer l'état de drag
+    if (this.isDragging) {
+      this.isDragging = false;
+      this.button.classList.remove('cursor-grabbing', 'scale-105');
+      
+      // Animation de retour
+      this.button.classList.add('scale-95');
+      setTimeout(() => {
+        this.button.classList.remove('scale-95');
+      }, 200);
+    }
+    
+    // Réinitialiser
+    this.touchMoved = false;
+  },
+  
+  // Ouvrir/fermer la fenêtre
+  toggleWindow: function() {
+    if (this.isOpen) {
+      this.closeWindow();
+    } else {
+      this.openWindow();
+    }
+  },
+  
+  // Ouvrir la fenêtre
+  openWindow: function() {
+    this.window.classList.remove('opacity-0', 'invisible', 'translate-y-2');
+    this.window.classList.add('opacity-100', 'visible', 'translate-y-0');
+    this.icon.classList.remove('fa-compass');
+    this.icon.classList.add('fa-times');
+    this.button.setAttribute('aria-expanded', 'true');
+    this.isOpen = true;
+    
+    // Animation de micro-interaction
+    this.button.classList.add('scale-110');
+    setTimeout(() => {
+      this.button.classList.remove('scale-110');
+    }, 300);
+  },
+  
+  // Fermer la fenêtre
+  closeWindow: function() {
+    this.window.classList.remove('opacity-100', 'visible', 'translate-y-0');
+    this.window.classList.add('opacity-0', 'invisible', 'translate-y-2');
+    this.icon.classList.remove('fa-times');
+    this.icon.classList.add('fa-compass');
+    this.button.setAttribute('aria-expanded', 'false');
+    this.isOpen = false;
+  },
+  
+  // Position initiale de la bulle
+  positionBulleOnLoad: function() {
+    // Position par défaut en bas à droite
+    this.container.style.bottom = '20px';
+    this.container.style.right = '20px';
+  },
+  
+  // Ajuster la position lors du redimensionnement
+  adjustPositionOnResize: function() {
+    const rect = this.container.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    // S'assurer que la bulle reste dans les limites de la fenêtre
+    if (rect.left < 0) {
+      this.container.style.left = '10px';
+      this.container.style.right = 'auto';
+    }
+    
+    if (rect.top < 0) {
+      this.container.style.top = '10px';
+      this.container.style.bottom = 'auto';
+    }
+    
+    if (rect.right > windowWidth) {
+      this.container.style.right = '10px';
+      this.container.style.left = 'auto';
+    }
+    
+    if (rect.bottom > windowHeight) {
+      this.container.style.bottom = '10px';
+      this.container.style.top = 'auto';
+    }
+  },
+  
+  // Début du drag (souris) - pour desktop
+  startDrag: function(e) {
+    e.preventDefault();
+    this.isDragging = true;
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    
+    // Enregistrer la position initiale
+    const rect = this.container.getBoundingClientRect();
+    this.initialX = rect.left;
+    this.initialY = rect.top;
+    
+    // Changer l'apparence pendant le drag
+    this.button.classList.add('cursor-grabbing', 'scale-105');
+  },
+  
+  // Déplacement (souris) - pour desktop
+  drag: function(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    
+    // Calculer le déplacement
+    const deltaX = e.clientX - this.startX;
+    const deltaY = e.clientY - this.startY;
+    
+    // Calculer la nouvelle position
+    let newX = this.initialX + deltaX;
+    let newY = this.initialY + deltaY;
+    
+    // Limites de la fenêtre
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const buttonSize = 56; // w-14 = 56px
+    
+    // S'assurer que la bulle reste dans les limites
+    newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
+    newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
+    
+    // Appliquer la nouvelle position
+    this.container.style.left = `${newX}px`;
+    this.container.style.top = `${newY}px`;
+    this.container.style.right = 'auto';
+    this.container.style.bottom = 'auto';
+    
+    // Fermer la fenêtre si elle est ouverte pendant le drag
+    if (this.isOpen) {
+      this.closeWindow();
+    }
+  },
+  
+  // Fin du drag (souris) - pour desktop
+  stopDrag: function() {
+    if (!this.isDragging) return;
+    
+    this.isDragging = false;
+    this.button.classList.remove('cursor-grabbing', 'scale-105');
+    
+    // Animation de retour
+    this.button.classList.add('scale-95');
+    setTimeout(() => {
+      this.button.classList.remove('scale-95');
+    }, 200);
+  }
+};
+
+// Initialiser la bulle de navigation quand le DOM est chargé
+document.addEventListener('DOMContentLoaded', () => {
+  navBulleConfig.init();
+});
+</script>
+
+<!-- Styles additionnels pour une meilleure expérience mobile -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+#navBulleContainer {
+  touch-action: none; /* Empêche le défilement pendant le drag sur mobile */
+}
+
+#navBulleBtn {
+  cursor: grab;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+#navBulleBtn:active {
+  cursor: grabbing;
+}
+
+#navBulleWindow {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: white; /* Assure un fond blanc */
+}
+
+/* Correction des couleurs des textes et liens */
+#navBulleWindow h2 {
+  color: #1f2937 !important; /* Couleur foncée pour le titre */
+}
+
+#navBulleLinks a {
+  color: #374151 !important; /* Couleur gris foncé pour les liens */
+}
+
+#navBulleLinks a span {
+  color: #374151 !important; /* Assure la couleur du texte des liens */
+}
+
+#navBulleCloseBtn {
+  color: #6b7280 !important; /* Couleur grise pour l'icône de fermeture */
+}
+
+#navBulleCloseBtn:hover {
+  color: #374151 !important;
+}
+
+/* Animation d'entrée pour les liens */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#navBulleLinks li {
+  animation: fadeInUp 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+#navBulleLinks li:nth-child(1) { animation-delay: 0.05s; }
+#navBulleLinks li:nth-child(2) { animation-delay: 0.1s; }
+#navBulleLinks li:nth-child(3) { animation-delay: 0.15s; }
+#navBulleLinks li:nth-child(4) { animation-delay: 0.2s; }
+#navBulleLinks li:nth-child(5) { animation-delay: 0.25s; }
+#navBulleLinks li:nth-child(6) { animation-delay: 0.3s; }
+
+/* Assurer la visibilité des icônes dans les cercles colorés */
+#navBulleLinks a div i {
+  color: inherit !important; /* Hérite la couleur définie par la classe */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #navBulleWindow {
+    width: calc(100vw - 40px);
+    max-width: 300px;
+    right: 0;
+    bottom: 70px;
+  }
+  
+  #navBulleWindow > div:last-child {
+    right: 20px;
+  }
+}
+
+/* Dark mode support - corrigé pour garder la lisibilité */
+@media (prefers-color-scheme: dark) {
+  #navBulleWindow {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  #navBulleWindow h2 {
+    color: #f9fafb !important; /* Blanc pour le titre en dark mode */
+  }
+  
+  #navBulleLinks a {
+    color: #e5e7eb !important; /* Gris clair pour les liens */
+  }
+  
+  #navBulleLinks a span {
+    color: #e5e7eb !important; /* Gris clair pour le texte */
+  }
+  
+  #navBulleLinks a:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  #navBulleCloseBtn {
+    color: #9ca3af !important;
+  }
+  
+  #navBulleCloseBtn:hover {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+  
+  #navBulleWindow > div:last-child {
+    background-color: #1f2937 !important;
+  }
+}
+
+/* Force la visibilité des éléments pendant les animations */
+#navBulleWindow.opacity-100.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Correction spécifique pour les couleurs des icônes dans les cercles */
+.bg-opacity-10 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.text-blue-600 { color: #2563eb !important; }
+.text-green-600 { color: #16a34a !important; }
+.text-purple-600 { color: #9333ea !important; }
+.text-amber-600 { color: #d97706 !important; }
+.text-red-600 { color: #dc2626 !important; }
+.text-indigo-600 { color: #4f46e5 !important; }
+</style>
+    <!-- Script principal du dashboard -->
+    <script type="module">
+        // Attendre que le DOM soit chargé
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Dashboard admin initialisé");
+            
+            // Variables globales de l'application
+            const appState = {
+                payments: [], // Toutes les demandes de paiement
+                filteredPayments: [], // Demandes filtrées
+                currentFilter: 'all', // Filtre actif
+                currentSearch: '', // Recherche actuelle
+                currentPaymentDetail: null, // Détail du paiement en cours de visualisation
+                unsubscribeListener: null // Fonction pour arrêter l'écoute Firestore
+            };
+            
+            // Éléments DOM
+            const elements = {
+                // Statistiques
+                pendingCount: document.getElementById('pending-count'),
+                approvedCount: document.getElementById('approved-count'),
+                rejectedCount: document.getElementById('rejected-count'),
+                pendingBar: document.getElementById('pending-bar'),
+                approvedBar: document.getElementById('approved-bar'),
+                rejectedBar: document.getElementById('rejected-bar'),
+                lastUpdate: document.getElementById('last-update'),
+                resultsCount: document.getElementById('results-count'),
+                
+                // Filtres
+                filterAll: document.getElementById('filter-all'),
+                filterPending: document.getElementById('filter-pending'),
+                filterApproved: document.getElementById('filter-approved'),
+                filterRejected: document.getElementById('filter-rejected'),
+                searchInput: document.getElementById('search-input'),
+                refreshBtn: document.getElementById('refresh-btn'),
+                
+                // Tableau et cartes
+                paymentsTableBody: document.getElementById('payments-table-body'),
+                paymentsCardsContainer: document.getElementById('payments-cards-container'),
+                
+                // Pagination
+                paginationContainer: document.getElementById('pagination-container'),
+                paginationStart: document.getElementById('pagination-start'),
+                paginationEnd: document.getElementById('pagination-end'),
+                paginationTotal: document.getElementById('pagination-total'),
+                prevPage: document.getElementById('prev-page'),
+                nextPage: document.getElementById('next-page'),
+                
+                // Modal
+                paymentDetailModal: document.getElementById('payment-detail-modal'),
+                closeModal: document.getElementById('close-modal'),
+                modalCloseBtn: document.getElementById('modal-close-btn'),
+                modalLoading: document.getElementById('modal-loading'),
+                modalContent: document.getElementById('modal-content'),
+                modalApproveBtn: document.getElementById('modal-approve-btn'),
+                modalRejectBtn: document.getElementById('modal-reject-btn'),
+                
+                // Champs du modal
+                modalCourseTitle: document.getElementById('modal-course-title'),
+                modalCoursePrice: document.getElementById('modal-course-price'),
+                modalUserName: document.getElementById('modal-user-name'),
+                modalUserId: document.getElementById('modal-user-id'),
+                modalPaymentMethod: document.getElementById('modal-payment-method'),
+                modalPaymentStatus: document.getElementById('modal-payment-status'),
+                modalSenderName: document.getElementById('modal-sender-name'),
+                modalSenderNumber: document.getElementById('modal-sender-number'),
+                modalTransactionId: document.getElementById('modal-transaction-id'),
+                modalTransferDatetime: document.getElementById('modal-transfer-datetime'),
+                verificationNotes: document.getElementById('verification-notes')
+            };
+            
+            // Initialiser l'application
+            initDashboard();
+            
+            /**
+             * Fonction d'initialisation du dashboard
+             */
+            function initDashboard() {
+                console.log("Initialisation du dashboard...");
+                
+                // Charger les demandes de paiement
+                loadPaymentRequests();
+                
+                // Configurer les écouteurs d'événements
+                setupEventListeners();
+                
+                // Mettre à jour l'heure de dernière mise à jour
+                updateLastUpdateTime();
+                
+                console.log("Dashboard prêt");
+            }
+            
+            /**
+             * Charge toutes les demandes de paiement depuis Firestore
+             */
+            async function loadPaymentRequests() {
+                console.log("Chargement des demandes de paiement...");
+                
+                try {
+                    // Afficher l'état de chargement
+                    showLoadingState();
+                    
+                    const { collection, query, orderBy, getDocs } = window.firebaseModules;
+                    const db = window.firebaseDb;
+                    
+                    // Créer une requête pour récupérer tous les paiements triés par date
+                    const paymentsQuery = query(
+                        collection(db, 'payments'),
+                        orderBy('createdAt', 'desc')
+                    );
+                    
+                    // Exécuter la requête
+                    const querySnapshot = await getDocs(paymentsQuery);
+                    
+                    // Extraire les données
+                    appState.payments = [];
+                    querySnapshot.forEach((doc) => {
+                        const paymentData = doc.data();
+                        appState.payments.push({
+                            id: doc.id,
+                            ...paymentData,
+                            // Convertir le timestamp Firestore en date JavaScript si nécessaire
+                            createdAt: paymentData.createdAt?.toDate ? paymentData.createdAt.toDate() : new Date(paymentData.createdAt || Date.now())
+                        });
+                    });
+                    
+                    console.log(`${appState.payments.length} demandes de paiement chargées`);
+                    
+                    // Mettre à jour l'interface
+                    updateDashboard();
+                    
+                    // Configurer l'écoute en temps réel pour les nouvelles demandes
+                    setupRealtimeListener();
+                    
+                } catch (error) {
+                    console.error("Erreur lors du chargement des paiements:", error);
+                    showError("Impossible de charger les demandes de paiement. Veuillez réessayer.");
+                    
+                    // Afficher un état d'erreur
+                    elements.paymentsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mb-4">
+                                    <i class="fas fa-exclamation-triangle text-xl"></i>
+                                </div>
+                                <h4 class="text-lg font-bold text-red-700 mb-2">Erreur de chargement</h4>
+                                <p class="text-gray-600 mb-4">Impossible de charger les demandes de paiement.</p>
+                                <button id="retry-load-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                                    <i class="fas fa-sync-alt mr-2"></i>
+                                    <span>Réessayer</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    elements.paymentsCardsContainer.innerHTML = `
+                        <div class="payment-card bg-white border border-gray-200 rounded-lg p-6 text-center">
+                            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mb-4">
+                                <i class="fas fa-exclamation-triangle text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-red-700 mb-2">Erreur de chargement</h4>
+                            <p class="text-gray-600 mb-4">Impossible de charger les demandes de paiement.</p>
+                            <button id="retry-load-btn-mobile" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                                <i class="fas fa-sync-alt mr-2"></i>
+                                <span>Réessayer</span>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Ajouter des écouteurs pour les boutons de réessai
+                    document.getElementById('retry-load-btn')?.addEventListener('click', loadPaymentRequests);
+                    document.getElementById('retry-load-btn-mobile')?.addEventListener('click', loadPaymentRequests);
+                }
+            }
+            
+            /**
+             * Configure l'écoute en temps réel des changements dans Firestore
+             */
+            function setupRealtimeListener() {
+                console.log("Configuration de l'écoute en temps réel...");
+                
+                try {
+                    const { collection, query, orderBy, onSnapshot } = window.firebaseModules;
+                    const db = window.firebaseDb;
+                    
+                    // Détacher l'ancien écouteur s'il existe
+                    if (appState.unsubscribeListener) {
+                        appState.unsubscribeListener();
+                    }
+                    
+                    // Créer une requête pour écouter tous les paiements
+                    const paymentsQuery = query(
+                        collection(db, 'payments'),
+                        orderBy('createdAt', 'desc')
+                    );
+                    
+                    // Écouter les changements en temps réel
+                    appState.unsubscribeListener = onSnapshot(paymentsQuery, (snapshot) => {
+                        console.log("Mise à jour en temps réel détectée");
+                        
+                        // Mettre à jour la liste des paiements
+                        appState.payments = [];
+                        snapshot.forEach((doc) => {
+                            const paymentData = doc.data();
+                            appState.payments.push({
+                                id: doc.id,
+                                ...paymentData,
+                                createdAt: paymentData.createdAt?.toDate ? paymentData.createdAt.toDate() : new Date(paymentData.createdAt || Date.now())
+                            });
+                        });
+                        
+                        // Mettre à jour l'interface
+                        updateDashboard();
+                        updateLastUpdateTime();
+                        
+                    }, (error) => {
+                        console.error("Erreur lors de l'écoute en temps réel:", error);
+                    });
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la configuration de l'écoute en temps réel:", error);
+                }
+            }
+            
+            /**
+             * Met à jour tout le dashboard avec les données actuelles
+             */
+            function updateDashboard() {
+                console.log("Mise à jour du dashboard...");
+                
+                // Appliquer les filtres et la recherche
+                applyFiltersAndSearch();
+                
+                // Mettre à jour les statistiques
+                updateStatistics();
+                
+                // Rendre la liste des paiements
+                renderPaymentList();
+            }
+            
+            /**
+             * Applique les filtres et la recherche actuels aux paiements
+             */
+            function applyFiltersAndSearch() {
+                console.log(`Application des filtres: ${appState.currentFilter}, recherche: "${appState.currentSearch}"`);
+                
+                // Commencer avec tous les paiements
+                let filtered = [...appState.payments];
+                
+                // Appliquer le filtre de statut
+                if (appState.currentFilter !== 'all') {
+                    filtered = filtered.filter(payment => payment.status === appState.currentFilter);
+                }
+                
+                // Appliquer la recherche
+                if (appState.currentSearch.trim() !== '') {
+                    const searchTerm = appState.currentSearch.toLowerCase();
+                    filtered = filtered.filter(payment => {
+                        return (
+                            (payment.courseTitle && payment.courseTitle.toLowerCase().includes(searchTerm)) ||
+                            (payment.senderName && payment.senderName.toLowerCase().includes(searchTerm)) ||
+                            (payment.transactionId && payment.transactionId.toLowerCase().includes(searchTerm)) ||
+                            (payment.method && payment.method.toLowerCase().includes(searchTerm))
+                        );
+                    });
+                }
+                
+                // Stocker les résultats filtrés
+                appState.filteredPayments = filtered;
+                
+                console.log(`${appState.filteredPayments.length} résultats après filtrage`);
+            }
+            
+            /**
+             * Met à jour les statistiques du dashboard
+             */
+            function updateStatistics() {
+                console.log("Mise à jour des statistiques...");
+                
+                // Calculer les comptes par statut
+                const pending = appState.payments.filter(p => p.status === 'pending').length;
+                const approved = appState.payments.filter(p => p.status === 'approved').length;
+                const rejected = appState.payments.filter(p => p.status === 'rejected').length;
+                const total = appState.payments.length;
+                
+                // Mettre à jour les compteurs
+                elements.pendingCount.textContent = pending;
+                elements.approvedCount.textContent = approved;
+                elements.rejectedCount.textContent = rejected;
+                
+                // Mettre à jour les barres de progression
+                if (total > 0) {
+                    elements.pendingBar.style.width = `${(pending / total) * 100}%`;
+                    elements.approvedBar.style.width = `${(approved / total) * 100}%`;
+                    elements.rejectedBar.style.width = `${(rejected / total) * 100}%`;
+                } else {
+                    elements.pendingBar.style.width = '0%';
+                    elements.approvedBar.style.width = '0%';
+                    elements.rejectedBar.style.width = '0%';
+                }
+                
+                // Mettre à jour le compteur de résultats
+                elements.resultsCount.textContent = `${appState.filteredPayments.length} demande(s) trouvée(s)`;
+            }
+            
+            /**
+             * Affiche la liste des paiements (tableau pour desktop, cartes pour mobile)
+             */
+            function renderPaymentList() {
+                console.log("Rendu de la liste des paiements...");
+                
+                // Rendu pour desktop (tableau)
+                renderPaymentTable();
+                
+                // Rendu pour mobile (cartes)
+                renderPaymentCards();
+            }
+            
+            /**
+             * Rendu du tableau des paiements (version desktop)
+             */
+            function renderPaymentTable() {
+                // Effacer le contenu actuel
+                elements.paymentsTableBody.innerHTML = '';
+                
+                // Vérifier s'il y a des résultats
+                if (appState.filteredPayments.length === 0) {
+                    elements.paymentsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-600 mb-4">
+                                    <i class="fas fa-inbox text-xl"></i>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-700 mb-2">Aucun résultat</h4>
+                                <p class="text-gray-600">${appState.currentSearch ? 'Aucune demande ne correspond à votre recherche.' : 'Aucune demande de paiement trouvée.'}</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Rendre chaque paiement
+                appState.filteredPayments.forEach(payment => {
+                    const row = createPaymentTableRow(payment);
+                    elements.paymentsTableBody.appendChild(row);
+                });
+            }
+            
+            /**
+             * Crée une ligne de tableau pour un paiement
+             */
+            function createPaymentTableRow(payment) {
+                const row = document.createElement('tr');
+                row.className = 'payment-card ' + payment.status;
+                row.dataset.paymentId = payment.id;
+                
+                // Formater le prix
+                const formattedPrice = new Intl.NumberFormat('fr-HT', {
+                    style: 'currency',
+                    currency: 'HTG'
+                }).format(payment.price || 0);
+                
+                // Formater la date
+                const formattedDate = formatDate(payment.createdAt);
+                
+                // Déterminer la classe CSS pour le badge de statut
+                let statusClass = 'status-pending';
+                let statusText = 'En attente';
+                
+                if (payment.status === 'approved') {
+                    statusClass = 'status-approved';
+                    statusText = 'Validé';
+                } else if (payment.status === 'rejected') {
+                    statusClass = 'status-rejected';
+                    statusText = 'Rejeté';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-book-open text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${payment.courseTitle || 'Cours inconnu'}</div>
+                                <div class="text-sm text-gray-500">${payment.senderName || 'Utilisateur inconnu'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 font-medium">${payment.method || 'Non spécifié'}</div>
+                        <div class="text-sm text-gray-500">${formattedPrice}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${formattedDate}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button class="view-details-btn bg-blue-100 hover:bg-blue-200 text-blue-700 py-1 px-3 rounded-md text-sm transition duration-300" data-payment-id="${payment.id}">
+                                <i class="fas fa-eye mr-1"></i>
+                                <span>Détails</span>
+                            </button>
+                            ${payment.status === 'pending' ? `
+                                <button class="approve-btn bg-green-100 hover:bg-green-200 text-green-700 py-1 px-3 rounded-md text-sm transition duration-300" data-payment-id="${payment.id}">
+                                    <i class="fas fa-check mr-1"></i>
+                                    <span>Valider</span>
+                                </button>
+                                <button class="reject-btn bg-red-100 hover:bg-red-200 text-red-700 py-1 px-3 rounded-md text-sm transition duration-300" data-payment-id="${payment.id}">
+                                    <i class="fas fa-times mr-1"></i>
+                                    <span>Rejeter</span>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+                
+                return row;
+            }
+            
+            /**
+             * Rendu des cartes de paiement (version mobile)
+             */
+            function renderPaymentCards() {
+                // Effacer le contenu actuel
+                elements.paymentsCardsContainer.innerHTML = '';
+                
+                // Vérifier s'il y a des résultats
+                if (appState.filteredPayments.length === 0) {
+                    elements.paymentsCardsContainer.innerHTML = `
+                        <div class="payment-card bg-white border border-gray-200 rounded-lg p-6 text-center">
+                            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-600 mb-4">
+                                <i class="fas fa-inbox text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-gray-700 mb-2">Aucun résultat</h4>
+                            <p class="text-gray-600">${appState.currentSearch ? 'Aucune demande ne correspond à votre recherche.' : 'Aucune demande de paiement trouvée.'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Rendre chaque paiement sous forme de carte
+                appState.filteredPayments.forEach(payment => {
+                    const card = createPaymentCard(payment);
+                    elements.paymentsCardsContainer.appendChild(card);
+                });
+            }
+            
+            /**
+             * Crée une carte pour un paiement (version mobile)
+             */
+            function createPaymentCard(payment) {
+                const card = document.createElement('div');
+                card.className = 'payment-card bg-white border border-gray-200 rounded-lg p-5 ' + payment.status;
+                card.dataset.paymentId = payment.id;
+                
+                // Formater le prix
+                const formattedPrice = new Intl.NumberFormat('fr-HT', {
+                    style: 'currency',
+                    currency: 'HTG'
+                }).format(payment.price || 0);
+                
+                // Formater la date
+                const formattedDate = formatDate(payment.createdAt);
+                
+                // Déterminer la classe CSS pour le badge de statut
+                let statusClass = 'status-pending';
+                let statusText = 'En attente';
+                
+                if (payment.status === 'approved') {
+                    statusClass = 'status-approved';
+                    statusText = 'Validé';
+                } else if (payment.status === 'rejected') {
+                    statusClass = 'status-rejected';
+                    statusText = 'Rejeté';
+                }
+                
+                card.innerHTML = `
+                    <div class="mb-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-900">${payment.courseTitle || 'Cours inconnu'}</h3>
+                                <p class="text-gray-600 text-sm">${payment.senderName || 'Utilisateur inconnu'}</p>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Méthode</p>
+                            <p class="font-medium">${payment.method || 'Non spécifié'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Montant</p>
+                            <p class="font-medium text-blue-700">${formattedPrice}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Date</p>
+                            <p class="font-medium">${formattedDate}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">ID Transaction</p>
+                            <p class="font-medium font-mono text-sm">${payment.transactionId || 'Non fourni'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <button class="view-details-btn bg-blue-100 hover:bg-blue-200 text-blue-700 py-2 px-4 rounded-md text-sm transition duration-300 w-full mb-2" data-payment-id="${payment.id}">
+                            <i class="fas fa-eye mr-2"></i>
+                            <span>Voir détails</span>
+                        </button>
+                        
+                        ${payment.status === 'pending' ? `
+                            <button class="approve-btn bg-green-100 hover:bg-green-200 text-green-700 py-2 px-4 rounded-md text-sm transition duration-300 flex-1" data-payment-id="${payment.id}">
+                                <i class="fas fa-check mr-2"></i>
+                                <span>Valider</span>
+                            </button>
+                            <button class="reject-btn bg-red-100 hover:bg-red-200 text-red-700 py-2 px-4 rounded-md text-sm transition duration-300 flex-1" data-payment-id="${payment.id}">
+                                <i class="fas fa-times mr-2"></i>
+                                <span>Rejeter</span>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                return card;
+            }
+            
+            /**
+             * Valide un paiement (change le statut à "approved" et débloque le cours)
+             */
+            async function approvePayment(paymentId, userId, courseId) {
+                console.log(`Validation du paiement ${paymentId} pour l'utilisateur ${userId}, cours ${courseId}`);
+                
+                try {
+                    const { doc, updateDoc, serverTimestamp } = window.firebaseModules;
+                    const db = window.firebaseDb;
+                    
+                    // 1. Mettre à jour le statut du paiement dans Firestore
+                    const paymentRef = doc(db, 'payments', paymentId);
+                    await updateDoc(paymentRef, {
+                        status: "approved",
+                        reviewedAt: serverTimestamp()
+                    });
+                    
+                    console.log("Statut du paiement mis à jour avec succès");
+                    
+                    // 2. Mettre à jour le statut de l'utilisateur pour débloquer le cours
+                    const userRef = doc(db, 'users', userId);
+                    
+                    try {
+                        await updateDoc(userRef, {
+                            [`courses.${courseId}`]: {
+                                status: "approved",
+                                paidAt: serverTimestamp()
+                            }
+                        });
+                        console.log("Statut de l'utilisateur mis à jour avec succès");
+                    } catch (userError) {
+                        console.warn("Impossible de mettre à jour l'utilisateur, création du document si nécessaire:", userError);
+                        
+                        // Essayer de créer le document utilisateur s'il n'existe pas
+                        try {
+                            const { setDoc } = window.firebaseModules;
+                            await setDoc(userRef, {
+                                courses: {
+                                    [courseId]: {
+                                        status: "approved",
+                                        paidAt: serverTimestamp()
+                                    }
+                                }
+                            }, { merge: true });
+                            console.log("Document utilisateur créé/mis à jour avec succès");
+                        } catch (setError) {
+                            console.error("Erreur lors de la création du document utilisateur:", setError);
+                        }
+                    }
+                    
+                    // Afficher une confirmation
+                    showNotification(`Paiement validé avec succès ! Le cours a été débloqué pour l'utilisateur.`, 'success');
+                    
+                    // Fermer le modal si ouvert
+                    closePaymentDetailModal();
+                    
+                    // Réinitialiser les notes de vérification
+                    elements.verificationNotes.value = '';
+                    
+                    // Note: La mise à jour sera reflétée automatiquement via l'écoute en temps réel
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la validation du paiement:", error);
+                    showNotification("Une erreur est survenue lors de la validation du paiement. Veuillez réessayer.", 'error');
+                    
+                    // Réactiver les boutons
+                    enableActionButtons();
+                }
+            }
+            
+            /**
+             * Rejette un paiement (change le statut à "rejected")
+             */
+            async function rejectPayment(paymentId) {
+                console.log(`Rejet du paiement ${paymentId}`);
+                
+                try {
+                    const { doc, updateDoc, serverTimestamp } = window.firebaseModules;
+                    const db = window.firebaseDb;
+                    
+                    // Mettre à jour le statut du paiement dans Firestore
+                    const paymentRef = doc(db, 'payments', paymentId);
+                    await updateDoc(paymentRef, {
+                        status: "rejected",
+                        reviewedAt: serverTimestamp()
+                    });
+                    
+                    console.log("Paiement rejeté avec succès");
+                    
+                    // Afficher une confirmation
+                    showNotification(`Paiement rejeté avec succès. L'utilisateur devra soumettre une nouvelle demande.`, 'warning');
+                    
+                    // Fermer le modal si ouvert
+                    closePaymentDetailModal();
+                    
+                    // Réinitialiser les notes de vérification
+                    elements.verificationNotes.value = '';
+                    
+                    // Note: La mise à jour sera reflétée automatiquement via l'écoute en temps réel
+                    
+                } catch (error) {
+                    console.error("Erreur lors du rejet du paiement:", error);
+                    showNotification("Une erreur est survenue lors du rejet du paiement. Veuillez réessayer.", 'error');
+                    
+                    // Réactiver les boutons
+                    enableActionButtons();
+                }
+            }
+            
+            /**
+             * Ouvre le modal pour afficher les détails d'un paiement
+             */
+            async function openPaymentDetailModal(paymentId) {
+                console.log(`Ouverture du modal pour le paiement ${paymentId}`);
+                
+                // Trouver le paiement dans la liste
+                const payment = appState.payments.find(p => p.id === paymentId);
+                if (!payment) {
+                    showNotification("Impossible de trouver les détails du paiement.", 'error');
+                    return;
+                }
+                
+                // Stocker le paiement en cours
+                appState.currentPaymentDetail = payment;
+                
+                // Afficher le modal
+                elements.paymentDetailModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                
+                // Afficher le chargement
+                elements.modalLoading.classList.remove('hidden');
+                elements.modalContent.classList.add('hidden');
+                
+                // Désactiver les boutons d'action pendant le chargement
+                disableActionButtons();
+                
+                // Récupérer les informations utilisateur supplémentaires si disponibles
+                try {
+                    const { doc, getDoc } = window.firebaseModules;
+                    const db = window.firebaseDb;
+                    
+                    let userName = payment.senderName || 'Non spécifié';
+                    
+                    // Essayer de récupérer le nom de l'utilisateur depuis la collection users
+                    if (payment.userId) {
+                        const userRef = doc(db, 'users', payment.userId);
+                        const userSnap = await getDoc(userRef);
+                        
+                        if (userSnap.exists()) {
+                            const userData = userSnap.data();
+                            if (userData.name) {
+                                userName = userData.name;
+                            }
+                        }
+                    }
+                    
+                    // Mettre à jour les informations du modal
+                    updateModalContent(payment, userName);
+                    
+                } catch (error) {
+                    console.warn("Impossible de charger les informations utilisateur:", error);
+                    // Utiliser les informations de base du paiement
+                    updateModalContent(payment, payment.senderName || 'Non spécifié');
+                }
+            }
+            
+            /**
+             * Met à jour le contenu du modal avec les informations du paiement
+             */
+            function updateModalContent(payment, userName) {
+                // Formater le prix
+                const formattedPrice = new Intl.NumberFormat('fr-HT', {
+                    style: 'currency',
+                    currency: 'HTG'
+                }).format(payment.price || 0);
+                
+                // Formater la date et heure
+                const formattedDateTime = formatDateTime(payment.transferDate, payment.transferTime);
+                
+                // Déterminer la classe CSS pour le badge de statut
+                let statusClass = 'status-pending';
+                let statusText = 'En attente';
+                
+                if (payment.status === 'approved') {
+                    statusClass = 'status-approved';
+                    statusText = 'Validé';
+                } else if (payment.status === 'rejected') {
+                    statusClass = 'status-rejected';
+                    statusText = 'Rejeté';
+                }
+                
+                // Mettre à jour les champs du modal
+                elements.modalCourseTitle.textContent = payment.courseTitle || 'Cours inconnu';
+                elements.modalCoursePrice.textContent = formattedPrice;
+                elements.modalUserName.textContent = userName;
+                elements.modalUserId.textContent = payment.userId || 'Non disponible';
+                elements.modalPaymentMethod.textContent = payment.method || 'Non spécifié';
+                elements.modalPaymentStatus.textContent = statusText;
+                elements.modalPaymentStatus.className = `status-badge ${statusClass}`;
+                elements.modalSenderName.textContent = payment.senderName || 'Non spécifié';
+                elements.modalSenderNumber.textContent = payment.senderNumber || 'Non spécifié';
+                elements.modalTransactionId.textContent = payment.transactionId || 'Non spécifié';
+                elements.modalTransferDatetime.textContent = formattedDateTime;
+                
+                // Afficher/masquer les boutons d'action selon le statut
+                if (payment.status === 'pending') {
+                    elements.modalApproveBtn.classList.remove('hidden');
+                    elements.modalRejectBtn.classList.remove('hidden');
+                } else {
+                    elements.modalApproveBtn.classList.add('hidden');
+                    elements.modalRejectBtn.classList.add('hidden');
+                }
+                
+                // Afficher le contenu et masquer le chargement
+                elements.modalLoading.classList.add('hidden');
+                elements.modalContent.classList.remove('hidden');
+                
+                // Activer les boutons d'action
+                enableActionButtons();
+            }
+            
+            /**
+             * Ferme le modal de détail du paiement
+             */
+            function closePaymentDetailModal() {
+                console.log("Fermeture du modal");
+                
+                elements.paymentDetailModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                
+                // Réinitialiser le paiement en cours
+                appState.currentPaymentDetail = null;
+            }
+            
+            /**
+             * Configure tous les écouteurs d'événements
+             */
+            function setupEventListeners() {
+                console.log("Configuration des écouteurs d'événements...");
+                
+                // Filtres
+                elements.filterAll.addEventListener('click', () => setFilter('all'));
+                elements.filterPending.addEventListener('click', () => setFilter('pending'));
+                elements.filterApproved.addEventListener('click', () => setFilter('approved'));
+                elements.filterRejected.addEventListener('click', () => setFilter('rejected'));
+                
+                // Recherche
+                elements.searchInput.addEventListener('input', (e) => {
+                    appState.currentSearch = e.target.value;
+                    updateDashboard();
+                });
+                
+                // Actualisation
+                elements.refreshBtn.addEventListener('click', () => {
+                    loadPaymentRequests();
+                    showNotification("Liste actualisée avec succès", 'info');
+                });
+                
+                // Modal
+                elements.closeModal.addEventListener('click', closePaymentDetailModal);
+                elements.modalCloseBtn.addEventListener('click', closePaymentDetailModal);
+                
+                // Actions dans le modal
+                elements.modalApproveBtn.addEventListener('click', handleApproveFromModal);
+                elements.modalRejectBtn.addEventListener('click', handleRejectFromModal);
+                
+                // Fermer le modal en cliquant à l'extérieur
+                elements.paymentDetailModal.addEventListener('click', (e) => {
+                    if (e.target === elements.paymentDetailModal) {
+                        closePaymentDetailModal();
+                    }
+                });
+                
+                // Délégation d'événements pour les boutons dynamiques
+                document.addEventListener('click', (e) => {
+                    // Boutons "Voir détails"
+                    if (e.target.closest('.view-details-btn')) {
+                        const paymentId = e.target.closest('.view-details-btn').dataset.paymentId;
+                        openPaymentDetailModal(paymentId);
+                    }
+                    
+                    // Boutons "Valider" dans la liste
+                    if (e.target.closest('.approve-btn')) {
+                        const paymentId = e.target.closest('.approve-btn').dataset.paymentId;
+                        const payment = appState.payments.find(p => p.id === paymentId);
+                        
+                        if (payment && confirm(`Voulez-vous vraiment valider ce paiement pour le cours "${payment.courseTitle}" ?`)) {
+                            approvePayment(payment.id, payment.userId, payment.courseId);
+                        }
+                    }
+                    
+                    // Boutons "Rejeter" dans la liste
+                    if (e.target.closest('.reject-btn')) {
+                        const paymentId = e.target.closest('.reject-btn').dataset.paymentId;
+                        const payment = appState.payments.find(p => p.id === paymentId);
+                        
+                        if (payment && confirm(`Voulez-vous vraiment rejeter ce paiement pour le cours "${payment.courseTitle}" ?`)) {
+                            rejectPayment(payment.id);
+                        }
+                    }
+                });
+            }
+            
+            /**
+             * Définit le filtre actif et met à jour l'interface
+             */
+            function setFilter(filter) {
+                console.log(`Filtre défini sur: ${filter}`);
+                
+                // Mettre à jour le filtre actif
+                appState.currentFilter = filter;
+                
+                // Mettre à jour les boutons de filtre
+                updateFilterButtons(filter);
+                
+                // Mettre à jour le dashboard
+                updateDashboard();
+            }
+            
+            /**
+             * Met à jour l'état actif des boutons de filtre
+             */
+            function updateFilterButtons(activeFilter) {
+                // Retirer la classe active de tous les boutons
+                elements.filterAll.classList.remove('active');
+                elements.filterPending.classList.remove('active');
+                elements.filterApproved.classList.remove('active');
+                elements.filterRejected.classList.remove('active');
+                
+                // Ajouter la classe active au bouton correspondant
+                switch(activeFilter) {
+                    case 'all':
+                        elements.filterAll.classList.add('active');
+                        break;
+                    case 'pending':
+                        elements.filterPending.classList.add('active');
+                        break;
+                    case 'approved':
+                        elements.filterApproved.classList.add('active');
+                        break;
+                    case 'rejected':
+                        elements.filterRejected.classList.add('active');
+                        break;
+                }
+            }
+            
+            /**
+             * Gère la validation d'un paiement depuis le modal
+             */
+            function handleApproveFromModal() {
+                if (!appState.currentPaymentDetail) return;
+                
+                const payment = appState.currentPaymentDetail;
+                
+                if (confirm(`Voulez-vous vraiment valider ce paiement pour le cours "${payment.courseTitle}" ?`)) {
+                    // Désactiver les boutons pendant le traitement
+                    disableActionButtons();
+                    
+                    // Valider le paiement
+                    approvePayment(payment.id, payment.userId, payment.courseId);
+                }
+            }
+            
+            /**
+             * Gère le rejet d'un paiement depuis le modal
+             */
+            function handleRejectFromModal() {
+                if (!appState.currentPaymentDetail) return;
+                
+                const payment = appState.currentPaymentDetail;
+                
+                if (confirm(`Voulez-vous vraiment rejeter ce paiement pour le cours "${payment.courseTitle}" ?`)) {
+                    // Désactiver les boutons pendant le traitement
+                    disableActionButtons();
+                    
+                    // Rejeter le paiement
+                    rejectPayment(payment.id);
+                }
+            }
+            
+            /**
+             * Désactive les boutons d'action pendant le traitement
+             */
+            function disableActionButtons() {
+                elements.modalApproveBtn.disabled = true;
+                elements.modalRejectBtn.disabled = true;
+            }
+            
+            /**
+             * Réactive les boutons d'action après le traitement
+             */
+            function enableActionButtons() {
+                elements.modalApproveBtn.disabled = false;
+                elements.modalRejectBtn.disabled = false;
+            }
+            
+            /**
+             * Affiche l'état de chargement
+             */
+            function showLoadingState() {
+                elements.paymentsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                            <p class="text-gray-600">Chargement des demandes de paiement...</p>
+                        </td>
+                    </tr>
+                `;
+                
+                elements.paymentsCardsContainer.innerHTML = `
+                    <div class="payment-card bg-white border border-gray-200 rounded-lg p-5 text-center">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                        <p class="text-gray-600">Chargement des demandes de paiement...</p>
+                    </div>
+                `;
+            }
+            
+            /**
+             * Affiche une notification à l'utilisateur
+             */
+            function showNotification(message, type = 'info') {
+                // Déterminer les classes CSS selon le type
+                let bgColor, textColor, icon;
+                
+                switch(type) {
+                    case 'success':
+                        bgColor = 'bg-green-100';
+                        textColor = 'text-green-800';
+                        icon = 'fa-check-circle';
+                        break;
+                    case 'error':
+                        bgColor = 'bg-red-100';
+                        textColor = 'text-red-800';
+                        icon = 'fa-exclamation-circle';
+                        break;
+                    case 'warning':
+                        bgColor = 'bg-yellow-100';
+                        textColor = 'text-yellow-800';
+                        icon = 'fa-exclamation-triangle';
+                        break;
+                    default:
+                        bgColor = 'bg-blue-100';
+                        textColor = 'text-blue-800';
+                        icon = 'fa-info-circle';
+                }
+                
+                // Créer l'élément de notification
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 ${bgColor} border ${textColor} px-4 py-3 rounded-lg shadow-lg z-50 max-w-md transition-all duration-300 transform translate-x-0`;
+                notification.style.transition = 'all 0.3s ease';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas ${icon} mr-3 ${textColor}"></i>
+                        <div class="flex-1">
+                            <p class="${textColor}">${message}</p>
+                        </div>
+                        <button class="ml-4 ${textColor} hover:opacity-80">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Ajouter au document
+                document.body.appendChild(notification);
+                
+                // Fermer la notification après 5 secondes
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 5000);
+                
+                // Ajouter un écouteur pour fermer manuellement
+                notification.querySelector('button').addEventListener('click', () => {
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                });
+            }
+            
+            /**
+             * Affiche un message d'erreur
+             */
+            function showError(message) {
+                showNotification(message, 'error');
+            }
+            
+            /**
+             * Met à jour l'heure de dernière mise à jour
+             */
+            function updateLastUpdateTime() {
+                const now = new Date();
+                const formattedTime = now.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                elements.lastUpdate.textContent = `Dernière mise à jour: ${formattedTime}`;
+            }
+            
+            /**
+             * Formate une date pour l'affichage
+             */
+            function formatDate(date) {
+                if (!date) return 'Date inconnue';
+                
+                const d = new Date(date);
+                return d.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }
+            
+            /**
+             * Formate une date et une heure pour l'affichage
+             */
+            function formatDateTime(dateString, timeString) {
+                if (!dateString) return 'Date inconnue';
+                
+                let result = formatDate(new Date(dateString));
+                
+                if (timeString) {
+                    result += ` à ${timeString}`;
+                }
+                
+                return result;
+            }
+            
+            console.log("Écouteurs d'événements configurés avec succès");
+        });
+    </script>
+</body>
+</html>
