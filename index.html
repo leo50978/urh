@@ -128,10 +128,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-green-50">
  <!-- HEADER INTÉGRÉ DIRECTEMENT DANS LA PAGE -->
-<header class="fixed w-full z-50">
-    <nav class="bg-white shadow-md">
+<header  class="fixed w-full z-50">
+    <nav class="bg-white/2 shadow-md">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <!-- Logo -->
@@ -148,7 +148,7 @@
                     <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium">Admission</a>
                     <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium">Actualités</a>
                     <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium">Contact</a>
-                    
+                        <a href="apropos.html"class="text-gray-700 hover:text-green-700 font-medium">About</a>
                     <!-- Boutons d'authentification (visible quand l'utilisateur n'est PAS connecté) -->
                     <div id="auth-buttons-desktop" class="flex items-center space-x-4">
                         <a href="connexion.html" class="text-green-600 hover:text-green-800 font-medium">
@@ -196,7 +196,7 @@
                 <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Actualité</a>
                 <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Admissions</a>
                 <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Contact</a>
-                
+                <a href="apropos.html" class="text-gray-700 hover:text-green-700 font-medium py-2">About</a>
                 <!-- Boutons d'authentification mobile -->
                 <div id="auth-buttons-mobile" class="pt-4 border-t border-gray-200">
                     <a href="connexion.html" class="block text-center text-green-600 hover:text-green-800 font-medium py-2">
@@ -226,11 +226,10 @@
         </div>
     </nav>
 </header>
-<div class="h-16"></div> <!-- Espace pour le header fixe -->
-    <!-- Contenu principal -->
-    <main>
+<div style="height: 83px;" ></div>
+    <main >
         <!-- Section Hero -->
- <section id="hero" class="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-green-950 via-green-900 to-green-800">
+ <section id="hero"  class="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-green-950 via-green-900 to-green-800">
 
     <!-- Overlay (branding institutionnel) -->
     <div id="hero-background" class="absolute inset-0 z-0">
@@ -246,19 +245,16 @@
                     backdrop-blur-sm bg-white/5 p-8 lg:p-10 rounded-3xl shadow-xl">
 
             <!-- Label institutionnel -->
-            <span class="inline-block mb-4 px-4 py-1 rounded-full text-sm font-semibold tracking-wide
-                         bg-green-600/20 text-green-200">
-                Éducation • Innovation • Excellence
-            </span>
+          
 
             <h1 id="hero-title"
-                class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
+                class="font-montserrat text-emerald-700 uppercase font-bold tracking-wide text-2xl md:text-3xl lg:text-4xl">
                 Universite de Formation et d'Éducation <br class="hidden sm:block">
                 <span class="text-green-300">Professionnelle & Technologique</span>
             </h1>
 
             <p id="hero-subtitle"
-               class="text-lg sm:text-xl md:text-2xl text-green-100 mb-10 max-w-xl mx-auto lg:mx-0">
+               class="text-lg sm:text-lg md:text-xl text-green-100 mb-10 max-w-xl mx-auto lg:mx-0">
                 Former des professionnels compétents, innovants et prêts à réussir dans un monde en constante évolution.
             </p>
 
@@ -399,7 +395,7 @@
                 </div>
                 
                 <div class="text-center mt-12">
-                    <a href="#" class="inline-flex items-center text-green-700 hover:text-green-900 font-semibold text-lg">
+                    <a href="blog.html" class="inline-flex items-center text-green-700 hover:text-green-900 font-semibold text-lg">
                         Voir toutes les actualités
                         <i class="fas fa-arrow-right ml-2"></i>
                     </a>
@@ -417,12 +413,16 @@
                     Rejoignez notre communauté d'apprenants et bénéficiez d'un accompagnement personnalisé tout au long de votre parcours.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="inscription.html">
                     <button class="bg-white hover:bg-gray-100 text-green-800 font-bold py-4 px-10 rounded-lg text-lg transition duration-300 transform hover:scale-105">
-                        <i class="fas fa-calendar-check mr-2"></i> Demander un rendez-vous
+                        <i class="fas fa-calendar-check mr-2"></i>Creer un compte 
                     </button>
+                    </a>
+                    <a href="apropos.html">
                     <button class="bg-transparent border-2 border-white hover:bg-green-700 text-white font-bold py-4 px-10 rounded-lg text-lg transition duration-300 transform hover:scale-105">
                         <i class="fas fa-phone-alt mr-2"></i> Nous contacter
                     </button>
+                    </a>
                 </div>
             </div>
         </section>
