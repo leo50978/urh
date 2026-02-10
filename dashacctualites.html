@@ -13,7 +13,7 @@
     
     <!-- Firebase SDK -->
     <script type="module">
-        // Import Firebase modules
+        // Import Firebase modules (supprimé l'authentification)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { 
             getFirestore, 
@@ -28,29 +28,25 @@
             serverTimestamp,
             getDoc 
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
-  authDomain: "izipret-c669d.firebaseapp.com",
-  projectId: "izipret-c669d",
-  storageBucket: "izipret-c669d.firebasestorage.app",
-  messagingSenderId: "483506445126",
-  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
-  measurementId: "G-0SKSRSFHZ4"
-};
+        
+        // Configuration Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+          authDomain: "izipret-c669d.firebaseapp.com",
+          projectId: "izipret-c669d",
+          storageBucket: "izipret-c669d.firebasestorage.app",
+          messagingSenderId: "483506445126",
+          appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+          measurementId: "G-0SKSRSFHZ4"
+        };
 
         // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
         // Rendre les variables globales
         window.firebaseApp = app;
         window.db = db;
-        window.auth = auth;
         window.firebaseModules = {
             collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp, getDoc
         };
@@ -86,6 +82,11 @@ const firebaseConfig = {
             <p class="text-gray-600">
                 Gérez les articles et publications de l'institution éducative
             </p>
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg inline-block">
+                <p class="text-blue-700 text-sm">
+                    <i class="fas fa-unlock mr-2"></i>
+                </p>
+            </div>
         </div>
 
         <!-- Messages de feedback -->
@@ -810,13 +811,10 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <script type="module">
-        // Attendre que Firebase soit chargé
+        // Attendre que le DOM soit chargé
         document.addEventListener('DOMContentLoaded', async () => {
             // Charger header et footer
             await loadComponents();
-            
-            // Initialiser l'application
-            await initializeApp();
             
             // Configurer les écouteurs d'événements
             setupEventListeners();
@@ -845,26 +843,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Erreur lors du chargement des composants:', error);
-            }
-        }
-        
-        /**
-         * Initialise l'application et vérifie l'authentification
-         */
-        async function initializeApp() {
-            try {
-                // Vérifier l'authentification
-                window.auth.onAuthStateChanged((user) => {
-                    if (!user) {
-                        // Rediriger vers la page de connexion si non authentifié
-                        window.location.href = 'login.html';
-                    } else {
-                        console.log('Utilisateur authentifié:', user.email);
-                    }
-                });
-            } catch (error) {
-                console.error('Erreur lors de l\'initialisation:', error);
-                showFeedback('Erreur d\'initialisation. Veuillez recharger la page.', 'error');
             }
         }
         
@@ -913,21 +891,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('Veuillez remplir tous les champs obligatoires');
                 }
                 
-                // Vérifier l'authentification
-                const user = window.auth.currentUser;
-                if (!user) {
-                    throw new Error('Vous devez être connecté pour effectuer cette action');
-                }
-                
                 // Préparer les données pour Firestore
                 const postData = {
-                    authorId: user.uid,
                     type: formData.type,
                     media: formData.media,
                     description: formData.description,
                     createdAt: window.firebaseModules.serverTimestamp(),
                     likesCount: 0,
-                    commentsCount: 0
+                    commentsCount: 0,
+                    // Ajouter un champ pour identifier que c'est anonyme
+                    author: 'public',
+                    accessType: 'public'
                 };
                 
                 const postId = document.getElementById('post-id').value;

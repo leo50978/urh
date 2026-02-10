@@ -3,201 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>À Propos - URH HAITI</title>
+    <title>À propos - Université SmartCut</title>
     
-    <!-- Tailwind CSS CDN -->
+    <!-- CDN Google Fonts - Inter (moderne, institutionnelle, élégante) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CDN TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
+    <!-- CDN Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <!-- CDN anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     
+    <!-- Configuration Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                  colors: {
+    primary: '#1F3D2B',   // Vert forêt profond (richesse, stabilité)
+    secondary: '#3E6B4C', // Vert mousse noble (nature maîtrisée)
+    accent: '#C2A85D',    // Jaune or patiné (luxe discret, pas clinquant)
+    light: '#F4F3EE',     // Ivoire chaud (plus chic que blanc)
+    dark: '#1C1E1B',      // Noir charbon doux (moins agressif)
+},
+
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Styles personnalisés -->
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #10b981;
-            --dark: #1f2937;
-            --light: #f9fafb;
+        .img-hover-zoom {
+            transition: transform 0.3s ease;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .img-hover-zoom:hover {
+            transform: scale(1.02);
         }
         
-        body {
-            font-family: 'Inter', sans-serif;
-            color: #374151;
-            line-height: 1.6;
-            overflow-x: hidden;
+        .card-hover {
+            transition: all 0.3s ease;
         }
         
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-        
-        .section-padding {
-            padding: 5rem 0;
-        }
-        
-        @media (max-width: 768px) {
-            .section-padding {
-                padding: 3rem 0;
-            }
-        }
-        
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease-out;
-        }
-        
-        .stagger-delay-1 { animation-delay: 0.1s; }
-        .stagger-delay-2 { animation-delay: 0.2s; }
-        .stagger-delay-3 { animation-delay: 0.3s; }
-        .stagger-delay-4 { animation-delay: 0.4s; }
-        .stagger-delay-5 { animation-delay: 0.5s; }
-        
-        /* Hover effects */
-        .hover-lift {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .hover-lift:hover {
+        .card-hover:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
-        /* Gradient text */
-        .gradient-text {
-            background: linear-gradient(90deg, #2563eb, #10b981);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #0F3D5E;
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            text-decoration: none;
         }
         
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .skip-link:focus {
+            top: 0;
         }
         
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        /* Classes pour gérer l'état d'authentification */
+        .auth-buttons-hidden {
+            display: none !important;
         }
         
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
+        .user-menu-hidden {
+            display: none !important;
         }
         
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
+        .user-avatar {
+            transition: transform 0.2s ease;
         }
         
-        /* Grid pattern */
-        .bg-grid-pattern {
-            background-image: 
-                linear-gradient(to right, #f0f0f0 1px, transparent 1px),
-                linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
-            background-size: 50px 50px;
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Styles pour le footer responsive */
+        @media (max-width: 640px) {
+            .mobile-stack {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .mobile-text-center {
+                text-align: center;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Header chargé dynamiquement -->
-    <header id="header-container"></header>
+<body class="font-sans text-dark bg-white">
+    <!-- Lien d'accessibilité -->
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
     
-    <!-- Contenu principal -->
-    <main>
-        <!-- Hero Section -->
-        <section id="about-hero" class="relative bg-gradient-to-r from-blue-50 to-emerald-50 overflow-hidden">
-            <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
-            <div class="container mx-auto px-4 py-16 md:py-24 relative">
-                <div class="max-w-3xl mx-auto text-center">
-                    <div class="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                        <i class="fas fa-info-circle"></i>
-                        <span id="hero-badge">À propos de nous</span>
+    <!-- Header Fixe -->
+    <header class="fixed w-full z-50 bg-white shadow-md">
+        <nav class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center">
+                        <img src="logo.png" alt="URH Logo" class="h-10">
                     </div>
-                    <h1 id="hero-title" class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                        Chargement...
-                    </h1>
-                    <p id="hero-description" class="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                        Chargement de la description...
-                    </p>
-                    <a href="#mission" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg hover:shadow-xl">
-                        <span>Découvrir notre mission</span>
-                        <i class="fas fa-arrow-down ml-2"></i>
-                    </a>
                 </div>
-            </div>
-        </section>
 
-        <!-- Main About Section -->
-        <section id="mission" class="section-padding bg-white">
-            <div class="container mx-auto px-4">
-                <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <!-- Texte et mission -->
-                    <div>
-                        <div class="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                            <i class="fas fa-bullseye"></i>
-                            <span id="mission-badge">Notre mission & vision</span>
-                        </div>
-                        <h2 id="mission-title" class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                            Chargement...
-                        </h2>
-                        <p id="mission-text-1" class="text-lg text-gray-600 mb-6">
-                            Chargement du texte de mission...
-                        </p>
-                        <p id="mission-text-2" class="text-gray-600 mb-8">
-                            Chargement du texte de vision...
-                        </p>
-                        
-                        <div id="mission-stats" class="grid grid-cols-2 gap-4 mb-10">
-                            <!-- Les statistiques seront chargées dynamiquement -->
-                            <div class="text-center py-4">
-                                <div class="spinner-border text-blue-600" role="status">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </div>
-                                <p class="mt-2 text-gray-600">Chargement des statistiques...</p>
-                            </div>
-                        </div>
-                        
-                        <a href="#valeurs" class="inline-flex items-center text-blue-600 font-medium hover:text-blue-800 transition">
-                            <span>Découvrir nos valeurs</span>
-                            <i class="fas fa-arrow-right ml-2"></i>
+                <!-- Navigation Desktop -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-green-700 font-medium">Accueil</a>
+                    <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium">Cours</a>
+                    <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium">Admission</a>
+                    <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium">Actualités</a>
+                    <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium">Contact</a>
+                    
+                    <!-- Boutons d'authentification (affichés quand NON connecté) -->
+                    <div id="auth-buttons-desktop" class="flex items-center space-x-4">
+                        <a href="connexion.html" class="text-green-600 hover:text-green-800 font-medium">
+                            Connexion
+                        </a>
+                        <a href="inscription.html" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                            Inscription
                         </a>
                     </div>
                     
-                    <!-- Vidéo / Image -->
-                    <div class="rounded-2xl overflow-hidden shadow-2xl">
-                        <div id="video-container" class="relative h-64 md:h-80 bg-black">
-                            <!-- La vidéo sera chargée dynamiquement -->
-                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <i class="fas fa-video text-gray-400 text-4xl"></i>
-                                <p class="ml-3 text-gray-500">Chargement de la vidéo...</p>
+                    <!-- Menu utilisateur (affiché quand connecté) -->
+                    <div id="user-menu-desktop" class="user-menu-hidden flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center focus:outline-none">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center user-avatar">
+                                    <i class="fas fa-user text-green-600"></i>
+                                </div>
+                            </button>
+                            
+                            <!-- Dropdown menu utilisateur -->
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+                                <a href="profil.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user-circle mr-2"></i> Mon profil
+                                </a>
+                                <button id="logout-button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton menu mobile -->
+                <button class="md:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="md:hidden bg-white shadow-lg px-4 py-3 hidden">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-green-700 font-medium py-2">Accueil</a>
+                <a href="cours.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Cours</a>
+                <a href="blog.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Actualité</a>
+                <a href="admission.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Admissions</a>
+                <a href="contact.html" class="text-gray-700 hover:text-green-700 font-medium py-2">Contact</a>
+                
+                <!-- Boutons d'authentification mobile (affichés quand NON connecté) -->
+                <div id="auth-buttons-mobile" class="pt-4 border-t border-gray-200">
+                    <a href="connexion.html" class="block text-center text-green-600 hover:text-green-800 font-medium py-2">
+                        Connexion
+                    </a>
+                    <a href="inscription.html" class="block text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg mt-2 transition duration-300">
+                        Inscription
+                    </a>
+                </div>
+                
+                <!-- Menu utilisateur mobile (affiché quand connecté) -->
+                <div id="user-menu-mobile" class="user-menu-hidden pt-4 border-t border-gray-200">
+                    <a href="profil.html" class="flex items-center text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-green-600"></i>
+                        </div>
+                        Mon profil
+                    </a>
+                    <button id="logout-button-mobile" class="w-full flex items-center text-left text-gray-700 hover:text-green-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        </div>
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-16"></div> <!-- Espace pour le header fixe -->
+
+    <main id="main-content" class="pt-16">
+        <!-- Section 1: HERO "À propos" -->
+        <section class="relative py-16 md:py-24 bg-gradient-to-r from-primary to-secondary text-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto text-center animate-fade-in">
+                    <h1 id="hero-title" class="text-4xl md:text-5xl font-bold mb-6">À propos de notre université</h1>
+                    <p id="hero-subtitle" class="text-xl md:text-2xl mb-10 opacity-90">Une institution d'excellence au service de la connaissance et de l'innovation depuis 1965</p>
+                    
+                    <div class="mt-12 rounded-xl overflow-hidden shadow-2xl img-hover-zoom">
+                        <img id="hero-image" src="" alt="Vue aérienne du campus universitaire moderne" class="w-full h-64 md:h-96 object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: "Qui sommes-nous" -->
+        <section class="py-16 md:py-20 bg-light" aria-labelledby="qui-sommes-nous">
+            <div class="container mx-auto px-4">
+                <div class="max-w-6xl mx-auto">
+                    <h2 id="qsn-title" class="text-3xl md:text-4xl font-bold text-primary mb-12 text-center">Qui sommes-nous</h2>
+                    
+                    <div class="flex flex-col lg:flex-row gap-12">
+                        <div class="lg:w-2/3">
+                            <div class="prose prose-lg max-w-none">
+                                <p id="qsn-p1" class="text-lg mb-6">Fondée en 1965, l'Université SmartCut s'est imposée comme un pôle d'excellence académique et de recherche innovante. Notre institution combine tradition universitaire et vision prospective pour préparer les leaders de demain.</p>
+                                <p id="qsn-p2" class="text-lg mb-6">Avec un corps professoral de renommée internationale et des infrastructures de pointe, nous offrons un environnement d'apprentissage stimulant qui encourage l'excellence, la créativité et l'engagement citoyen.</p>
+                                <p id="qsn-p3" class="text-lg">Notre campus de 45 hectares, situé au cœur d'un écosystème économique dynamique, accueille plus de 15 000 étudiants venant de 85 pays différents, créant ainsi une communauté universitaire riche et diversifiée.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="lg:w-1/3">
+                            <div class="bg-white rounded-xl shadow-lg p-8 card-hover">
+                                <h3 class="text-2xl font-bold text-primary mb-6">En chiffres</h3>
+                                
+                                <div class="space-y-6">
+                                    <div class="stat-item">
+                                        <div id="stat-annee" class="text-4xl font-bold text-secondary">65</div>
+                                        <div class="text-dark mt-2">Années d'excellence académique</div>
+                                    </div>
+                                    
+                                    <div class="stat-item">
+                                        <div id="stat-etudiants" class="text-4xl font-bold text-secondary">15000</div>
+                                        <div class="text-dark mt-2">Étudiants actifs</div>
+                                    </div>
+                                    
+                                    <div class="stat-item">
+                                        <div id="stat-nationalites" class="text-4xl font-bold text-secondary">85</div>
+                                        <div class="text-dark mt-2">Nationalités représentées</div>
+                                    </div>
+                                    
+                                    <div class="stat-item">
+                                        <div id="stat-enseignants" class="text-4xl font-bold text-secondary">1200</div>
+                                        <div class="text-dark mt-2">Enseignants-chercheurs</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -205,78 +280,163 @@
             </div>
         </section>
 
-        <!-- Valeurs Section -->
-        <section id="valeurs" class="section-padding bg-gradient-to-b from-white to-blue-50">
+        <!-- Section 3: "Notre mission" -->
+        <section class="py-16 md:py-20" aria-labelledby="notre-mission">
             <div class="container mx-auto px-4">
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <div class="inline-flex items-center space-x-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                        <i class="fas fa-heart"></i>
-                        <span id="values-badge">Nos valeurs fondamentales</span>
-                    </div>
-                    <h2 id="values-title" class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        Chargement...
-                    </h2>
-                    <p id="values-subtitle" class="text-lg text-gray-600">
-                        Chargement du sous-titre...
-                    </p>
-                </div>
-                
-                <div id="values-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Les valeurs seront chargées dynamiquement -->
-                    <div class="text-center py-8">
-                        <div class="spinner-border text-blue-600" role="status">
-                            <i class="fas fa-spinner fa-spin fa-2x"></i>
-                        </div>
-                        <p class="mt-4 text-gray-600">Chargement des valeurs...</p>
+                <div class="max-w-4xl mx-auto">
+                    <h2 id="mission-title" class="text-3xl md:text-4xl font-bold text-primary mb-12 text-center">Notre mission</h2>
+                    
+                    <div class="prose prose-lg max-w-none mx-auto">
+                        <p id="mission-p1" class="text-lg mb-6">Notre mission fondamentale est de former des citoyens éclairés, compétents et responsables, capables de contribuer au développement économique, social et culturel de la société.</p>
+                        <p id="mission-p2" class="text-lg mb-6">Nous nous engageons à offrir un enseignement de qualité qui allie connaissances théoriques solides et compétences pratiques, tout en favorisant l'esprit critique, l'innovation et la créativité de nos étudiants.</p>
+                        <p id="mission-p3" class="text-lg">À travers nos activités de recherche, nous contribuons à l'avancement des connaissances et à la résolution des grands défis contemporains, en tissant des liens étroits avec le monde socio-économique et en favorisant le transfert de technologie.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Équipe dirigeante -->
-        <section id="equipe" class="section-padding bg-white">
+        <!-- Section 4: "Vision & Valeurs" -->
+        <section class="py-16 md:py-20 bg-light" aria-labelledby="vision-valeurs">
             <div class="container mx-auto px-4">
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <div class="inline-flex items-center space-x-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                        <i class="fas fa-users-cog"></i>
-                        <span id="team-badge">Notre équipe dirigeante</span>
-                    </div>
-                    <h2 id="team-title" class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        Chargement...
-                    </h2>
-                    <p id="team-subtitle" class="text-lg text-gray-600">
-                        Chargement de la description...
-                    </p>
-                </div>
+                <h2 id="vision-title" class="text-3xl md:text-4xl font-bold text-primary mb-12 text-center">Vision & Valeurs</h2>
                 
-                <div id="team-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Les membres d'équipe seront chargés dynamiquement -->
-                    <div class="text-center py-8">
-                        <div class="spinner-border text-blue-600" role="status">
-                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <div id="valeurs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- Les cartes seront injectées dynamiquement par JavaScript -->
+                    <div class="bg-white rounded-xl shadow-md p-8 card-hover animate-slide-up">
+                        <div class="text-primary text-3xl mb-6">
+                            <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <p class="mt-4 text-gray-600">Chargement de l'équipe...</p>
+                        <h3 class="text-xl font-bold text-primary mb-4">Excellence académique</h3>
+                        <p class="text-dark">Nous visons l'excellence dans tous nos programmes d'enseignement et activités de recherche, en nous appuyant sur des standards internationaux.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CTA Section -->
-        <section id="about-cta" class="section-padding bg-gradient-to-r from-blue-600 to-emerald-600 text-white">
+        <!-- Section 5: "Université tournée vers l'avenir" -->
+        <section class="py-16 md:py-20" aria-labelledby="universite-avenir">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col lg:flex-row items-center gap-12 max-w-6xl mx-auto">
+                    <div class="lg:w-1/2">
+                        <h2 id="avenir-title" class="text-3xl md:text-4xl font-bold text-primary mb-6">Université tournée vers l'avenir</h2>
+                        
+                        <div class="prose prose-lg max-w-none">
+                            <p id="avenir-p1" class="text-lg mb-6">Dans un monde en constante évolution, l'Université SmartCut anticipe les transformations numériques et pédagogiques pour préparer ses étudiants aux défis de demain.</p>
+                            <p id="avenir-p2" class="text-lg mb-6">Nous avons développé une plateforme FOAD (Formation Ouverte À Distance) de pointe, permettant un apprentissage flexible et personnalisé, accessible à tous, partout et à tout moment.</p>
+                            <p id="avenir-p3" class="text-lg mb-6">Nos laboratoires d'innovation pédagogique explorent constamment de nouvelles méthodes d'enseignement, intégrant réalité virtuelle, intelligence artificielle et apprentissage adaptatif.</p>
+                            <p id="avenir-p4" class="text-lg">Le futur de l'éducation se construit aujourd'hui, et nous en sommes des acteurs majeurs, engagés à repousser les frontières du savoir et de la transmission des connaissances.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:w-1/2">
+                        <div class="rounded-xl overflow-hidden shadow-2xl img-hover-zoom">
+                            <img id="avenir-image" src="" alt="Étudiants utilisant des technologies numériques avancées dans un laboratoire" class="w-full h-96 object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: "Partenariats & coopération" -->
+        <section class="py-16 md:py-20 bg-light" aria-labelledby="partenariats">
+            <div class="container mx-auto px-4">
+                <h2 id="partenariats-title" class="text-3xl md:text-4xl font-bold text-primary mb-12 text-center">Partenariats & Coopération</h2>
+                
+                <div class="max-w-4xl mx-auto">
+                    <p id="partenariats-description" class="text-lg text-center mb-12">Notre réseau de partenariats stratégiques nous permet d'offrir des opportunités uniques à nos étudiants et de renforcer l'impact de notre recherche à l'échelle internationale.</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                        <div class="bg-white rounded-lg shadow-sm p-6 flex items-center justify-center h-32">
+                            <div class="text-center">
+                                <i class="fas fa-university text-4xl text-primary mb-2"></i>
+                                <div class="text-sm font-medium text-dark">Université Partenaire 1</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm p-6 flex items-center justify-center h-32">
+                            <div class="text-center">
+                                <i class="fas fa-industry text-4xl text-primary mb-2"></i>
+                                <div class="text-sm font-medium text-dark">Entreprise Partenaire 2</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm p-6 flex items-center justify-center h-32">
+                            <div class="text-center">
+                                <i class="fas fa-researchgate text-4xl text-primary mb-2"></i>
+                                <div class="text-sm font-medium text-dark">Centre de Recherche 3</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm p-6 flex items-center justify-center h-32">
+                            <div class="text-center">
+                                <i class="fas fa-handshake text-4xl text-primary mb-2"></i>
+                                <div class="text-sm font-medium text-dark">Organisation 4</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-md p-8">
+                        <p id="partenariats-p1" class="text-lg mb-6">Nos collaborations internationales incluent des programmes d'échanges étudiants, des projets de recherche conjoints, des doubles diplômes et des mobilités enseignantes avec plus de 120 institutions dans 40 pays.</p>
+                        <p id="partenariats-p2" class="text-lg">Ces partenariats renforcent notre positionnement international et offrent à notre communauté universitaire des perspectives globales et des opportunités uniques de développement professionnel.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: "Vie universitaire" -->
+        <section class="py-16 md:py-20" aria-labelledby="vie-universitaire">
+            <div class="container mx-auto px-4">
+                <h2 id="vie-title" class="text-3xl md:text-4xl font-bold text-primary mb-12 text-center">Vie universitaire</h2>
+                
+                <div id="vie-cartes-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                    <!-- Les cartes seront injectées dynamiquement par JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: "Direction" -->
+        <section class="py-16 md:py-20 bg-light" aria-labelledby="direction">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto">
+                    <h2 id="direction-title" class="text-3xl md:text-4xl font-bold text-primary mb-12 text-center">Direction</h2>
+                    
+                    <div class="flex flex-col lg:flex-row items-center gap-12">
+                        <div class="lg:w-1/3 flex flex-col items-center">
+                            <div class="w-64 h-64 rounded-full overflow-hidden shadow-2xl mb-6">
+                                <img id="director-image" src="" alt="Directeur de l'Université SmartCut" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <h3 id="director-name" class="text-2xl font-bold text-primary">Pr. Jean Martin</h3>
+                                <p id="director-title" class="text-secondary font-medium">Directeur de l'Université</p>
+                            </div>
+                        </div>
+                        
+                        <div class="lg:w-2/3">
+                            <div class="prose prose-lg max-w-none">
+                                <p id="director-p1" class="text-lg mb-6">Le Professeur Jean Martin dirige notre institution depuis 2018. Docteur en Physique et ancien chercheur au CNRS, il a publié plus de 120 articles scientifiques et dirigé de nombreux projets de recherche internationaux.</p>
+                                <p id="director-p2" class="text-lg mb-6">Sous sa direction, l'université a entrepris une transformation numérique majeure, renforcé ses partenariats internationaux et développé de nouveaux programmes interdisciplinaires répondant aux défis du 21e siècle.</p>
+                                <p id="director-p3" class="text-lg mb-6">"Notre mission est de préparer les esprits à un monde en perpétuelle évolution. L'excellence académique, l'innovation pédagogique et l'ouverture sur la société sont les piliers de notre projet universitaire."</p>
+                                <p id="director-p4" class="text-lg">Le Professeur Martin siège également au Conseil National de l'Enseignement Supérieur et de la Recherche, où il contribue à la définition des politiques éducatives nationales.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: CTA final -->
+        <section class="py-16 md:py-20 bg-gradient-to-r from-primary to-secondary text-white">
             <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto text-center">
-                    <h2 id="cta-title" class="text-3xl md:text-4xl font-bold mb-6">
-                        Chargement...
-                    </h2>
-                    <p id="cta-text" class="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
-                        Chargement du texte CTA...
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant" id="cta-button-1" class="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300">
-                            <i class="fas fa-file-alt mr-2"></i> S'inscrire maintenant
+                    <h2 class="text-3xl md:text-4xl font-bold mb-8">Prêt à rejoindre notre communauté universitaire ?</h2>
+                    <p class="text-xl mb-12 opacity-90">Découvrez nos formations et prenez contact avec nos équipes pour plus d'informations.</p>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center gap-6">
+                        <a href="/formations" class="bg-white text-primary font-bold py-4 px-8 rounded-lg hover:bg-gray-100 transition-colors text-lg shadow-lg">
+                            <i class="fas fa-book-open mr-2"></i> Découvrir nos formations
                         </a>
-                        <a href="contct.html" id="cta-button-2" class="bg-transparent border-2 border-white text-white hover:bg-white/10 px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300">
-                            <i class="fas fa-phone-alt mr-2"></i> Nous contacter
+                        <a href="/contact" class="bg-transparent border-2 border-white text-white font-bold py-4 px-8 rounded-lg hover:bg-white hover:text-primary transition-colors text-lg">
+                            <i class="fas fa-envelope mr-2"></i> Nous contacter
                         </a>
                     </div>
                 </div>
@@ -284,386 +444,663 @@
         </section>
     </main>
 
-    <!-- Footer chargé dynamiquement -->
-    <footer id="footer-container"></footer>
-    
-    <!-- JavaScript -->
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-8 sm:pt-12 pb-6 sm:pb-8">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+                <!-- Logo et description -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center mb-4 sm:mb-6 mobile-stack sm:flex-row">
+                        <div class="mr-3 mb-3 sm:mb-0">
+                            <img src="logo.png" alt="Logo URH HAITI" class="h-10 sm:h-12 w-auto object-contain">
+                        </div>
+                       
+                    </div>
+                    <p class="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base break-words">École de référence en matière de formation à l'échelle nationale et internationale</p>
+                    <div class="flex space-x-3 sm:space-x-4">
+                        <a href="https://www.facebook.com/share/1BnXZxoXJr/" target="_blank" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition text-sm sm:text-base">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-400 transition text-sm sm:text-base">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-red-500 transition text-sm sm:text-base">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-700 transition text-sm sm:text-base">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Liens rapides -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4 sm:mb-6">Liens rapides</h3>
+                    <ul class="space-y-2 sm:space-y-3">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Accueil</a></li>
+                        <li><a href="formation.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Formations</a></li>
+                        <li><a href="apropos.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">À propos</a></li>
+                        <li><a href="https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Admission</a></li>
+                        <li><a href="contact.html" class="text-gray-400 hover:text-white transition text-sm sm:text-base">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact footer -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4 sm:mb-6">Contact</h3>
+                    <ul class="space-y-2 sm:space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-green-400 mt-1 mr-3 text-sm sm:text-base"></i>
+                            <span class="text-gray-400 text-sm sm:text-base break-words">A definir </span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt text-green-400 mt-1 mr-3 text-sm sm:text-base"></i>
+                            <span class="text-gray-400 text-sm sm:text-base">A definir </span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope text-green-400 mt-1 mr-3 text-sm sm:text-base"></i>
+                            <span class="text-gray-400 text-sm sm:text-base break-words">A definir  definir </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="pt-6 sm:pt-8 border-t border-gray-800 text-center text-gray-500 text-xs sm:text-sm">
+                <p>&copy; 2026 URH. Tous droits réservés.</p>
+                <p class="mt-1 sm:mt-2">Site conçu avec <i class="fas fa-heart text-red-500"></i></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <script>
-     const firebaseConfig = {
-  apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
-  authDomain: "izipret-c669d.firebaseapp.com",
-  projectId: "izipret-c669d",
-  storageBucket: "izipret-c669d.firebasestorage.app",
-  messagingSenderId: "483506445126",
-  appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
-  measurementId: "G-0SKSRSFHZ4"
-};
-        // Initialiser Firebase
+        // ==============================================
+        // CONFIGURATION FIREBASE
+        // ==============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
+            authDomain: "izipret-c669d.firebaseapp.com",
+            projectId: "izipret-c669d",
+            storageBucket: "izipret-c669d.firebasestorage.app",
+            messagingSenderId: "483506445126",
+            appId: "1:483506445126:web:5dcc2efef0fabb8f0b2347",
+            measurementId: "G-0SKSRSFHZ4"
+        };
+
+        // Initialisation Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // ==============================================
+        // FONCTIONS DE GESTION DU HEADER
+        // ==============================================
         
-        // Données par défaut pour la page "À Propos"
-        const defaultAboutData = {
-            hero: {
-                badge: "À propos de nous",
-                title: "Former la <span class='gradient-text'>jeunesse</span> de Delmas pour l'avenir",
-                description: "Institut de formation en éducation, psychologie et technologie (URH HAITI) - Une référence en formation professionnelle à Delmas."
-            },
-            mission: {
-                badge: "Notre mission & vision",
-                title: "Éduquer, Inspirer, <span class='text-blue-600'>Transformer</span>",
-                text1: "Fondé en 2024, l'URH HAITI s'est imposé comme un acteur majeur dans la formation professionnelle à l'échelle nationale et internationale. Notre approche combine théorie et pratique pour préparer les étudiants aux réalités du marché du travail.",
-                text2: "Notre mission est de former des professionnels compétents, disciplinés, engagés, capable de répondre aux exigences du monde professionnel et de contribuer activement au développement économique et social d'Haïti et ailleurs.",
-                video: "videoifept.mp4",
-                stats: [
-                    {
-                        icon: "user-graduate",
-                        color: "blue",
-                        number: "+2,500",
-                        label: "Étudiants formés"
-                    },
-                    {
-                        icon: "briefcase",
-                        color: "emerald",
-                        number: "85%",
-                        label: "Taux d'insertion"
+        // Gestion des événements du header
+        function setupHeaderEventListeners() {
+            // Menu mobile
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+                
+                // Fermer le menu en cliquant ailleurs
+                document.addEventListener('click', (e) => {
+                    if (!mobileMenu.contains(e.target) && e.target !== mobileMenuButton) {
+                        mobileMenu.classList.add('hidden');
                     }
-                ]
-            },
-            values: {
-                badge: "Nos valeurs fondamentales",
-                title: "Ce qui nous <span class='text-emerald-600'>distingue</span>",
-                subtitle: "Notre succès repose sur des valeurs fortes qui guident chaque aspect de notre formation.",
-                items: [
-                    {
-                        icon: "lightbulb",
-                        color: "blue",
-                        title: "Innovation pédagogique",
-                        description: "Méthodes d'enseignement modernes adaptées aux réalités du marché du travail haïtien.",
-                        points: [
-                            "Apprentissage par projets réels",
-                            "Technologies éducatives de pointe"
-                        ]
-                    },
-                    {
-                        icon: "users",
-                        color: "emerald",
-                        title: "Encadrement personnalisé",
-                        description: "Suivi individuel de chaque étudiant avec des mentors dédiés pour garantir sa réussite.",
-                        points: [
-                            "Tutorat individuel et en groupe",
-                            "Orientation professionnelle personnalisée"
-                        ]
-                    },
-                    {
-                        icon: "handshake",
-                        color: "purple",
-                        title: "Partenariats stratégiques",
-                        description: "Réseau étendu d'entreprises partenaires pour stages et opportunités d'emploi.",
-                        points: [
-                            "+50 entreprises partenaires",
-                            "Programmes de stage garantis"
-                        ]
-                    }
-                ]
-            },
-            team: {
-                badge: "Notre équipe dirigeante",
-                title: "Rencontrez nos <span class='text-purple-600'>leaders</span>",
-                subtitle: "Une équipe expérimentée dévouée à l'excellence éducative.",
-                members: [
-                    {
-                        name: "Dr. Jean-Louis Pierre",
-                        position: "Directeur Général",
-                        description: "Docteur en Sciences de l'Éducation avec 15 ans d'expérience."
-                    },
-                    {
-                        name: "Mme. Marie-Claire Laurent",
-                        position: "Directrice Académique",
-                        description: "Spécialiste en pédagogie innovante et technologies éducatives."
-                    },
-                    {
-                        name: "M. Samuel Durocher",
-                        position: "Directeur des Partenariats",
-                        description: "Expert en relations entreprises et insertion professionnelle."
-                    }
-                ]
-            },
-            cta: {
-                title: "Prêt à transformer votre avenir avec nous ?",
-                text: "Rejoignez l'URH HAITI et bénéficiez d'une formation d'excellence adaptée aux besoins du marché du travail.",
-                button1: {
-                    text: "S'inscrire maintenant",
-                    link: "https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant"
-                },
-                button2: {
-                    text: "Nous contacter",
-                    link: "contct.html"
+                });
+            }
+            
+            // Dropdown menu utilisateur (desktop)
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuButton && userDropdown) {
+                userMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                
+                // Fermer le dropdown en cliquant ailleurs
+                document.addEventListener('click', () => {
+                    userDropdown.classList.add('hidden');
+                });
+                
+                // Empêcher la fermeture quand on clique dans le dropdown
+                userDropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Boutons de déconnexion
+            const logoutButton = document.getElementById('logout-button');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', logoutUser);
+            }
+            
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', logoutUser);
+            }
+        }
+
+        // Mettre à jour le header en fonction de l'état d'authentification
+        function updateHeaderForAuthState(user) {
+            console.log("Mise à jour du header - Utilisateur:", user ? "Connecté" : "Non connecté");
+            
+            const authButtonsDesktop = document.getElementById('auth-buttons-desktop');
+            const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+            const userMenuDesktop = document.getElementById('user-menu-desktop');
+            const userMenuMobile = document.getElementById('user-menu-mobile');
+            
+            if (user) {
+                // Utilisateur connecté
+                console.log("Utilisateur connecté:", user.email);
+                
+                // Masquer les boutons de connexion/inscription
+                if (authButtonsDesktop) {
+                    authButtonsDesktop.classList.add('auth-buttons-hidden');
+                    console.log("Boutons desktop masqués");
+                }
+                if (authButtonsMobile) {
+                    authButtonsMobile.classList.add('auth-buttons-hidden');
+                    console.log("Boutons mobile masqués");
+                }
+                
+                // Afficher le menu utilisateur
+                if (userMenuDesktop) {
+                    userMenuDesktop.classList.remove('user-menu-hidden');
+                    console.log("Menu utilisateur desktop affiché");
+                }
+                if (userMenuMobile) {
+                    userMenuMobile.classList.remove('user-menu-hidden');
+                    console.log("Menu utilisateur mobile affiché");
+                }
+                
+            } else {
+                // Utilisateur non connecté
+                console.log("Utilisateur non connecté");
+                
+                // Afficher les boutons de connexion/inscription
+                if (authButtonsDesktop) {
+                    authButtonsDesktop.classList.remove('auth-buttons-hidden');
+                    console.log("Boutons desktop affichés");
+                }
+                if (authButtonsMobile) {
+                    authButtonsMobile.classList.remove('auth-buttons-hidden');
+                    console.log("Boutons mobile affichés");
+                }
+                
+                // Masquer le menu utilisateur
+                if (userMenuDesktop) {
+                    userMenuDesktop.classList.add('user-menu-hidden');
+                    console.log("Menu utilisateur desktop masqué");
+                }
+                if (userMenuMobile) {
+                    userMenuMobile.classList.add('user-menu-hidden');
+                    console.log("Menu utilisateur mobile masqué");
                 }
             }
-        };
+        }
+
+        // Fonction de déconnexion
+        function logoutUser() {
+            auth.signOut().then(() => {
+                console.log("Déconnexion réussie");
+                // Rediriger vers la page d'accueil après déconnexion
+                window.location.href = "index.html";
+            }).catch((error) => {
+                console.error("Erreur lors de la déconnexion:", error);
+            });
+        }
+
+        // Écouter les changements d'état d'authentification
+        function setupAuthStateListener() {
+            auth.onAuthStateChanged((user) => {
+                console.log("État d'authentification changé:", user ? "Connecté" : "Non connecté");
+                updateHeaderForAuthState(user);
+            });
+        }
+
+        // ==============================================
+        // FONCTIONS UTILITAIRES POUR LES IMAGES
+        // ==============================================
         
-        // Fonction pour charger le contenu de la page "À Propos"
-        async function loadAboutContent() {
+        // Fonction pour charger une image depuis Firestore
+        // Les images sont stockées à la racine du projet
+        function loadImage(imageName, elementId, defaultAlt) {
+            if (imageName) {
+                const imgElement = document.getElementById(elementId);
+                if (imgElement) {
+                    // Les images sont à la racine, donc pas besoin de chemin "images/"
+                    imgElement.src = imageName;
+                    imgElement.alt = defaultAlt;
+                    console.log(`Image chargée: ${imageName} pour ${elementId}`);
+                }
+            }
+        }
+
+        // Fonction pour charger une image dans un élément spécifique
+        function loadImageToElement(imageName, element, defaultAlt) {
+            if (imageName && element) {
+                // Les images sont à la racine, donc pas besoin de chemin "images/"
+                element.src = imageName;
+                element.alt = defaultAlt;
+                console.log(`Image chargée: ${imageName}`);
+            }
+        }
+
+        // ==============================================
+        // CHARGEMENT DES DONNÉES DEPUIS FIRESTORE
+        // ==============================================
+
+        async function loadAllContent() {
             try {
-                console.log("Chargement du contenu 'À Propos' depuis Firebase...");
+                // Charger toutes les sections de contenu
+                await Promise.all([
+                    loadHeroContent(),
+                    loadQSNContent(),
+                    loadMissionContent(),
+                    loadVisionContent(),
+                    loadAvenirContent(),
+                    loadPartenariatsContent(),
+                    loadVieContent(),
+                    loadDirectionContent(),
+                    loadStatsContent(),
+                    loadValeursContent(),
+                    loadVieCartesContent()
+                ]);
                 
-                // Récupérer le document about/content
-                const docRef = db.collection('about').doc('content');
-                const doc = await docRef.get();
-                
-                let data = defaultAboutData;
-                
-                if (doc.exists) {
-                    console.log("Document 'about' trouvé dans Firebase");
-                    data = doc.data();
-                } else {
-                    console.log("Aucun document 'about' trouvé, utilisation des données par défaut");
-                }
-                
-                // Mettre à jour l'interface avec les données
-                updateUIWithData(data);
-                
+                console.log('Toutes les données ont été chargées avec succès');
             } catch (error) {
-                console.error("Erreur lors du chargement depuis Firebase:", error);
-                console.log("Utilisation des données par défaut");
-                updateUIWithData(defaultAboutData);
+                console.error('Erreur lors du chargement des données:', error);
             }
         }
-        
-        // Fonction pour mettre à jour l'interface avec les données
-        function updateUIWithData(data) {
-            // Mettre à jour la section Hero
-            if (data.hero) {
-                document.getElementById('hero-badge').textContent = data.hero.badge;
-                document.getElementById('hero-title').innerHTML = data.hero.title;
-                document.getElementById('hero-description').textContent = data.hero.description;
-            }
-            
-            // Mettre à jour la section Mission
-            if (data.mission) {
-                document.getElementById('mission-badge').textContent = data.mission.badge;
-                document.getElementById('mission-title').innerHTML = data.mission.title;
-                document.getElementById('mission-text-1').textContent = data.mission.text1;
-                document.getElementById('mission-text-2').textContent = data.mission.text2;
-                
-                // Mettre à jour la vidéo
-                if (data.mission.video) {
-                    const videoContainer = document.getElementById('video-container');
-                    videoContainer.innerHTML = `
-                        <video class="w-full h-full object-cover" autoplay muted loop playsinline preload="auto">
-                            <source src="${data.mission.video}" type="video/mp4">
-                            Votre navigateur ne supporte pas la vidéo HTML5.
-                        </video>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
-                            <div class="p-6 text-white w-full">
-                                <div class="flex items-center">
-                                    <i class="fas fa-play-circle text-2xl mr-3"></i>
-                                    <div>
-                                        <h3 class="text-xl font-bold">Visite virtuelle du campus</h3>
-                                        <p class="text-sm opacity-90 mt-1">Découvrez l'URH HAITI en vidéo</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+
+        // ==============================================
+        // FONCTIONS DE CHARGEMENT PAR SECTION
+        // ==============================================
+        async function loadHeroContent() {
+            try {
+                const doc = await db.collection('content').doc('hero').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    if (data.title) document.getElementById('hero-title').textContent = data.title;
+                    if (data.subtitle) document.getElementById('hero-subtitle').textContent = data.subtitle;
+                    
+                    // Charger l'image depuis le nom stocké dans Firestore
+                    if (data.image) {
+                        loadImage(data.image, 'hero-image', data.title || "Image du campus universitaire");
+                    }
                 }
-                
-                // Mettre à jour les statistiques
-                if (data.mission.stats && data.mission.stats.length > 0) {
-                    const statsContainer = document.getElementById('mission-stats');
-                    statsContainer.innerHTML = data.mission.stats.map(stat => `
-                        <div class="bg-${stat.color}-50 p-5 rounded-xl hover-lift">
-                            <div class="w-12 h-12 bg-${stat.color}-100 rounded-lg flex items-center justify-center mb-4">
-                                <i class="fas fa-${stat.icon} text-${stat.color}-600 text-xl"></i>
-                            </div>
-                            <h4 class="font-bold text-gray-900 mb-2">${stat.number}</h4>
-                            <p class="text-sm text-gray-600">${stat.label}</p>
-                        </div>
-                    `).join('');
-                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section hero:', error);
             }
-            
-            // Mettre à jour la section Valeurs
-            if (data.values) {
-                document.getElementById('values-badge').textContent = data.values.badge;
-                document.getElementById('values-title').innerHTML = data.values.title;
-                document.getElementById('values-subtitle').textContent = data.values.subtitle;
-                
-                // Mettre à jour les valeurs
-                if (data.values.items && data.values.items.length > 0) {
-                    const valuesContainer = document.getElementById('values-container');
-                    valuesContainer.innerHTML = data.values.items.map((value, index) => `
-                        <div class="bg-white p-8 rounded-2xl shadow-lg hover-lift fade-in-up stagger-delay-${index + 1}">
-                            <div class="w-16 h-16 bg-${value.color}-100 rounded-xl flex items-center justify-center mb-6">
-                                <i class="fas fa-${value.icon} text-${value.color}-600 text-2xl"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-4">${value.title}</h3>
-                            <p class="text-gray-600 mb-4">${value.description}</p>
-                            <ul class="space-y-2">
-                                ${value.points.map(point => `
-                                    <li class="flex items-center text-sm text-gray-600">
-                                        <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                        ${point}
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    `).join('');
+        }
+
+        async function loadQSNContent() {
+            try {
+                const doc = await db.collection('content').doc('qsn').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    if (data.title) document.getElementById('qsn-title').textContent = data.title;
+                    if (data.paragraph1) document.getElementById('qsn-p1').textContent = data.paragraph1;
+                    if (data.paragraph2) document.getElementById('qsn-p2').textContent = data.paragraph2;
+                    if (data.paragraph3) document.getElementById('qsn-p3').textContent = data.paragraph3;
                 }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section QSN:', error);
             }
-            
-            // Mettre à jour la section Équipe
-            if (data.team) {
-                document.getElementById('team-badge').textContent = data.team.badge;
-                document.getElementById('team-title').innerHTML = data.team.title;
-                document.getElementById('team-subtitle').textContent = data.team.subtitle;
-                
-                // Mettre à jour les membres de l'équipe
-                if (data.team.members && data.team.members.length > 0) {
-                    const teamContainer = document.getElementById('team-container');
-                    teamContainer.innerHTML = data.team.members.map((member, index) => {
-                        // Définir les couleurs de gradient pour chaque membre
-                        const gradients = [
-                            'from-blue-400 to-emerald-400',
-                            'from-emerald-400 to-purple-400',
-                            'from-purple-400 to-blue-400'
-                        ];
+        }
+
+        async function loadMissionContent() {
+            try {
+                const doc = await db.collection('content').doc('mission').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    if (data.title) document.getElementById('mission-title').textContent = data.title;
+                    if (data.paragraph1) document.getElementById('mission-p1').textContent = data.paragraph1;
+                    if (data.paragraph2) document.getElementById('mission-p2').textContent = data.paragraph2;
+                    if (data.paragraph3) document.getElementById('mission-p3').textContent = data.paragraph3;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section mission:', error);
+            }
+        }
+
+        async function loadVisionContent() {
+            try {
+                const doc = await db.collection('content').doc('vision').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.title) document.getElementById('vision-title').textContent = data.title;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section vision:', error);
+            }
+        }
+
+        async function loadAvenirContent() {
+            try {
+                const doc = await db.collection('content').doc('avenir').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    if (data.title) document.getElementById('avenir-title').textContent = data.title;
+                    if (data.paragraph1) document.getElementById('avenir-p1').textContent = data.paragraph1;
+                    if (data.paragraph2) document.getElementById('avenir-p2').textContent = data.paragraph2;
+                    if (data.paragraph3) document.getElementById('avenir-p3').textContent = data.paragraph3;
+                    if (data.paragraph4) document.getElementById('avenir-p4').textContent = data.paragraph4;
+                    
+                    // Charger l'image depuis le nom stocké dans Firestore
+                    if (data.image) {
+                        loadImage(data.image, 'avenir-image', data.title || "Innovation numérique à l'université");
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section avenir:', error);
+            }
+        }
+
+        async function loadPartenariatsContent() {
+            try {
+                const doc = await db.collection('content').doc('partenariats').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    if (data.title) document.getElementById('partenariats-title').textContent = data.title;
+                    if (data.description) document.getElementById('partenariats-description').textContent = data.description;
+                    if (data.paragraph1) document.getElementById('partenariats-p1').textContent = data.paragraph1;
+                    if (data.paragraph2) document.getElementById('partenariats-p2').textContent = data.paragraph2;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section partenariats:', error);
+            }
+        }
+
+        async function loadVieContent() {
+            try {
+                const doc = await db.collection('content').doc('vie').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.title) document.getElementById('vie-title').textContent = data.title;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section vie:', error);
+            }
+        }
+
+        async function loadDirectionContent() {
+            try {
+                const doc = await db.collection('content').doc('direction').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    if (data.title) document.getElementById('direction-title').textContent = data.title;
+                    if (data.name) document.getElementById('director-name').textContent = data.name;
+                    if (data.titlePosition) document.getElementById('director-title').textContent = data.titlePosition;
+                    if (data.paragraph1) document.getElementById('director-p1').textContent = data.paragraph1;
+                    if (data.paragraph2) document.getElementById('director-p2').textContent = data.paragraph2;
+                    if (data.paragraph3) document.getElementById('director-p3').textContent = data.paragraph3;
+                    if (data.paragraph4) document.getElementById('director-p4').textContent = data.paragraph4;
+                    
+                    // Charger l'image depuis le nom stocké dans Firestore
+                    if (data.image) {
+                        loadImage(data.image, 'director-image', data.name || "Directeur de l'université");
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la section direction:', error);
+            }
+        }
+
+        async function loadStatsContent() {
+            try {
+                const doc = await db.collection('content').doc('stats').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    
+                    if (data.annee) document.getElementById('stat-annee').textContent = data.annee;
+                    if (data.etudiants) document.getElementById('stat-etudiants').textContent = data.etudiants.toLocaleString();
+                    if (data.nationalites) document.getElementById('stat-nationalites').textContent = data.nationalites;
+                    if (data.enseignants) document.getElementById('stat-enseignants').textContent = data.enseignants.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des stats:', error);
+            }
+        }
+
+        async function loadValeursContent() {
+            try {
+                const doc = await db.collection('content').doc('valeurs').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const container = document.getElementById('valeurs-container');
+                    
+                    if (data.items && Array.isArray(data.items)) {
+                        container.innerHTML = '';
                         
-                        return `
-                            <div class="text-center fade-in-up stagger-delay-${index + 1}">
-                                <div class="mb-6 relative">
-                                    <div class="w-48 h-48 mx-auto rounded-full bg-gradient-to-r ${gradients[index % gradients.length]} p-1">
-                                        <div class="w-full h-full rounded-full bg-white p-1">
-                                            <div class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                                                <i class="fas fa-user text-gray-400 text-6xl"></i>
-                                            </div>
-                                        </div>
-                                    </div>
+                        data.items.forEach((valeur, index) => {
+                            const card = document.createElement('div');
+                            card.className = 'bg-white rounded-xl shadow-md p-8 card-hover animate-slide-up';
+                            card.style.animationDelay = `${index * 0.1}s`;
+                            
+                            card.innerHTML = `
+                                <div class="text-primary text-3xl mb-6">
+                                    <i class="${valeur.icon || 'fas fa-star'}"></i>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">${member.name}</h3>
-                                <p class="text-blue-600 font-medium mb-4">${member.position}</p>
-                                <p class="text-gray-600 text-sm">${member.description}</p>
-                            </div>
-                        `;
-                    }).join('');
+                                <h3 class="text-xl font-bold text-primary mb-4">${valeur.title || 'Valeur'}</h3>
+                                <p class="text-dark">${valeur.description || 'Description de la valeur'}</p>
+                            `;
+                            
+                            container.appendChild(card);
+                        });
+                    }
                 }
+            } catch (error) {
+                console.error('Erreur lors du chargement des valeurs:', error);
             }
-            
-            // Mettre à jour la section CTA
-            if (data.cta) {
-                document.getElementById('cta-title').textContent = data.cta.title;
-                document.getElementById('cta-text').textContent = data.cta.text;
-                
-                if (data.cta.button1) {
-                    const button1 = document.getElementById('cta-button-1');
-                    button1.innerHTML = `<i class="fas fa-file-alt mr-2"></i> ${data.cta.button1.text}`;
-                    button1.href = data.cta.button1.link;
-                }
-                
-                if (data.cta.button2) {
-                    const button2 = document.getElementById('cta-button-2');
-                    button2.innerHTML = `<i class="fas fa-phone-alt mr-2"></i> ${data.cta.button2.text}`;
-                    button2.href = data.cta.button2.link;
-                }
-            }
-            
-            // Initialiser les animations
-            initAnimations();
         }
-        
-        // Fonction pour initialiser les animations
+
+        async function loadVieCartesContent() {
+            try {
+                const doc = await db.collection('content').doc('vie-cartes').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const container = document.getElementById('vie-cartes-container');
+                    
+                    if (data.items && Array.isArray(data.items)) {
+                        container.innerHTML = '';
+                        
+                        data.items.forEach((carte, index) => {
+                            const card = document.createElement('div');
+                            card.className = 'bg-white rounded-xl shadow-md overflow-hidden card-hover';
+                            
+                            card.innerHTML = `
+                                <div class="h-48 overflow-hidden">
+                                    <img src="${carte.image || ''}" 
+                                         alt="${carte.title || 'Activité étudiante'}" 
+                                         class="w-full h-full object-cover"
+                                         onerror="this.src='placeholder.jpg'; this.alt='Image non disponible'">
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold text-primary mb-4">${carte.title || 'Activité étudiante'}</h3>
+                                    <p class="text-dark">${carte.description || 'Description de l\'activité étudiante'}</p>
+                                </div>
+                            `;
+                            
+                            container.appendChild(card);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des cartes vie:', error);
+            }
+        }
+
+        // ==============================================
+        // ANIMATIONS
+        // ==============================================
         function initAnimations() {
-            // Configuration des animations
+            // Animation des cartes au défilement
             const observerOptions = {
                 threshold: 0.1,
-                rootMargin: '0px 0px -100px 0px'
+                rootMargin: '0px 0px -50px 0px'
             };
-            
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in-up');
-                        observer.unobserve(entry.target);
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
                     }
                 });
             }, observerOptions);
-            
-            // Observer tous les éléments à animer
-            document.querySelectorAll('.fade-in-up').forEach(el => {
-                if (!el.classList.contains('fade-in-up')) {
-                    observer.observe(el);
-                }
+
+            // Observer les cartes valeurs
+            document.querySelectorAll('#valeurs-container > div').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                observer.observe(card);
+            });
+
+            // Observer les cartes vie étudiante
+            document.querySelectorAll('#vie-cartes-container > div').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                observer.observe(card);
             });
         }
-        
-        // Fonction pour charger le header et footer
-        async function loadHeaderAndFooter() {
-            try {
-                // Charger le header
-                const headerResponse = await fetch('header.html');
-                if (headerResponse.ok) {
-                    const headerHTML = await headerResponse.text();
-                    document.getElementById('header-container').innerHTML = headerHTML;
+
+        // ==============================================
+        // ÉCOUTE DES CHANGEMENTS EN TEMPS RÉEL
+        // ==============================================
+        // Écouter les changements en temps réel
+        db.collection('content').onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'modified') {
+                    const docId = change.doc.id;
+                    const data = change.doc.data();
                     
-                    // Activer le menu "À propos" dans la navigation
-                    setTimeout(() => {
-                        const navLinks = document.querySelectorAll('#header-container a');
-                        navLinks.forEach(link => {
-                            if (link.textContent.includes('À propos') || link.href.includes('apropos')) {
-                                link.classList.remove('text-gray-700');
-                                link.classList.add('text-blue-700', 'font-medium');
+                    // Recharger la section correspondante
+                    switch(docId) {
+                        case 'hero':
+                            if (data.title) document.getElementById('hero-title').textContent = data.title;
+                            if (data.subtitle) document.getElementById('hero-subtitle').textContent = data.subtitle;
+                            if (data.image) {
+                                loadImage(data.image, 'hero-image', data.title || "Image du campus universitaire");
                             }
-                        });
-                    }, 100);
-                } else {
-                    console.error("Header non trouvé");
-                }
-                
-                // Charger le footer
-                const footerResponse = await fetch('footer.html');
-                if (footerResponse.ok) {
-                    const footerHTML = await footerResponse.text();
-                    document.getElementById('footer-container').innerHTML = footerHTML;
-                } else {
-                    console.error("Footer non trouvé");
-                }
-            } catch (error) {
-                console.error("Erreur lors du chargement du header/footer:", error);
-            }
-        }
-        
-        // Gestion des événements
-        function setupEventListeners() {
-            // Navigation fluide
-            document.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A' && e.target.getAttribute('href') && e.target.getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
-                    const targetId = e.target.getAttribute('href');
-                    if (targetId !== '#') {
-                        const targetElement = document.querySelector(targetId);
-                        if (targetElement) {
-                            window.scrollTo({
-                                top: targetElement.offsetTop - 80,
-                                behavior: 'smooth'
-                            });
-                        }
+                            break;
+                            
+                        case 'qsn':
+                            if (data.title) document.getElementById('qsn-title').textContent = data.title;
+                            if (data.paragraph1) document.getElementById('qsn-p1').textContent = data.paragraph1;
+                            if (data.paragraph2) document.getElementById('qsn-p2').textContent = data.paragraph2;
+                            if (data.paragraph3) document.getElementById('qsn-p3').textContent = data.paragraph3;
+                            break;
+                            
+                        case 'mission':
+                            if (data.title) document.getElementById('mission-title').textContent = data.title;
+                            if (data.paragraph1) document.getElementById('mission-p1').textContent = data.paragraph1;
+                            if (data.paragraph2) document.getElementById('mission-p2').textContent = data.paragraph2;
+                            if (data.paragraph3) document.getElementById('mission-p3').textContent = data.paragraph3;
+                            break;
+                            
+                        case 'valeurs':
+                            loadValeursContent();
+                            break;
+                            
+                        case 'avenir':
+                            if (data.title) document.getElementById('avenir-title').textContent = data.title;
+                            if (data.paragraph1) document.getElementById('avenir-p1').textContent = data.paragraph1;
+                            if (data.paragraph2) document.getElementById('avenir-p2').textContent = data.paragraph2;
+                            if (data.paragraph3) document.getElementById('avenir-p3').textContent = data.paragraph3;
+                            if (data.paragraph4) document.getElementById('avenir-p4').textContent = data.paragraph4;
+                            if (data.image) {
+                                loadImage(data.image, 'avenir-image', data.title || "Innovation numérique à l'université");
+                            }
+                            break;
+                            
+                        case 'partenariats':
+                            if (data.title) document.getElementById('partenariats-title').textContent = data.title;
+                            if (data.description) document.getElementById('partenariats-description').textContent = data.description;
+                            if (data.paragraph1) document.getElementById('partenariats-p1').textContent = data.paragraph1;
+                            if (data.paragraph2) document.getElementById('partenariats-p2').textContent = data.paragraph2;
+                            break;
+                            
+                        case 'vie':
+                            if (data.title) document.getElementById('vie-title').textContent = data.title;
+                            break;
+                            
+                        case 'vie-cartes':
+                            loadVieCartesContent();
+                            break;
+                            
+                        case 'direction':
+                            if (data.title) document.getElementById('direction-title').textContent = data.title;
+                            if (data.name) document.getElementById('director-name').textContent = data.name;
+                            if (data.titlePosition) document.getElementById('director-title').textContent = data.titlePosition;
+                            if (data.paragraph1) document.getElementById('director-p1').textContent = data.paragraph1;
+                            if (data.paragraph2) document.getElementById('director-p2').textContent = data.paragraph2;
+                            if (data.paragraph3) document.getElementById('director-p3').textContent = data.paragraph3;
+                            if (data.paragraph4) document.getElementById('director-p4').textContent = data.paragraph4;
+                            if (data.image) {
+                                loadImage(data.image, 'director-image', data.name || "Directeur de l'université");
+                            }
+                            break;
+                            
+                        case 'stats':
+                            if (data.annee) document.getElementById('stat-annee').textContent = data.annee;
+                            if (data.etudiants) document.getElementById('stat-etudiants').textContent = data.etudiants.toLocaleString();
+                            if (data.nationalites) document.getElementById('stat-nationalites').textContent = data.nationalites;
+                            if (data.enseignants) document.getElementById('stat-enseignants').textContent = data.enseignants.toLocaleString();
+                            break;
                     }
+                    
+                    console.log(`Section ${docId} mise à jour en temps réel`);
                 }
             });
-        }
-        
-        // Initialisation au chargement de la page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Charger le header et footer
-            loadHeaderAndFooter();
-            
-            // Charger le contenu depuis Firebase
-            loadAboutContent();
-            
-            // Configurer les écouteurs d'événements
-            setupEventListeners();
+        }, (error) => {
+            console.error('Erreur lors de l\'écoute des changements:', error);
         });
+
+        // ============================================
+        // INITIALISATION DE LA PAGE
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Initialisation de la page...");
+            
+            // 1. Configurer l'authentification Firebase
+            setupAuthStateListener();
+            
+            // 2. Configurer les événements du header
+            setupHeaderEventListeners();
+            
+            // 3. Charger le contenu depuis Firebase
+            loadAllContent();
+            
+            // 4. Configurer les animations
+            initAnimations();
+            
+            console.log("Page initialisée avec succès");
+        });
+
     </script>
 </body>
 </html>

@@ -3,1237 +3,691 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Gestion Page À Propos</title>
+    <title>Dashboard Admin - Université SmartCut</title>
     
-    <!-- Tailwind CSS CDN -->
+    <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome -->
+    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        
-        /* Animation pour le menu mobile */
-        .sidebar-mobile {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-        }
-        
-        .sidebar-mobile.open {
-            transform: translateX(0);
-        }
-        
-        .sidebar-overlay {
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        .sidebar-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        /* Animation pour les modals */
-        .modal-overlay {
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        .modal-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .modal-content {
-            transform: translateY(-20px) scale(0.95);
-            transition: transform 0.3s ease-in-out;
-        }
-        
-        .modal-overlay.open .modal-content {
-            transform: translateY(0) scale(1);
-        }
-        
-        /* Animation pour les pages */
-        .page-content {
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            display: none;
-        }
-        
-        .page-content.active {
-            opacity: 1;
-            transform: translateY(0);
-            display: block;
-        }
-        
-        /* Styles pour les boutons */
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        .sidebar {
             transition: all 0.3s ease;
         }
         
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        .content-area {
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 40;
+            }
+            
+            .overlay.active {
+                display: block;
+            }
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, .3);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .card-hover:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
-        }
-        
-        /* Styles pour les inputs */
-        .form-input {
-            transition: all 0.2s ease;
-        }
-        
-        .form-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        /* Scrollbar personnalisée */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
+            transition: transform 0.2s ease;
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Header Mobile -->
-    <header class="lg:hidden bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-40">
-        <div class="px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <button id="mobile-menu-btn" class="p-2 rounded-lg hover:bg-gray-100">
-                        <i class="fas fa-bars text-gray-700 text-xl"></i>
-                    </button>
-                    <div>
-                        <h1 class="text-lg font-bold text-gray-800">Dashboard</h1>
-                        <p class="text-xs text-gray-600">URH HAITI</p>
-                    </div>
+<body class="bg-gray-50">
+    <!-- Overlay mobile -->
+    <div class="overlay" id="mobileOverlay"></div>
+    
+    <!-- Dashboard Main -->
+    <div id="dashboard" class="min-h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar bg-gray-900 text-white w-64 fixed h-full overflow-y-auto">
+            <div class="p-6 border-b border-gray-800">
+                <h2 class="text-xl font-bold">Université SmartCut</h2>
+                <p class="text-gray-400 text-sm mt-1">Administration</p>
+            </div>
+            
+            <div class="p-4">
+                <div class="mb-6">
+                    <p class="text-gray-400 text-xs uppercase tracking-wider mb-3">Contenu principal</p>
+                    <nav class="space-y-2">
+                        <a href="#" data-section="hero" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-home mr-3"></i>À propos - Hero
+                        </a>
+                        <a href="#" data-section="qui-sommes-nous" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-university mr-3"></i>Qui sommes-nous
+                        </a>
+                        <a href="#" data-section="mission" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-bullseye mr-3"></i>Notre mission
+                        </a>
+                        <a href="#" data-section="vision" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-eye mr-3"></i>Vision & Valeurs
+                        </a>
+                        <a href="#" data-section="avenir" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-rocket mr-3"></i>Université avenir
+                        </a>
+                        <a href="#" data-section="partenariats" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-handshake mr-3"></i>Partenariats
+                        </a>
+                        <a href="#" data-section="vie" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-users mr-3"></i>Vie universitaire
+                        </a>
+                        <a href="#" data-section="direction" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-user-tie mr-3"></i>Direction
+                        </a>
+                    </nav>
                 </div>
                 
-                <div class="flex items-center space-x-2">
-                    <button id="mobile-save-btn" class="btn-primary text-white font-medium py-2 px-4 rounded-lg text-sm">
-                        <i class="fas fa-save mr-1"></i> Save
-                    </button>
+                <div class="mb-6">
+                    <p class="text-gray-400 text-xs uppercase tracking-wider mb-3">Gestion</p>
+                    <nav class="space-y-2">
+                        <a href="#" data-section="stats" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-chart-bar mr-3"></i>Chiffres clés
+                        </a>
+                        <a href="#" data-section="valeurs" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-star mr-3"></i>Valeurs (cartes)
+                        </a>
+                        <a href="#" data-section="vie-cartes" class="sidebar-link block py-2 px-4 rounded-lg hover:bg-gray-800 transition">
+                            <i class="fas fa-id-card mr-3"></i>Vie étudiante (cartes)
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="mt-10 pt-6 border-t border-gray-800">
+                    <div class="text-xs text-gray-400 p-2">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Dashboard libre d'accès
+                    </div>
                 </div>
             </div>
         </div>
-    </header>
-    
-    <!-- Overlay pour le menu mobile -->
-    <div id="mobile-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
-    
-    <!-- Sidebar Mobile -->
-    <aside id="mobile-sidebar" class="sidebar-mobile bg-gray-900 text-white h-screen w-64 fixed left-0 top-0 z-50 overflow-y-auto lg:hidden">
-        <!-- Logo -->
-        <div class="p-5 border-b border-gray-800">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-info-circle text-white text-xl"></i>
+        
+        <!-- Main Content -->
+        <div class="content-area ml-0 md:ml-64">
+            <!-- Top Bar -->
+            <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center">
+                        <button id="menuToggle" class="md:hidden text-gray-600 mr-4">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 id="sectionTitle" class="text-2xl font-bold text-gray-800">Dashboard</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right hidden md:block">
+                            <p class="font-medium text-gray-700">Mode édition</p>
+                            <p class="text-sm text-gray-500">Accès libre</p>
+                        </div>
+                        <div class="relative">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-edit text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold">Gestion À Propos</h1>
-                    <p class="text-gray-400 text-sm">URH HAITI</p>
+            </header>
+            
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Hero Section Editor -->
+                <div id="heroSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Section Hero "À propos"</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre principal</label>
+                                <input type="text" id="heroTitle" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <p class="text-xs text-gray-500 mt-1">Titre principal de la section hero</p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Sous-titre institutionnel</label>
+                                <textarea id="heroSubtitle" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'image hero</label>
+                                <div class="flex items-center space-x-4">
+                                    <input type="text" id="heroImage" placeholder="campus-hero.jpg"
+                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                    <div class="text-sm text-gray-500">
+                                        <i class="fas fa-info-circle mr-1"></i>Image dans /images/
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Nom du fichier image (ex: campus-hero.jpg)</p>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <button onclick="saveSection('hero')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                    <span>Sauvegarder</span>
+                                    <div id="heroSpinner" class="loading-spinner ml-2 hidden"></div>
+                                </button>
+                                <p id="heroMessage" class="text-sm mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button id="close-mobile-menu" class="ml-auto p-2 rounded-lg hover:bg-gray-800">
-                    <i class="fas fa-times text-xl"></i>
+                
+                <!-- Qui sommes-nous Editor -->
+                <div id="qui-sommes-nousSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Section "Qui sommes-nous"</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la section</label>
+                                <input type="text" id="qsnTitle"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 1</label>
+                                <textarea id="qsnParagraph1" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 2</label>
+                                <textarea id="qsnParagraph2" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 3</label>
+                                <textarea id="qsnParagraph3" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <button onclick="saveSection('qsn')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                    <span>Sauvegarder</span>
+                                    <div id="qsnSpinner" class="loading-spinner ml-2 hidden"></div>
+                                </button>
+                                <p id="qsnMessage" class="text-sm mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mission Editor -->
+                <div id="missionSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Section "Notre mission"</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la section</label>
+                                <input type="text" id="missionTitle"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 1</label>
+                                <textarea id="missionParagraph1" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 2</label>
+                                <textarea id="missionParagraph2" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 3</label>
+                                <textarea id="missionParagraph3" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <button onclick="saveSection('mission')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                    <span>Sauvegarder</span>
+                                    <div id="missionSpinner" class="loading-spinner ml-2 hidden"></div>
+                                </button>
+                                <p id="missionMessage" class="text-sm mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vision & Valeurs Editor -->
+                <div id="visionSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Section "Vision & Valeurs"</h2>
+                            <button onclick="addValueCard()"
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition">
+                                <i class="fas fa-plus mr-2"></i>Ajouter une valeur
+                            </button>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la section</label>
+                            <input type="text" id="visionTitle"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                        
+                        <div id="valeursContainer" class="space-y-6">
+                            <!-- Les cartes seront générées dynamiquement ici -->
+                        </div>
+                        
+                        <div class="pt-6 border-t border-gray-200 mt-6">
+                            <button onclick="saveVisionSection()"
+                                    class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                <span>Sauvegarder toutes les valeurs</span>
+                                <div id="visionSpinner" class="loading-spinner ml-2 hidden"></div>
+                            </button>
+                            <p id="visionMessage" class="text-sm mt-2"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Université avenir Editor -->
+                <div id="avenirSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Section "Université tournée vers l'avenir"</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la section</label>
+                                <input type="text" id="avenirTitle"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 1</label>
+                                <textarea id="avenirParagraph1" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 2</label>
+                                <textarea id="avenirParagraph2" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 3</label>
+                                <textarea id="avenirParagraph3" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 4</label>
+                                <textarea id="avenirParagraph4" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'image</label>
+                                <input type="text" id="avenirImage" placeholder="innovation-numerique.jpg"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <p class="text-xs text-gray-500 mt-1">Nom du fichier image (ex: innovation-numerique.jpg)</p>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <button onclick="saveSection('avenir')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                    <span>Sauvegarder</span>
+                                    <div id="avenirSpinner" class="loading-spinner ml-2 hidden"></div>
+                                </button>
+                                <p id="avenirMessage" class="text-sm mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Partenariats Editor -->
+                <div id="partenariatsSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Section "Partenariats & Coopération"</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la section</label>
+                                <input type="text" id="partenariatsTitle"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Description principale</label>
+                                <textarea id="partenariatsDescription" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe final 1</label>
+                                <textarea id="partenariatsParagraph1" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe final 2</label>
+                                <textarea id="partenariatsParagraph2" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <button onclick="saveSection('partenariats')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                    <span>Sauvegarder</span>
+                                    <div id="partenariatsSpinner" class="loading-spinner ml-2 hidden"></div>
+                                </button>
+                                <p id="partenariatsMessage" class="text-sm mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vie universitaire Editor -->
+                <div id="vieSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Section "Vie universitaire"</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la section</label>
+                                <input type="text" id="vieTitle"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <button onclick="saveSection('vie')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                    <span>Sauvegarder le titre</span>
+                                    <div id="vieSpinner" class="loading-spinner ml-2 hidden"></div>
+                                </button>
+                                <p id="vieMessage" class="text-sm mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gestion des cartes vie étudiante -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-gray-800">Cartes "Vie étudiante"</h3>
+                            <button onclick="addVieCard()"
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition">
+                                <i class="fas fa-plus mr-2"></i>Ajouter une carte
+                            </button>
+                        </div>
+                        
+                        <div id="vieCartesContainer" class="space-y-6">
+                            <!-- Les cartes seront générées dynamiquement ici -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Direction Editor -->
+                <div id="directionSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Section "Direction"</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la section</label>
+                                <input type="text" id="directionTitle"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom du directeur</label>
+                                <input type="text" id="directorName"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Titre du directeur</label>
+                                <input type="text" id="directorTitle"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'image du directeur</label>
+                                <div class="flex items-center space-x-4">
+                                    <input type="text" id="directorImage" placeholder="directeur.jpg"
+                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                    <div class="text-sm text-gray-500">
+                                        <i class="fas fa-info-circle mr-1"></i>Image dans /images/
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Nom du fichier image (ex: directeur.jpg)</p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 1</label>
+                                <textarea id="directorParagraph1" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 2</label>
+                                <textarea id="directorParagraph2" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 3</label>
+                                <textarea id="directorParagraph3" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Paragraphe 4</label>
+                                <textarea id="directorParagraph4" rows="3"
+                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-gray-200">
+                                <button onclick="saveSection('direction')"
+                                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                    <span>Sauvegarder</span>
+                                    <div id="directionSpinner" class="loading-spinner ml-2 hidden"></div>
+                                </button>
+                                <p id="directionMessage" class="text-sm mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Editor -->
+                <div id="statsSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-6">Gestion des chiffres clés</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="card-hover bg-gray-50 p-6 rounded-xl">
+                                <h3 class="font-bold text-gray-800 mb-4">Années d'excellence</h3>
+                                <input type="number" id="statAnnee" placeholder="65"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <p class="text-xs text-gray-500 mt-2">Nombre d'années d'excellence académique</p>
+                            </div>
+                            
+                            <div class="card-hover bg-gray-50 p-6 rounded-xl">
+                                <h3 class="font-bold text-gray-800 mb-4">Nombre d'étudiants</h3>
+                                <input type="number" id="statEtudiants" placeholder="15000"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <p class="text-xs text-gray-500 mt-2">Nombre total d'étudiants actifs</p>
+                            </div>
+                            
+                            <div class="card-hover bg-gray-50 p-6 rounded-xl">
+                                <h3 class="font-bold text-gray-800 mb-4">Nationalités</h3>
+                                <input type="number" id="statNationalites" placeholder="85"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <p class="text-xs text-gray-500 mt-2">Nombre de nationalités représentées</p>
+                            </div>
+                            
+                            <div class="card-hover bg-gray-50 p-6 rounded-xl">
+                                <h3 class="font-bold text-gray-800 mb-4">Enseignants-chercheurs</h3>
+                                <input type="number" id="statEnseignants" placeholder="1200"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <p class="text-xs text-gray-500 mt-2">Nombre d'enseignants-chercheurs</p>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-200">
+                            <button onclick="saveStats()"
+                                    class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                                <span>Sauvegarder tous les chiffres</span>
+                                <div id="statsSpinner" class="loading-spinner ml-2 hidden"></div>
+                            </button>
+                            <p id="statsMessage" class="text-sm mt-2"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gestion des cartes valeurs -->
+                <div id="valeursSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Gestion des cartes "Valeurs"</h2>
+                            <button onclick="addValueCard()"
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition">
+                                <i class="fas fa-plus mr-2"></i>Ajouter une carte
+                            </button>
+                        </div>
+                        
+                        <div id="valeursCardsContainer" class="space-y-6">
+                            <!-- Les cartes seront générées dynamiquement ici -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gestion des cartes vie étudiante -->
+                <div id="vie-cartesSection" class="section-content hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Gestion des cartes "Vie étudiante"</h2>
+                            <button onclick="addVieCard()"
+                                    class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition">
+                                <i class="fas fa-plus mr-2"></i>Ajouter une carte
+                            </button>
+                        </div>
+                        
+                        <div id="vieCardsContainer" class="space-y-6">
+                            <!-- Les cartes seront générées dynamiquement ici -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modèle de carte valeur (template) -->
+    <template id="valueCardTemplate">
+        <div class="card-hover bg-gray-50 p-6 rounded-xl border border-gray-200">
+            <div class="flex justify-between items-start mb-4">
+                <h4 class="font-bold text-gray-800">Valeur <span class="card-index"></span></h4>
+                <button onclick="removeValueCard(this)" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
-        </div>
-        
-        <!-- Menu de navigation -->
-        <nav class="p-4">
-            <ul class="space-y-2">
-                <li>
-                    <a href="#" data-page="hero" class="menu-item active flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-white">
-                        <i class="fas fa-home w-6 text-center"></i>
-                        <span>Section Hero</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="mission" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-bullseye w-6 text-center"></i>
-                        <span>Mission & Vision</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="values" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-heart w-6 text-center"></i>
-                        <span>Nos Valeurs</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="team" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-users w-6 text-center"></i>
-                        <span>Équipe</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="cta" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-bullhorn w-6 text-center"></i>
-                        <span>Section CTA</span>
-                    </a>
-                </li>
-                <li class="pt-8 border-t border-gray-800">
-                    <a href="apropos.html" target="_blank" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-external-link-alt w-6 text-center"></i>
-                        <span>Voir la page</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </aside>
-    
-    <!-- Sidebar Desktop -->
-    <aside class="hidden lg:block bg-gray-900 text-white h-screen w-64 fixed left-0 top-0 overflow-y-auto">
-        <!-- Logo -->
-        <div class="p-6 border-b border-gray-800">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-info-circle text-white text-xl"></i>
-                </div>
+            
+            <div class="space-y-4">
                 <div>
-                    <h1 class="text-xl font-bold">Gestion À Propos</h1>
-                    <p class="text-gray-400 text-sm">URH HAITI</p>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Icône Font Awesome</label>
+                    <input type="text" class="value-icon w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                           placeholder="fas fa-graduation-cap">
+                    <p class="text-xs text-gray-500 mt-1">Classe Font Awesome (ex: fas fa-graduation-cap)</p>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Menu de navigation -->
-        <nav class="p-4">
-            <ul class="space-y-2">
-                <li>
-                    <a href="#" data-page="hero" class="menu-item active flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-white">
-                        <i class="fas fa-home w-6 text-center"></i>
-                        <span>Section Hero</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="mission" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-bullseye w-6 text-center"></i>
-                        <span>Mission & Vision</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="values" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-heart w-6 text-center"></i>
-                        <span>Nos Valeurs</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="team" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-users w-6 text-center"></i>
-                        <span>Équipe</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" data-page="cta" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-bullhorn w-6 text-center"></i>
-                        <span>Section CTA</span>
-                    </a>
-                </li>
-                <li class="pt-8 border-t border-gray-800">
-                    <a href="apropos.html" target="_blank" class="menu-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 text-gray-300">
-                        <i class="fas fa-external-link-alt w-6 text-center"></i>
-                        <span>Voir la page</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </aside>
-    
-    <!-- Contenu principal -->
-    <main class="lg:ml-64 min-h-screen pt-16 lg:pt-0">
-        <!-- Header Desktop -->
-        <header class="hidden lg:block bg-white shadow-sm border-b">
-            <div class="px-6 py-4">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-800" id="page-title">Section Hero</h1>
-                        <p class="text-gray-600" id="page-subtitle">Gérez le contenu de la section hero de la page À Propos</p>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-3">
-                        <button id="save-all" class="btn-primary text-white font-medium py-2 px-4 rounded-lg transition duration-300 text-sm sm:text-base">
-                            <i class="fas fa-save mr-2"></i> Sauvegarder tout
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
-        
-        <!-- Contenu des pages -->
-        <div class="p-4 sm:p-6" id="page-content">
-            <!-- Page Hero -->
-            <div id="hero-page" class="page-content active">
-                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Section Hero - Page À Propos</h2>
-                    
-                    <form id="hero-form" class="space-y-4 sm:space-y-6">
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge du haut *</label>
-                            <input type="text" id="hero-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: À propos de nous">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre principal *</label>
-                            <textarea id="hero-title" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Former la jeunesse de Delmas pour l'avenir"></textarea>
-                            <p class="text-gray-500 text-xs sm:text-sm mt-2">Utilisez <code class="bg-gray-100 px-1 py-0.5 rounded">&lt;span class="gradient-text"&gt;...&lt;/span&gt;</code> pour du texte en gradient</p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Description *</label>
-                            <textarea id="hero-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Description de la section hero..."></textarea>
-                        </div>
-                        
-                        <div class="flex justify-end">
-                            <button type="button" id="save-hero" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
-                                <i class="fas fa-save mr-2"></i> Sauvegarder
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Page Mission -->
-            <div id="mission-page" class="page-content">
-                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Section Mission & Vision</h2>
-                    
-                    <form id="mission-form" class="space-y-4 sm:space-y-6">
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge *</label>
-                            <input type="text" id="mission-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Notre mission & vision">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
-                            <textarea id="mission-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section mission..."></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Premier paragraphe *</label>
-                            <textarea id="mission-text1" required rows="4" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Texte du premier paragraphe..."></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Deuxième paragraphe *</label>
-                            <textarea id="mission-text2" required rows="4" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Texte du deuxième paragraphe..."></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Nom du fichier vidéo *</label>
-                            <input type="text" id="mission-video" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: videoifept.mp4">
-                            <p class="text-gray-500 text-xs sm:text-sm mt-2">Placez la vidéo à la racine du projet</p>
-                        </div>
-                        
-                        <div class="border-t border-gray-200 pt-6">
-                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-4">Statistiques</h3>
-                            <div id="stats-container" class="space-y-4">
-                                <div class="border border-gray-300 rounded-lg p-4">
-                                    <p class="text-gray-600 text-center text-sm sm:text-base">Aucune statistique ajoutée</p>
-                                </div>
-                            </div>
-                            
-                            <button type="button" id="add-stat" class="mt-4 w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base">
-                                <i class="fas fa-plus mr-2"></i> Ajouter une statistique
-                            </button>
-                        </div>
-                        
-                        <div class="flex justify-end">
-                            <button type="button" id="save-mission" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
-                                <i class="fas fa-save mr-2"></i> Sauvegarder
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Page Valeurs -->
-            <div id="values-page" class="page-content">
-                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Nos Valeurs Fondamentales</h2>
-                    
-                    <form id="values-form" class="space-y-4 sm:space-y-6">
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge *</label>
-                            <input type="text" id="values-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Nos valeurs fondamentales">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
-                            <textarea id="values-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section valeurs..."></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Sous-titre *</label>
-                            <textarea id="values-subtitle" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Sous-titre de la section valeurs..."></textarea>
-                        </div>
-                        
-                        <div class="border-t border-gray-200 pt-6">
-                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-4">Liste des valeurs</h3>
-                            <div id="values-list-container" class="space-y-6">
-                                <div class="border border-gray-300 rounded-lg p-4">
-                                    <p class="text-gray-600 text-center text-sm sm:text-base">Aucune valeur ajoutée</p>
-                                </div>
-                            </div>
-                            
-                            <button type="button" id="add-value" class="mt-4 w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base">
-                                <i class="fas fa-plus mr-2"></i> Ajouter une valeur
-                            </button>
-                        </div>
-                        
-                        <div class="flex justify-end">
-                            <button type="button" id="save-values" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
-                                <i class="fas fa-save mr-2"></i> Sauvegarder
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Page Équipe -->
-            <div id="team-page" class="page-content">
-                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Notre Équipe Dirigeante</h2>
-                    
-                    <form id="team-form" class="space-y-4 sm:space-y-6">
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Badge *</label>
-                            <input type="text" id="team-badge" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Notre équipe dirigeante">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
-                            <textarea id="team-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section équipe..."></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Sous-titre *</label>
-                            <textarea id="team-subtitle" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Sous-titre de la section équipe..."></textarea>
-                        </div>
-                        
-                        <div class="border-t border-gray-200 pt-6">
-                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-4">Membres de l'équipe</h3>
-                            <div id="team-members-container" class="space-y-6">
-                                <div class="border border-gray-300 rounded-lg p-4">
-                                    <p class="text-gray-600 text-center text-sm sm:text-base">Aucun membre ajouté</p>
-                                </div>
-                            </div>
-                            
-                            <button type="button" id="add-member" class="mt-4 w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg text-sm sm:text-base">
-                                <i class="fas fa-plus mr-2"></i> Ajouter un membre
-                            </button>
-                        </div>
-                        
-                        <div class="flex justify-end">
-                            <button type="button" id="save-team" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
-                                <i class="fas fa-save mr-2"></i> Sauvegarder
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Page CTA -->
-            <div id="cta-page" class="page-content">
-                <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Section CTA (Call to Action)</h2>
-                    
-                    <form id="cta-form" class="space-y-4 sm:space-y-6">
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
-                            <textarea id="cta-title" required rows="2" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Titre de la section CTA..."></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Texte *</label>
-                            <textarea id="cta-text" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Texte de la section CTA..."></textarea>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-4">
-                                <h3 class="text-base sm:text-lg font-bold text-gray-800">Bouton 1</h3>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Texte *</label>
-                                        <input type="text" id="cta-btn1-text" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: S'inscrire maintenant">
-                                    </div>
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Lien *</label>
-                                        <input type="text" id="cta-btn1-link" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: https://form.jotform.com/...">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-4">
-                                <h3 class="text-base sm:text-lg font-bold text-gray-800">Bouton 2</h3>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Texte *</label>
-                                        <input type="text" id="cta-btn2-text" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Nous contacter">
-                                    </div>
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Lien *</label>
-                                        <input type="text" id="cta-btn2-link" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: contct.html">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-end">
-                            <button type="button" id="save-cta" class="btn-primary text-white font-medium py-3 px-6 rounded-lg transition duration-300 text-sm sm:text-base">
-                                <i class="fas fa-save mr-2"></i> Sauvegarder
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Modals -->
-    <div id="stat-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="modal-content bg-white rounded-xl shadow-lg w-full max-w-md">
-            <div class="p-4 sm:p-6">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-6">Ajouter/Modifier une statistique</h3>
                 
-                <form id="stat-form" class="space-y-4">
-                    <input type="hidden" id="stat-index">
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Icône Font Awesome *</label>
-                        <input type="text" id="stat-icon" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: user-graduate">
-                        <p class="text-gray-500 text-xs sm:text-sm mt-2">Sans le préfixe "fa-"</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Couleur *</label>
-                        <select id="stat-color" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base">
-                            <option value="blue">Bleu</option>
-                            <option value="emerald">Vert émeraude</option>
-                            <option value="purple">Violet</option>
-                            <option value="red">Rouge</option>
-                            <option value="yellow">Jaune</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Nombre/Chiffre *</label>
-                        <input type="text" id="stat-number" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: +2,500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Label *</label>
-                        <input type="text" id="stat-label" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Étudiants formés">
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
-                        <button type="button" id="cancel-stat" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
-                            Annuler
-                        </button>
-                        <button type="submit" id="save-stat" class="btn-primary text-white font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
-                            Enregistrer
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <div id="value-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="modal-content bg-white rounded-xl shadow-lg w-full max-w-lg">
-            <div class="p-4 sm:p-6">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-6">Ajouter/Modifier une valeur</h3>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la valeur</label>
+                    <input type="text" class="value-title w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                           placeholder="Excellence académique">
+                </div>
                 
-                <form id="value-form" class="space-y-4">
-                    <input type="hidden" id="value-index">
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Icône Font Awesome *</label>
-                        <input type="text" id="value-icon" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: lightbulb">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Couleur *</label>
-                        <select id="value-color" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base">
-                            <option value="blue">Bleu</option>
-                            <option value="emerald">Vert émeraude</option>
-                            <option value="purple">Violet</option>
-                            <option value="red">Rouge</option>
-                            <option value="yellow">Jaune</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Titre *</label>
-                        <input type="text" id="value-title" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Innovation pédagogique">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Description *</label>
-                        <textarea id="value-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Description de la valeur..."></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Points (un par ligne) *</label>
-                        <textarea id="value-points" required rows="4" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Point 1&#10;Point 2&#10;Point 3"></textarea>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
-                        <button type="button" id="cancel-value" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
-                            Annuler
-                        </button>
-                        <button type="submit" id="save-value" class="btn-primary text-white font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
-                            Enregistrer
-                        </button>
-                    </div>
-                </form>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea class="value-description w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                              rows="3" placeholder="Description de la valeur..."></textarea>
+                </div>
             </div>
         </div>
-    </div>
+    </template>
     
-    <div id="member-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="modal-content bg-white rounded-xl shadow-lg w-full max-w-md">
-            <div class="p-4 sm:p-6">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-6">Ajouter/Modifier un membre</h3>
+    <!-- Modèle de carte vie étudiante (template) -->
+    <template id="vieCardTemplate">
+        <div class="card-hover bg-gray-50 p-6 rounded-xl border border-gray-200">
+            <div class="flex justify-between items-start mb-4">
+                <h4 class="font-bold text-gray-800">Carte Vie étudiante <span class="card-index"></span></h4>
+                <button onclick="removeVieCard(this)" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Titre de la carte</label>
+                    <input type="text" class="vie-title w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                           placeholder="Sport & Bien-être">
+                </div>
                 
-                <form id="member-form" class="space-y-4">
-                    <input type="hidden" id="member-index">
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Nom complet *</label>
-                        <input type="text" id="member-name" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Dr. Jean-Louis Pierre">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Position *</label>
-                        <input type="text" id="member-position" required class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Ex: Directeur Général">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2 text-sm sm:text-base">Description *</label>
-                        <textarea id="member-description" required rows="3" class="form-input w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base" placeholder="Description du membre..."></textarea>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
-                        <button type="button" id="cancel-member" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
-                            Annuler
-                        </button>
-                        <button type="submit" id="save-member" class="btn-primary text-white font-medium py-2 px-6 rounded-lg text-sm sm:text-base">
-                            Enregistrer
-                        </button>
-                    </div>
-                </form>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea class="vie-description w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                              rows="3" placeholder="Description de l'activité..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'image</label>
+                    <input type="text" class="vie-image w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                           placeholder="sport-etudiant.jpg">
+                    <p class="text-xs text-gray-500 mt-1">Nom du fichier image (ex: sport-etudiant.jpg)</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div id="navBulleContainer" class="fixed z-50">
-  <!-- Bulle principale -->
-  <button 
-    id="navBulleBtn" 
-    class="flex items-center justify-center w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white transition-all duration-300 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300/50"
-    aria-label="Ouvrir le menu de navigation"
-  >
-    <i id="navBulleIcon" class="fas fa-compass text-xl"></i>
-  </button>
-  
-  <!-- Fenêtre de navigation -->
-  <div 
-    id="navBulleWindow" 
-    class="absolute bottom-16 right-0 w-72 bg-white rounded-2xl shadow-2xl p-4 transform -translate-y-2 opacity-0 invisible transition-all duration-300"
-  >
-    <!-- En-tête de la fenêtre -->
-    <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-      <h2 class="text-lg font-semibold text-gray-800">Navigation rapide</h2>
-      <button 
-        id="navBulleCloseBtn" 
-        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-        aria-label="Fermer le menu"
-      >
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    
-    <!-- Liste des liens -->
-    <ul class="space-y-2" id="navBulleLinks">
-      <!-- Les liens seront injectés par JavaScript -->
-    </ul>
-    
-    <!-- Indicateur de position (flèche) -->
-    <div class="absolute -bottom-2 right-6 w-4 h-4 bg-white transform rotate-45"></div>
-  </div>
-</div>
+    </template>
 
-<script>
-// Configuration unique pour éviter les conflits
-const navBulleConfig = {
-  containerId: 'navBulleContainer',
-  buttonId: 'navBulleBtn',
-  windowId: 'navBulleWindow',
-  closeButtonId: 'navBulleCloseBtn',
-  linksContainerId: 'navBulleLinks',
-  iconId: 'navBulleIcon',
-  isOpen: false,
-  isDragging: false,
-  startX: 0,
-  startY: 0,
-  initialX: 0,
-  initialY: 0,
-  touchStartTime: 0,
-  touchMoved: false,
-  
-  // Liens de navigation
-  navLinks: [
-    {
-      id: 'navLinkAccueil',
-      title: 'Dashboard Accueil',
-      url: 'dashacceuil.html',
-      icon: 'fas fa-home',
-      color: 'text-blue-600'
-    },
-    {
-      id: 'navLinkActualites',
-      title: 'Dashboard Actualités',
-      url: 'dashacctualites.html',
-      icon: 'fas fa-newspaper',
-      color: 'text-green-600'
-    },
-    {
-      id: 'navLinkApropos',
-      title: 'Dashboard À propos',
-      url: 'dashapropo.html',
-      icon: 'fas fa-info-circle',
-      color: 'text-purple-600'
-    },
-    {
-      id: 'navLinkCours',
-      title: 'Dashboard Cours',
-      url: 'dashboardcours.html',
-      icon: 'fas fa-book-open',
-      color: 'text-amber-600'
-    },
-    {
-      id: 'navLinkContact',
-      title: 'Dashboard Contact',
-      url: 'dashcontact.html',
-      icon: 'fas fa-envelope',
-      color: 'text-red-600'
-    },
-    {
-      id: 'navLinkSoumissions',
-      title: 'Dashboard Soumissions',
-      url: 'dashboardsoumissions.html',
-      icon: 'fas fa-paper-plane',
-      color: 'text-indigo-600'
-    }
-  ],
-  
-  // Initialisation
-  init: function() {
-    this.setupElements();
-    this.renderLinks();
-    this.setupEventListeners();
-    this.positionBulleOnLoad();
-  },
-  
-  // Configuration des éléments DOM
-  setupElements: function() {
-    this.container = document.getElementById(this.containerId);
-    this.button = document.getElementById(this.buttonId);
-    this.window = document.getElementById(this.windowId);
-    this.closeButton = document.getElementById(this.closeButtonId);
-    this.linksContainer = document.getElementById(this.linksContainerId);
-    this.icon = document.getElementById(this.iconId);
-  },
-  
-  // Rendu des liens de navigation
-  renderLinks: function() {
-    this.linksContainer.innerHTML = '';
-    
-    this.navLinks.forEach(link => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <a 
-          href="${link.url}" 
-          id="${link.id}"
-          class="flex items-center p-3 rounded-xl hover:bg-blue-50 transition-colors group"
-        >
-          <div class="flex items-center justify-center w-10 h-10 rounded-lg ${link.color} bg-opacity-10 group-hover:bg-opacity-20 mr-3">
-            <i class="${link.icon}"></i>
-          </div>
-          <span class="font-medium text-gray-800">${link.title}</span>
-        </a>
-      `;
-      this.linksContainer.appendChild(li);
-    });
-  },
-  
-  // Configuration des écouteurs d'événements
-  setupEventListeners: function() {
-    // Clic sur la bulle (ouvrir/fermer) - pour desktop
-    this.button.addEventListener('click', (e) => {
-      // Vérifier si ce n'était pas un drag
-      if (!this.isDragging && !this.touchMoved) {
-        e.stopPropagation();
-        this.toggleWindow();
-      }
-      this.touchMoved = false;
-    });
-    
-    // Clic sur le bouton de fermeture
-    this.closeButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.closeWindow();
-    });
-    
-    // Fermer la fenêtre en cliquant à l'extérieur
-    document.addEventListener('click', (e) => {
-      if (this.isOpen && !this.window.contains(e.target) && !this.button.contains(e.target)) {
-        this.closeWindow();
-      }
-    });
-    
-    // Gestion du déplacement sur desktop (drag)
-    this.button.addEventListener('mousedown', this.startDrag.bind(this));
-    document.addEventListener('mousemove', this.drag.bind(this));
-    document.addEventListener('mouseup', this.stopDrag.bind(this));
-    
-    // Gestion des événements tactiles pour mobile - APPROCHE SIMPLIFIÉE
-    this.button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-    this.button.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    this.button.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-    
-    // Fermer la fenêtre avec la touche Échap
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isOpen) {
-        this.closeWindow();
-      }
-    });
-    
-    // Ajuster la position lors du redimensionnement
-    window.addEventListener('resize', this.adjustPositionOnResize.bind(this));
-  },
-  
-  // Gestion du touchstart (mobile)
-  handleTouchStart: function(e) {
-    if (e.touches.length !== 1) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const touch = e.touches[0];
-    this.startX = touch.clientX;
-    this.startY = touch.clientY;
-    this.initialX = this.container.offsetLeft;
-    this.initialY = this.container.offsetTop;
-    this.touchStartTime = Date.now();
-    this.touchMoved = false;
-    this.isDragging = false;
-    
-    // Timer pour détecter un appui long (drag)
-    this.dragTimer = setTimeout(() => {
-      this.isDragging = true;
-      this.button.classList.add('cursor-grabbing', 'scale-105');
-    }, 300);
-  },
-  
-  // Gestion du touchmove (mobile)
-  handleTouchMove: function(e) {
-    if (e.touches.length !== 1) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - this.startX;
-    const deltaY = touch.clientY - this.startY;
-    
-    // Si le mouvement est suffisant, c'est un drag
-    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
-      this.touchMoved = true;
-      clearTimeout(this.dragTimer);
-      
-      // Si ce n'était pas déjà un drag, le devenir
-      if (!this.isDragging) {
-        this.isDragging = true;
-        this.button.classList.add('cursor-grabbing', 'scale-105');
-      }
-      
-      // Calculer la nouvelle position
-      let newX = this.initialX + deltaX;
-      let newY = this.initialY + deltaY;
-      
-      // Limites de la fenêtre
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const buttonSize = 56; // w-14 = 56px
-      
-      // S'assurer que la bulle reste dans les limites
-      newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
-      newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
-      
-      // Appliquer la nouvelle position
-      this.container.style.left = `${newX}px`;
-      this.container.style.top = `${newY}px`;
-      this.container.style.right = 'auto';
-      this.container.style.bottom = 'auto';
-      
-      // Fermer la fenêtre si elle est ouverte pendant le drag
-      if (this.isOpen) {
-        this.closeWindow();
-      }
-    }
-  },
-  
-  // Gestion du touchend (mobile)
-  handleTouchEnd: function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    clearTimeout(this.dragTimer);
-    
-    // Si ce n'était pas un drag, c'est un clic
-    if (!this.isDragging && !this.touchMoved) {
-      const touchDuration = Date.now() - this.touchStartTime;
-      
-      // Si le touch était court (< 300ms), c'est un clic
-      if (touchDuration < 300) {
-        this.toggleWindow();
-      }
-    }
-    
-    // Nettoyer l'état de drag
-    if (this.isDragging) {
-      this.isDragging = false;
-      this.button.classList.remove('cursor-grabbing', 'scale-105');
-      
-      // Animation de retour
-      this.button.classList.add('scale-95');
-      setTimeout(() => {
-        this.button.classList.remove('scale-95');
-      }, 200);
-    }
-    
-    // Réinitialiser
-    this.touchMoved = false;
-  },
-  
-  // Ouvrir/fermer la fenêtre
-  toggleWindow: function() {
-    if (this.isOpen) {
-      this.closeWindow();
-    } else {
-      this.openWindow();
-    }
-  },
-  
-  // Ouvrir la fenêtre
-  openWindow: function() {
-    this.window.classList.remove('opacity-0', 'invisible', 'translate-y-2');
-    this.window.classList.add('opacity-100', 'visible', 'translate-y-0');
-    this.icon.classList.remove('fa-compass');
-    this.icon.classList.add('fa-times');
-    this.button.setAttribute('aria-expanded', 'true');
-    this.isOpen = true;
-    
-    // Animation de micro-interaction
-    this.button.classList.add('scale-110');
-    setTimeout(() => {
-      this.button.classList.remove('scale-110');
-    }, 300);
-  },
-  
-  // Fermer la fenêtre
-  closeWindow: function() {
-    this.window.classList.remove('opacity-100', 'visible', 'translate-y-0');
-    this.window.classList.add('opacity-0', 'invisible', 'translate-y-2');
-    this.icon.classList.remove('fa-times');
-    this.icon.classList.add('fa-compass');
-    this.button.setAttribute('aria-expanded', 'false');
-    this.isOpen = false;
-  },
-  
-  // Position initiale de la bulle
-  positionBulleOnLoad: function() {
-    // Position par défaut en bas à droite
-    this.container.style.bottom = '20px';
-    this.container.style.right = '20px';
-  },
-  
-  // Ajuster la position lors du redimensionnement
-  adjustPositionOnResize: function() {
-    const rect = this.container.getBoundingClientRect();
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-    
-    // S'assurer que la bulle reste dans les limites de la fenêtre
-    if (rect.left < 0) {
-      this.container.style.left = '10px';
-      this.container.style.right = 'auto';
-    }
-    
-    if (rect.top < 0) {
-      this.container.style.top = '10px';
-      this.container.style.bottom = 'auto';
-    }
-    
-    if (rect.right > windowWidth) {
-      this.container.style.right = '10px';
-      this.container.style.left = 'auto';
-    }
-    
-    if (rect.bottom > windowHeight) {
-      this.container.style.bottom = '10px';
-      this.container.style.top = 'auto';
-    }
-  },
-  
-  // Début du drag (souris) - pour desktop
-  startDrag: function(e) {
-    e.preventDefault();
-    this.isDragging = true;
-    this.startX = e.clientX;
-    this.startY = e.clientY;
-    
-    // Enregistrer la position initiale
-    const rect = this.container.getBoundingClientRect();
-    this.initialX = rect.left;
-    this.initialY = rect.top;
-    
-    // Changer l'apparence pendant le drag
-    this.button.classList.add('cursor-grabbing', 'scale-105');
-  },
-  
-  // Déplacement (souris) - pour desktop
-  drag: function(e) {
-    if (!this.isDragging) return;
-    
-    e.preventDefault();
-    
-    // Calculer le déplacement
-    const deltaX = e.clientX - this.startX;
-    const deltaY = e.clientY - this.startY;
-    
-    // Calculer la nouvelle position
-    let newX = this.initialX + deltaX;
-    let newY = this.initialY + deltaY;
-    
-    // Limites de la fenêtre
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-    const buttonSize = 56; // w-14 = 56px
-    
-    // S'assurer que la bulle reste dans les limites
-    newX = Math.max(0, Math.min(newX, windowWidth - buttonSize));
-    newY = Math.max(0, Math.min(newY, windowHeight - buttonSize));
-    
-    // Appliquer la nouvelle position
-    this.container.style.left = `${newX}px`;
-    this.container.style.top = `${newY}px`;
-    this.container.style.right = 'auto';
-    this.container.style.bottom = 'auto';
-    
-    // Fermer la fenêtre si elle est ouverte pendant le drag
-    if (this.isOpen) {
-      this.closeWindow();
-    }
-  },
-  
-  // Fin du drag (souris) - pour desktop
-  stopDrag: function() {
-    if (!this.isDragging) return;
-    
-    this.isDragging = false;
-    this.button.classList.remove('cursor-grabbing', 'scale-105');
-    
-    // Animation de retour
-    this.button.classList.add('scale-95');
-    setTimeout(() => {
-      this.button.classList.remove('scale-95');
-    }, 200);
-  }
-};
-
-// Initialiser la bulle de navigation quand le DOM est chargé
-document.addEventListener('DOMContentLoaded', () => {
-  navBulleConfig.init();
-});
-</script>
-
-<!-- Styles additionnels pour une meilleure expérience mobile -->
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-* {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-}
-
-#navBulleContainer {
-  touch-action: none; /* Empêche le défilement pendant le drag sur mobile */
-}
-
-#navBulleBtn {
-  cursor: grab;
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-#navBulleBtn:active {
-  cursor: grabbing;
-}
-
-#navBulleWindow {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: white; /* Assure un fond blanc */
-}
-
-/* Correction des couleurs des textes et liens */
-#navBulleWindow h2 {
-  color: #1f2937 !important; /* Couleur foncée pour le titre */
-}
-
-#navBulleLinks a {
-  color: #374151 !important; /* Couleur gris foncé pour les liens */
-}
-
-#navBulleLinks a span {
-  color: #374151 !important; /* Assure la couleur du texte des liens */
-}
-
-#navBulleCloseBtn {
-  color: #6b7280 !important; /* Couleur grise pour l'icône de fermeture */
-}
-
-#navBulleCloseBtn:hover {
-  color: #374151 !important;
-}
-
-/* Animation d'entrée pour les liens */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-#navBulleLinks li {
-  animation: fadeInUp 0.3s ease-out forwards;
-  opacity: 0;
-}
-
-#navBulleLinks li:nth-child(1) { animation-delay: 0.05s; }
-#navBulleLinks li:nth-child(2) { animation-delay: 0.1s; }
-#navBulleLinks li:nth-child(3) { animation-delay: 0.15s; }
-#navBulleLinks li:nth-child(4) { animation-delay: 0.2s; }
-#navBulleLinks li:nth-child(5) { animation-delay: 0.25s; }
-#navBulleLinks li:nth-child(6) { animation-delay: 0.3s; }
-
-/* Assurer la visibilité des icônes dans les cercles colorés */
-#navBulleLinks a div i {
-  color: inherit !important; /* Hérite la couleur définie par la classe */
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  #navBulleWindow {
-    width: calc(100vw - 40px);
-    max-width: 300px;
-    right: 0;
-    bottom: 70px;
-  }
-  
-  #navBulleWindow > div:last-child {
-    right: 20px;
-  }
-}
-
-/* Dark mode support - corrigé pour garder la lisibilité */
-@media (prefers-color-scheme: dark) {
-  #navBulleWindow {
-    background-color: #1f2937 !important;
-    border-color: #374151 !important;
-  }
-  
-  #navBulleWindow h2 {
-    color: #f9fafb !important; /* Blanc pour le titre en dark mode */
-  }
-  
-  #navBulleLinks a {
-    color: #e5e7eb !important; /* Gris clair pour les liens */
-  }
-  
-  #navBulleLinks a span {
-    color: #e5e7eb !important; /* Gris clair pour le texte */
-  }
-  
-  #navBulleLinks a:hover {
-    background-color: rgba(59, 130, 246, 0.1) !important;
-  }
-  
-  #navBulleCloseBtn {
-    color: #9ca3af !important;
-  }
-  
-  #navBulleCloseBtn:hover {
-    background-color: #374151 !important;
-    color: #f9fafb !important;
-  }
-  
-  #navBulleWindow > div:last-child {
-    background-color: #1f2937 !important;
-  }
-}
-
-/* Force la visibilité des éléments pendant les animations */
-#navBulleWindow.opacity-100.visible {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Correction spécifique pour les couleurs des icônes dans les cercles */
-.bg-opacity-10 {
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-.text-blue-600 { color: #2563eb !important; }
-.text-green-600 { color: #16a34a !important; }
-.text-purple-600 { color: #9333ea !important; }
-.text-amber-600 { color: #d97706 !important; }
-.text-red-600 { color: #dc2626 !important; }
-.text-indigo-600 { color: #4f46e5 !important; }
-</style>
-    <!-- JavaScript -->
     <script>
-        // Configuration Firebase
-    const firebaseConfig = {
+        // ==============================================
+        // CONFIGURATION FIREBASE
+        // ==============================================
+              const firebaseConfig = {
   apiKey: "AIzaSyBZEl66YW2x4csBHfU3BlSDBYxigVQ1U8U",
   authDomain: "izipret-c669d.firebaseapp.com",
   projectId: "izipret-c669d",
@@ -1243,775 +697,599 @@ document.addEventListener('DOMContentLoaded', () => {
   measurementId: "G-0SKSRSFHZ4"
 };
 
-        // Initialiser Firebase
+        // Initialisation Firebase sans authentification
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        
-        // Variables globales
-        let currentPage = 'hero';
-        let aboutData = null;
-        let stats = [];
-        let values = [];
-        let members = [];
-        
-        // Fonction pour charger les données depuis Firebase
-        async function loadAboutData() {
-            try {
-                showLoading();
-                const docRef = db.collection('about').doc('content');
-                const doc = await docRef.get();
+
+        // ==============================================
+        // ÉTAT GLOBAL DE L'APPLICATION
+        // ==============================================
+        let valeursData = [];
+        let vieCartesData = [];
+
+        // ==============================================
+        // INITIALISATION DE L'APPLICATION
+        // ==============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger les données au démarrage
+            loadAllData();
+            
+            // Afficher la première section par défaut
+            showSection('hero');
+        });
+
+        // ==============================================
+        // GESTION DE L'INTERFACE
+        // ==============================================
+        // Navigation sidebar
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.getAttribute('data-section');
+                showSection(section);
                 
-                if (doc.exists) {
-                    aboutData = doc.data();
-                    updateFormsWithData();
-                    showNotification('Données chargées avec succès !', 'success');
-                } else {
-                    aboutData = getDefaultData();
-                    showNotification('Données par défaut chargées', 'info');
+                // Fermeture du menu mobile
+                if (window.innerWidth < 768) {
+                    document.querySelector('.sidebar').classList.remove('active');
+                    document.getElementById('mobileOverlay').classList.remove('active');
                 }
-            } catch (error) {
-                console.error('Erreur lors du chargement:', error);
-                aboutData = getDefaultData();
-                showNotification('Erreur de chargement, données par défaut utilisées', 'error');
-            } finally {
-                hideLoading();
+            });
+        });
+
+        // Menu mobile toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        document.getElementById('mobileOverlay').addEventListener('click', function() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // ==============================================
+        // GESTION DES SECTIONS
+        // ==============================================
+        function showSection(sectionId) {
+            // Masquer toutes les sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Afficher la section demandée
+            const sectionElement = document.getElementById(sectionId + 'Section');
+            if (sectionElement) {
+                sectionElement.classList.remove('hidden');
             }
-        }
-        
-        // Données par défaut
-        function getDefaultData() {
-            return {
-                hero: {
-                    badge: "À propos de nous",
-                    title: "Former la <span class='gradient-text'>jeunesse</span> de Delmas pour l'avenir",
-                    description: "Institut de formation en éducation, psychologie et technologie (URH HAITI) - Une référence en formation professionnelle à Delmas."
-                },
-                mission: {
-                    badge: "Notre mission & vision",
-                    title: "Éduquer, Inspirer, <span class='text-blue-600'>Transformer</span>",
-                    text1: "Fondé en 2024, l'URH HAITI s'est imposé comme un acteur majeur dans la formation professionnelle à l'échelle nationale et internationale. Notre approche combine théorie et pratique pour préparer les étudiants aux réalités du marché du travail.",
-                    text2: "Notre mission est de former des professionnels compétents, disciplinés, engagés, capable de répondre aux exigences du monde professionnel et de contribuer activement au développement économique et social d'Haïti et ailleurs.",
-                    video: "videoifept.mp4",
-                    stats: [
-                        {
-                            icon: "user-graduate",
-                            color: "blue",
-                            number: "+2,500",
-                            label: "Étudiants formés"
-                        },
-                        {
-                            icon: "briefcase",
-                            color: "emerald",
-                            number: "85%",
-                            label: "Taux d'insertion"
-                        }
-                    ]
-                },
-                values: {
-                    badge: "Nos valeurs fondamentales",
-                    title: "Ce qui nous <span class='text-emerald-600'>distingue</span>",
-                    subtitle: "Notre succès repose sur des valeurs fortes qui guident chaque aspect de notre formation.",
-                    items: [
-                        {
-                            icon: "lightbulb",
-                            color: "blue",
-                            title: "Innovation pédagogique",
-                            description: "Méthodes d'enseignement modernes adaptées aux réalités du marché du travail haïtien.",
-                            points: ["Apprentissage par projets réels", "Technologies éducatives de pointe"]
-                        },
-                        {
-                            icon: "users",
-                            color: "emerald",
-                            title: "Encadrement personnalisé",
-                            description: "Suivi individuel de chaque étudiant avec des mentors dédiés pour garantir sa réussite.",
-                            points: ["Tutorat individuel et en groupe", "Orientation professionnelle personnalisée"]
-                        },
-                        {
-                            icon: "handshake",
-                            color: "purple",
-                            title: "Partenariats stratégiques",
-                            description: "Réseau étendu d'entreprises partenaires pour stages et opportunités d'emploi.",
-                            points: ["+50 entreprises partenaires", "Programmes de stage garantis"]
-                        }
-                    ]
-                },
-                team: {
-                    badge: "Notre équipe dirigeante",
-                    title: "Rencontrez nos <span class='text-purple-600'>leaders</span>",
-                    subtitle: "Une équipe expérimentée dévouée à l'excellence éducative.",
-                    members: [
-                        {
-                            name: "Dr. Jean-Louis Pierre",
-                            position: "Directeur Général",
-                            description: "Docteur en Sciences de l'Éducation avec 15 ans d'expérience."
-                        },
-                        {
-                            name: "Mme. Marie-Claire Laurent",
-                            position: "Directrice Académique",
-                            description: "Spécialiste en pédagogie innovante et technologies éducatives."
-                        },
-                        {
-                            name: "M. Samuel Durocher",
-                            position: "Directeur des Partenariats",
-                            description: "Expert en relations entreprises et insertion professionnelle."
-                        }
-                    ]
-                },
-                cta: {
-                    title: "Prêt à transformer votre avenir avec nous ?",
-                    text: "Rejoignez l'URH HAITI et bénéficiez d'une formation d'excellence adaptée aux besoins du marché du travail.",
-                    button1: {
-                        text: "S'inscrire maintenant",
-                        link: "https://form.jotform.com/isd_haiti/formulaire-dinscription-des-tudiant"
-                    },
-                    button2: {
-                        text: "Nous contacter",
-                        link: "contct.html"
-                    }
-                }
+            
+            // Mettre à jour le titre
+            const titles = {
+                'hero': 'Hero - À propos',
+                'qui-sommes-nous': 'Qui sommes-nous',
+                'mission': 'Notre mission',
+                'vision': 'Vision & Valeurs',
+                'avenir': 'Université avenir',
+                'partenariats': 'Partenariats',
+                'vie': 'Vie universitaire',
+                'direction': 'Direction',
+                'stats': 'Chiffres clés',
+                'valeurs': 'Cartes Valeurs',
+                'vie-cartes': 'Cartes Vie étudiante'
             };
-        }
-        
-        // Mettre à jour les formulaires avec les données
-        function updateFormsWithData() {
-            if (!aboutData) return;
             
-            // Hero
-            if (aboutData.hero) {
-                document.getElementById('hero-badge').value = aboutData.hero.badge || '';
-                document.getElementById('hero-title').value = aboutData.hero.title || '';
-                document.getElementById('hero-description').value = aboutData.hero.description || '';
-            }
+            document.getElementById('sectionTitle').textContent = titles[sectionId] || 'Dashboard';
             
-            // Mission
-            if (aboutData.mission) {
-                document.getElementById('mission-badge').value = aboutData.mission.badge || '';
-                document.getElementById('mission-title').value = aboutData.mission.title || '';
-                document.getElementById('mission-text1').value = aboutData.mission.text1 || '';
-                document.getElementById('mission-text2').value = aboutData.mission.text2 || '';
-                document.getElementById('mission-video').value = aboutData.mission.video || '';
-                
-                // Stats
-                stats = aboutData.mission.stats || [];
-                updateStatsList();
-            }
-            
-            // Values
-            if (aboutData.values) {
-                document.getElementById('values-badge').value = aboutData.values.badge || '';
-                document.getElementById('values-title').value = aboutData.values.title || '';
-                document.getElementById('values-subtitle').value = aboutData.values.subtitle || '';
-                
-                values = aboutData.values.items || [];
-                updateValuesList();
-            }
-            
-            // Team
-            if (aboutData.team) {
-                document.getElementById('team-badge').value = aboutData.team.badge || '';
-                document.getElementById('team-title').value = aboutData.team.title || '';
-                document.getElementById('team-subtitle').value = aboutData.team.subtitle || '';
-                
-                members = aboutData.team.members || [];
-                updateMembersList();
-            }
-            
-            // CTA
-            if (aboutData.cta) {
-                document.getElementById('cta-title').value = aboutData.cta.title || '';
-                document.getElementById('cta-text').value = aboutData.cta.text || '';
-                
-                if (aboutData.cta.button1) {
-                    document.getElementById('cta-btn1-text').value = aboutData.cta.button1.text || '';
-                    document.getElementById('cta-btn1-link').value = aboutData.cta.button1.link || '';
-                }
-                
-                if (aboutData.cta.button2) {
-                    document.getElementById('cta-btn2-text').value = aboutData.cta.button2.text || '';
-                    document.getElementById('cta-btn2-link').value = aboutData.cta.button2.link || '';
-                }
+            // Charger les données de la section si nécessaire
+            if (sectionId === 'valeurs') {
+                loadValeursCards();
+            } else if (sectionId === 'vie-cartes') {
+                loadVieCards();
             }
         }
-        
-        // Mettre à jour la liste des statistiques
-        function updateStatsList() {
-            const container = document.getElementById('stats-container');
+
+        // ==============================================
+        // FONCTIONS CRUD POUR LES SECTIONS
+        // ==============================================
+        async function saveSection(section) {
+            const spinner = document.getElementById(section + 'Spinner');
+            const message = document.getElementById(section + 'Message');
             
-            if (!stats.length) {
-                container.innerHTML = `
-                    <div class="border border-gray-300 rounded-lg p-4">
-                        <p class="text-gray-600 text-center text-sm sm:text-base">Aucune statistique ajoutée</p>
-                    </div>
-                `;
-                return;
-            }
+            spinner.classList.remove('hidden');
+            message.textContent = '';
+            message.classList.remove('text-green-600', 'text-red-600');
             
-            container.innerHTML = stats.map((stat, index) => `
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-${stat.color}-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                                <i class="fas fa-${stat.icon} text-${stat.color}-600 text-sm"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h4 class="font-medium text-gray-800 truncate text-sm sm:text-base">${stat.number}</h4>
-                                <p class="text-xs sm:text-sm text-gray-600 truncate">${stat.label}</p>
-                            </div>
-                        </div>
-                        <div class="flex justify-end sm:justify-start space-x-2">
-                            <button type="button" class="edit-stat-btn text-blue-600 hover:text-blue-800 p-1" data-index="${index}" aria-label="Éditer">
-                                <i class="fas fa-edit text-sm"></i>
-                            </button>
-                            <button type="button" class="delete-stat-btn text-red-600 hover:text-red-800 p-1" data-index="${index}" aria-label="Supprimer">
-                                <i class="fas fa-trash text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Mettre à jour la liste des valeurs
-        function updateValuesList() {
-            const container = document.getElementById('values-list-container');
-            
-            if (!values.length) {
-                container.innerHTML = `
-                    <div class="border border-gray-300 rounded-lg p-4">
-                        <p class="text-gray-600 text-center text-sm sm:text-base">Aucune valeur ajoutée</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = values.map((value, index) => `
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
-                        <div class="flex items-start">
-                            <div class="w-10 h-10 bg-${value.color}-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0 mt-1">
-                                <i class="fas fa-${value.icon} text-${value.color}-600"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h4 class="font-medium text-gray-800 text-sm sm:text-base">${value.title}</h4>
-                                <p class="text-xs sm:text-sm text-gray-600 line-clamp-2 mt-1">${value.description}</p>
-                            </div>
-                        </div>
-                        <div class="flex justify-end sm:justify-start space-x-2">
-                            <button type="button" class="edit-value-btn text-blue-600 hover:text-blue-800 p-1" data-index="${index}" aria-label="Éditer">
-                                <i class="fas fa-edit text-sm"></i>
-                            </button>
-                            <button type="button" class="delete-value-btn text-red-600 hover:text-red-800 p-1" data-index="${index}" aria-label="Supprimer">
-                                <i class="fas fa-trash text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <ul class="space-y-1 ml-0 sm:ml-14">
-                        ${value.points.map(point => `
-                            <li class="flex items-center text-xs sm:text-sm text-gray-600">
-                                <i class="fas fa-check-circle text-emerald-500 text-xs mr-2 flex-shrink-0"></i>
-                                <span>${point}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            `).join('');
-        }
-        
-        // Mettre à jour la liste des membres
-        function updateMembersList() {
-            const container = document.getElementById('team-members-container');
-            
-            if (!members.length) {
-                container.innerHTML = `
-                    <div class="border border-gray-300 rounded-lg p-4">
-                        <p class="text-gray-600 text-center text-sm sm:text-base">Aucun membre ajouté</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = members.map((member, index) => `
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                        <div class="min-w-0">
-                            <h4 class="font-medium text-gray-800 text-sm sm:text-base">${member.name}</h4>
-                            <p class="text-blue-600 text-xs sm:text-sm mb-2">${member.position}</p>
-                            <p class="text-xs sm:text-sm text-gray-600 line-clamp-3">${member.description}</p>
-                        </div>
-                        <div class="flex justify-end sm:justify-start space-x-2">
-                            <button type="button" class="edit-member-btn text-blue-600 hover:text-blue-800 p-1" data-index="${index}" aria-label="Éditer">
-                                <i class="fas fa-edit text-sm"></i>
-                            </button>
-                            <button type="button" class="delete-member-btn text-red-600 hover:text-red-800 p-1" data-index="${index}" aria-label="Supprimer">
-                                <i class="fas fa-trash text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // Sauvegarder les données dans Firebase
-        async function saveAboutData() {
             try {
-                showLoading();
+                const data = {};
                 
-                // Construire l'objet de données
-                const dataToSave = {
-                    hero: {
-                        badge: document.getElementById('hero-badge').value,
-                        title: document.getElementById('hero-title').value,
-                        description: document.getElementById('hero-description').value
-                    },
-                    mission: {
-                        badge: document.getElementById('mission-badge').value,
-                        title: document.getElementById('mission-title').value,
-                        text1: document.getElementById('mission-text1').value,
-                        text2: document.getElementById('mission-text2').value,
-                        video: document.getElementById('mission-video').value,
-                        stats: stats
-                    },
-                    values: {
-                        badge: document.getElementById('values-badge').value,
-                        title: document.getElementById('values-title').value,
-                        subtitle: document.getElementById('values-subtitle').value,
-                        items: values
-                    },
-                    team: {
-                        badge: document.getElementById('team-badge').value,
-                        title: document.getElementById('team-title').value,
-                        subtitle: document.getElementById('team-subtitle').value,
-                        members: members
-                    },
-                    cta: {
-                        title: document.getElementById('cta-title').value,
-                        text: document.getElementById('cta-text').value,
-                        button1: {
-                            text: document.getElementById('cta-btn1-text').value,
-                            link: document.getElementById('cta-btn1-link').value
-                        },
-                        button2: {
-                            text: document.getElementById('cta-btn2-text').value,
-                            link: document.getElementById('cta-btn2-link').value
-                        }
-                    },
-                    updatedAt: new Date().toISOString()
-                };
+                switch(section) {
+                    case 'hero':
+                        data.title = document.getElementById('heroTitle').value;
+                        data.subtitle = document.getElementById('heroSubtitle').value;
+                        data.image = document.getElementById('heroImage').value;
+                        break;
+                        
+                    case 'qsn':
+                        data.title = document.getElementById('qsnTitle').value;
+                        data.paragraph1 = document.getElementById('qsnParagraph1').value;
+                        data.paragraph2 = document.getElementById('qsnParagraph2').value;
+                        data.paragraph3 = document.getElementById('qsnParagraph3').value;
+                        break;
+                        
+                    case 'mission':
+                        data.title = document.getElementById('missionTitle').value;
+                        data.paragraph1 = document.getElementById('missionParagraph1').value;
+                        data.paragraph2 = document.getElementById('missionParagraph2').value;
+                        data.paragraph3 = document.getElementById('missionParagraph3').value;
+                        break;
+                        
+                    case 'avenir':
+                        data.title = document.getElementById('avenirTitle').value;
+                        data.paragraph1 = document.getElementById('avenirParagraph1').value;
+                        data.paragraph2 = document.getElementById('avenirParagraph2').value;
+                        data.paragraph3 = document.getElementById('avenirParagraph3').value;
+                        data.paragraph4 = document.getElementById('avenirParagraph4').value;
+                        data.image = document.getElementById('avenirImage').value;
+                        break;
+                        
+                    case 'partenariats':
+                        data.title = document.getElementById('partenariatsTitle').value;
+                        data.description = document.getElementById('partenariatsDescription').value;
+                        data.paragraph1 = document.getElementById('partenariatsParagraph1').value;
+                        data.paragraph2 = document.getElementById('partenariatsParagraph2').value;
+                        break;
+                        
+                    case 'vie':
+                        data.title = document.getElementById('vieTitle').value;
+                        break;
+                        
+                    case 'direction':
+                        data.title = document.getElementById('directionTitle').value;
+                        data.name = document.getElementById('directorName').value;
+                        data.titlePosition = document.getElementById('directorTitle').value;
+                        data.image = document.getElementById('directorImage').value;
+                        data.paragraph1 = document.getElementById('directorParagraph1').value;
+                        data.paragraph2 = document.getElementById('directorParagraph2').value;
+                        data.paragraph3 = document.getElementById('directorParagraph3').value;
+                        data.paragraph4 = document.getElementById('directorParagraph4').value;
+                        break;
+                }
                 
-                // Sauvegarder dans Firebase
-                await db.collection('about').doc('content').set(dataToSave, { merge: true });
+                // Sauvegarde dans Firestore
+                await db.collection('content').doc(section).set(data, { merge: true });
                 
-                showNotification('Données sauvegardées avec succès !', 'success');
+                message.textContent = '✅ Données sauvegardées avec succès';
+                message.classList.add('text-green-600');
                 
             } catch (error) {
                 console.error('Erreur lors de la sauvegarde:', error);
-                showNotification('Erreur lors de la sauvegarde. Veuillez réessayer.', 'error');
+                message.textContent = '❌ Erreur lors de la sauvegarde: ' + error.message;
+                message.classList.add('text-red-600');
             } finally {
-                hideLoading();
+                spinner.classList.add('hidden');
+                
+                // Effacer le message après 3 secondes
+                setTimeout(() => {
+                    message.textContent = '';
+                }, 3000);
             }
         }
-        
-        // Fonction pour changer de page
-        function navigateToPage(pageId) {
-            // Fermer le menu mobile si ouvert
-            closeMobileMenu();
+
+        async function saveStats() {
+            const spinner = document.getElementById('statsSpinner');
+            const message = document.getElementById('statsMessage');
             
-            // Mettre à jour le menu actif
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.classList.remove('active');
-                item.classList.add('text-gray-300');
+            spinner.classList.remove('hidden');
+            message.textContent = '';
+            message.classList.remove('text-green-600', 'text-red-600');
+            
+            try {
+                const data = {
+                    annee: parseInt(document.getElementById('statAnnee').value) || 0,
+                    etudiants: parseInt(document.getElementById('statEtudiants').value) || 0,
+                    nationalites: parseInt(document.getElementById('statNationalites').value) || 0,
+                    enseignants: parseInt(document.getElementById('statEnseignants').value) || 0
+                };
+                
+                await db.collection('content').doc('stats').set(data);
+                
+                message.textContent = '✅ Chiffres sauvegardés avec succès';
+                message.classList.add('text-green-600');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde:', error);
+                message.textContent = '❌ Erreur lors de la sauvegarde: ' + error.message;
+                message.classList.add('text-red-600');
+            } finally {
+                spinner.classList.add('hidden');
+                
+                setTimeout(() => {
+                    message.textContent = '';
+                }, 3000);
+            }
+        }
+
+        // ==============================================
+        // GESTION DES CARTES VALEURS
+        // ==============================================
+        function addValueCard() {
+            const container = document.getElementById('valeursContainer') || 
+                             document.getElementById('valeursCardsContainer');
+            
+            if (!container) return;
+            
+            const template = document.getElementById('valueCardTemplate');
+            const clone = template.content.cloneNode(true);
+            
+            const index = container.children.length + 1;
+            clone.querySelector('.card-index').textContent = index;
+            
+            // Pré-remplir avec des données par défaut si disponibles
+            const defaultData = valeursData[index - 1];
+            if (defaultData) {
+                clone.querySelector('.value-icon').value = defaultData.icon || '';
+                clone.querySelector('.value-title').value = defaultData.title || '';
+                clone.querySelector('.value-description').value = defaultData.description || '';
+            }
+            
+            container.appendChild(clone);
+        }
+
+        function removeValueCard(button) {
+            const card = button.closest('.bg-gray-50');
+            card.remove();
+            updateCardIndexes('valeurs');
+        }
+
+        function updateCardIndexes(section) {
+            const container = section === 'valeurs' ? 
+                (document.getElementById('valeursContainer') || document.getElementById('valeursCardsContainer')) :
+                document.getElementById('vieCartesContainer') || document.getElementById('vieCardsContainer');
+            
+            if (!container) return;
+            
+            Array.from(container.children).forEach((card, index) => {
+                const indexElement = card.querySelector('.card-index');
+                if (indexElement) {
+                    indexElement.textContent = index + 1;
+                }
             });
-            
-            document.querySelectorAll(`[data-page="${pageId}"]`).forEach(item => {
-                item.classList.add('active');
-                item.classList.remove('text-gray-300');
-            });
-            
-            // Mettre à jour les titres de page
-            const pageTitles = {
-                hero: "Section Hero",
-                mission: "Mission & Vision", 
-                values: "Nos Valeurs",
-                team: "Équipe Dirigeante",
-                cta: "Section CTA"
-            };
-            
-            const pageSubtitles = {
-                hero: "Gérez le contenu de la section hero de la page À Propos",
-                mission: "Gérez la section mission et vision",
-                values: "Gérez les valeurs fondamentales",
-                team: "Gérez les membres de l'équipe dirigeante",
-                cta: "Gérez la section call to action"
-            };
-            
-            document.getElementById('page-title').textContent = pageTitles[pageId] || 'Dashboard';
-            document.getElementById('page-subtitle').textContent = pageSubtitles[pageId] || '';
-            
-            // Cacher toutes les pages
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // Afficher la page sélectionnée
-            document.getElementById(`${pageId}-page`).classList.add('active');
-            
-            currentPage = pageId;
-            
-            // Scroll vers le haut sur mobile
-            if (window.innerWidth < 1024) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
         }
-        
-        // Gestion du menu mobile
-        function openMobileMenu() {
-            document.getElementById('mobile-sidebar').classList.add('open');
-            document.getElementById('mobile-overlay').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeMobileMenu() {
-            document.getElementById('mobile-sidebar').classList.remove('open');
-            document.getElementById('mobile-overlay').classList.remove('open');
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Gestion des modals
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('open');
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Notification system
-        function showNotification(message, type = 'info') {
-            // Supprimer les notifications existantes
-            const existingNotifications = document.querySelectorAll('.custom-notification');
-            existingNotifications.forEach(notification => notification.remove());
+
+        async function saveVisionSection() {
+            const spinner = document.getElementById('visionSpinner');
+            const message = document.getElementById('visionMessage');
+            const container = document.getElementById('valeursContainer');
             
-            const colors = {
-                success: 'bg-emerald-500',
-                error: 'bg-red-500',
-                info: 'bg-blue-500',
-                warning: 'bg-yellow-500'
-            };
+            spinner.classList.remove('hidden');
+            message.textContent = '';
+            message.classList.remove('text-green-600', 'text-red-600');
             
-            const icon = {
-                success: 'fa-check-circle',
-                error: 'fa-exclamation-circle',
-                info: 'fa-info-circle',
-                warning: 'fa-exclamation-triangle'
-            };
-            
-            const notification = document.createElement('div');
-            notification.className = `custom-notification fixed top-4 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-3 max-w-sm animate-slide-in`;
-            notification.innerHTML = `
-                <i class="fas ${icon[type]} text-xl"></i>
-                <span class="text-sm">${message}</span>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Auto-remove after 3 seconds
-            setTimeout(() => {
-                notification.style.animation = 'slide-out 0.3s ease forwards';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-        
-        // Loading indicator
-        function showLoading() {
-            let loader = document.getElementById('global-loader');
-            if (!loader) {
-                loader = document.createElement('div');
-                loader.id = 'global-loader';
-                loader.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                loader.innerHTML = `
-                    <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center space-y-4">
-                        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                        <p class="text-gray-700 font-medium">Chargement...</p>
-                    </div>
-                `;
-                document.body.appendChild(loader);
-            }
-        }
-        
-        function hideLoading() {
-            const loader = document.getElementById('global-loader');
-            if (loader) {
-                loader.remove();
-            }
-        }
-        
-        // Initialisation
-        async function initDashboard() {
-            // Charger les données
-            await loadAboutData();
-            
-            // Configurer les écouteurs d'événements
-            setupEventListeners();
-            
-            // Ajouter les styles d'animation pour les notifications
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slide-in {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slide-out {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                .animate-slide-in {
-                    animation: slide-in 0.3s ease forwards;
-                }
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-                .animate-spin {
-                    animation: spin 1s linear infinite;
-                }
-            `;
-            document.head.appendChild(style);
-            
-            showNotification('Dashboard chargé avec succès !', 'success');
-        }
-        
-        // Configurer les écouteurs d'événements
-        function setupEventListeners() {
-            // Menu mobile
-            document.getElementById('mobile-menu-btn').addEventListener('click', openMobileMenu);
-            document.getElementById('close-mobile-menu').addEventListener('click', closeMobileMenu);
-            document.getElementById('mobile-overlay').addEventListener('click', closeMobileMenu);
-            document.getElementById('mobile-save-btn').addEventListener('click', saveAboutData);
-            
-            // Navigation
-            document.querySelectorAll('.menu-item[data-page]').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    navigateToPage(item.dataset.page);
+            try {
+                // Sauvegarder le titre
+                const title = document.getElementById('visionTitle').value;
+                await db.collection('content').doc('vision').set({ title }, { merge: true });
+                
+                // Sauvegarder les cartes valeurs
+                const valeurs = [];
+                const cards = container.querySelectorAll('.bg-gray-50');
+                
+                cards.forEach(card => {
+                    valeurs.push({
+                        icon: card.querySelector('.value-icon').value,
+                        title: card.querySelector('.value-title').value,
+                        description: card.querySelector('.value-description').value
+                    });
                 });
-            });
+                
+                await db.collection('content').doc('valeurs').set({ items: valeurs });
+                
+                message.textContent = '✅ Section Vision & Valeurs sauvegardée';
+                message.classList.add('text-green-600');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde:', error);
+                message.textContent = '❌ Erreur lors de la sauvegarde: ' + error.message;
+                message.classList.add('text-red-600');
+            } finally {
+                spinner.classList.add('hidden');
+                
+                setTimeout(() => {
+                    message.textContent = '';
+                }, 3000);
+            }
+        }
+
+        // ==============================================
+        // GESTION DES CARTES VIE ÉTUDIANTE
+        // ==============================================
+        function addVieCard() {
+            const container = document.getElementById('vieCartesContainer') || 
+                             document.getElementById('vieCardsContainer');
             
-            // Sauvegarde par section
-            document.getElementById('save-hero').addEventListener('click', saveAboutData);
-            document.getElementById('save-mission').addEventListener('click', saveAboutData);
-            document.getElementById('save-values').addEventListener('click', saveAboutData);
-            document.getElementById('save-team').addEventListener('click', saveAboutData);
-            document.getElementById('save-cta').addEventListener('click', saveAboutData);
+            if (!container) return;
             
-            // Sauvegarde globale
-            document.getElementById('save-all').addEventListener('click', saveAboutData);
+            const template = document.getElementById('vieCardTemplate');
+            const clone = template.content.cloneNode(true);
             
-            // Gestion des statistiques
-            document.getElementById('add-stat').addEventListener('click', () => {
-                document.getElementById('stat-index').value = '';
-                document.getElementById('stat-form').reset();
-                openModal('stat-modal');
-            });
+            const index = container.children.length + 1;
+            clone.querySelector('.card-index').textContent = index;
             
-            // Gestion des valeurs
-            document.getElementById('add-value').addEventListener('click', () => {
-                document.getElementById('value-index').value = '';
-                document.getElementById('value-form').reset();
-                document.getElementById('value-points').value = '';
-                openModal('value-modal');
-            });
+            // Pré-remplir avec des données par défaut si disponibles
+            const defaultData = vieCartesData[index - 1];
+            if (defaultData) {
+                clone.querySelector('.vie-title').value = defaultData.title || '';
+                clone.querySelector('.vie-description').value = defaultData.description || '';
+                clone.querySelector('.vie-image').value = defaultData.image || '';
+            }
             
-            // Gestion des membres
-            document.getElementById('add-member').addEventListener('click', () => {
-                document.getElementById('member-index').value = '';
-                document.getElementById('member-form').reset();
-                openModal('member-modal');
-            });
+            container.appendChild(clone);
+        }
+
+        function removeVieCard(button) {
+            const card = button.closest('.bg-gray-50');
+            card.remove();
+            updateCardIndexes('vie');
+        }
+
+        async function saveVieCartes() {
+            const message = document.getElementById('vieMessage');
+            const container = document.getElementById('vieCartesContainer');
             
-            // Fermer les modals
-            document.getElementById('cancel-stat').addEventListener('click', () => closeModal('stat-modal'));
-            document.getElementById('cancel-value').addEventListener('click', () => closeModal('value-modal'));
-            document.getElementById('cancel-member').addEventListener('click', () => closeModal('member-modal'));
+            message.textContent = '';
+            message.classList.remove('text-green-600', 'text-red-600');
             
-            // Fermer modals avec Escape
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeModal('stat-modal');
-                    closeModal('value-modal');
-                    closeModal('member-modal');
-                    closeMobileMenu();
+            try {
+                const cartes = [];
+                const cards = container.querySelectorAll('.bg-gray-50');
+                
+                cards.forEach(card => {
+                    cartes.push({
+                        title: card.querySelector('.vie-title').value,
+                        description: card.querySelector('.vie-description').value,
+                        image: card.querySelector('.vie-image').value
+                    });
+                });
+                
+                await db.collection('content').doc('vie-cartes').set({ items: cartes });
+                
+                message.textContent = '✅ Cartes Vie étudiante sauvegardées';
+                message.classList.add('text-green-600');
+                
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde:', error);
+                message.textContent = '❌ Erreur lors de la sauvegarde: ' + error.message;
+                message.classList.add('text-red-600');
+            } finally {
+                setTimeout(() => {
+                    message.textContent = '';
+                }, 3000);
+            }
+        }
+
+        // ==============================================
+        // CHARGEMENT DES DONNÉES
+        // ==============================================
+        async function loadAllData() {
+            try {
+                // Charger toutes les sections
+                const sections = ['hero', 'qsn', 'mission', 'vision', 'avenir', 'partenariats', 'vie', 'direction', 'stats'];
+                
+                for (const section of sections) {
+                    await loadSectionData(section);
                 }
-            });
-            
-            // Gestion via délégation d'événements
-            document.addEventListener('click', (e) => {
-                // Éditer une statistique
-                if (e.target.closest('.edit-stat-btn')) {
-                    const index = e.target.closest('.edit-stat-btn').dataset.index;
-                    const stat = stats[index];
+                
+                // Charger les cartes valeurs
+                await loadValeursData();
+                
+                // Charger les cartes vie étudiante
+                await loadVieCartesData();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+            }
+        }
+
+        async function loadSectionData(section) {
+            try {
+                const doc = await db.collection('content').doc(section).get();
+                
+                if (doc.exists) {
+                    const data = doc.data();
                     
-                    if (stat) {
-                        document.getElementById('stat-index').value = index;
-                        document.getElementById('stat-icon').value = stat.icon;
-                        document.getElementById('stat-color').value = stat.color;
-                        document.getElementById('stat-number').value = stat.number;
-                        document.getElementById('stat-label').value = stat.label;
-                        
-                        openModal('stat-modal');
+                    switch(section) {
+                        case 'hero':
+                            document.getElementById('heroTitle').value = data.title || '';
+                            document.getElementById('heroSubtitle').value = data.subtitle || '';
+                            document.getElementById('heroImage').value = data.image || '';
+                            break;
+                            
+                        case 'qsn':
+                            document.getElementById('qsnTitle').value = data.title || '';
+                            document.getElementById('qsnParagraph1').value = data.paragraph1 || '';
+                            document.getElementById('qsnParagraph2').value = data.paragraph2 || '';
+                            document.getElementById('qsnParagraph3').value = data.paragraph3 || '';
+                            break;
+                            
+                        case 'mission':
+                            document.getElementById('missionTitle').value = data.title || '';
+                            document.getElementById('missionParagraph1').value = data.paragraph1 || '';
+                            document.getElementById('missionParagraph2').value = data.paragraph2 || '';
+                            document.getElementById('missionParagraph3').value = data.paragraph3 || '';
+                            break;
+                            
+                        case 'vision':
+                            document.getElementById('visionTitle').value = data.title || '';
+                            break;
+                            
+                        case 'avenir':
+                            document.getElementById('avenirTitle').value = data.title || '';
+                            document.getElementById('avenirParagraph1').value = data.paragraph1 || '';
+                            document.getElementById('avenirParagraph2').value = data.paragraph2 || '';
+                            document.getElementById('avenirParagraph3').value = data.paragraph3 || '';
+                            document.getElementById('avenirParagraph4').value = data.paragraph4 || '';
+                            document.getElementById('avenirImage').value = data.image || '';
+                            break;
+                            
+                        case 'partenariats':
+                            document.getElementById('partenariatsTitle').value = data.title || '';
+                            document.getElementById('partenariatsDescription').value = data.description || '';
+                            document.getElementById('partenariatsParagraph1').value = data.paragraph1 || '';
+                            document.getElementById('partenariatsParagraph2').value = data.paragraph2 || '';
+                            break;
+                            
+                        case 'vie':
+                            document.getElementById('vieTitle').value = data.title || '';
+                            break;
+                            
+                        case 'direction':
+                            document.getElementById('directionTitle').value = data.title || '';
+                            document.getElementById('directorName').value = data.name || '';
+                            document.getElementById('directorTitle').value = data.titlePosition || '';
+                            document.getElementById('directorImage').value = data.image || '';
+                            document.getElementById('directorParagraph1').value = data.paragraph1 || '';
+                            document.getElementById('directorParagraph2').value = data.paragraph2 || '';
+                            document.getElementById('directorParagraph3').value = data.paragraph3 || '';
+                            document.getElementById('directorParagraph4').value = data.paragraph4 || '';
+                            break;
+                            
+                        case 'stats':
+                            document.getElementById('statAnnee').value = data.annee || '';
+                            document.getElementById('statEtudiants').value = data.etudiants || '';
+                            document.getElementById('statNationalites').value = data.nationalites || '';
+                            document.getElementById('statEnseignants').value = data.enseignants || '';
+                            break;
                     }
                 }
+            } catch (error) {
+                console.error(`Erreur lors du chargement de la section ${section}:`, error);
+            }
+        }
+
+        async function loadValeursData() {
+            try {
+                const doc = await db.collection('content').doc('valeurs').get();
                 
-                // Supprimer une statistique
-                if (e.target.closest('.delete-stat-btn')) {
-                    const index = e.target.closest('.delete-stat-btn').dataset.index;
-                    if (confirm('Êtes-vous sûr de vouloir supprimer cette statistique ?')) {
-                        stats.splice(index, 1);
-                        updateStatsList();
-                        showNotification('Statistique supprimée', 'success');
-                    }
-                }
-                
-                // Éditer une valeur
-                if (e.target.closest('.edit-value-btn')) {
-                    const index = e.target.closest('.edit-value-btn').dataset.index;
-                    const value = values[index];
+                if (doc.exists) {
+                    const data = doc.data();
+                    valeursData = data.items || [];
                     
-                    if (value) {
-                        document.getElementById('value-index').value = index;
-                        document.getElementById('value-icon').value = value.icon;
-                        document.getElementById('value-color').value = value.color;
-                        document.getElementById('value-title').value = value.title;
-                        document.getElementById('value-description').value = value.description;
-                        document.getElementById('value-points').value = value.points.join('\n');
-                        
-                        openModal('value-modal');
+                    // Si on est sur la section valeurs, générer les cartes
+                    if (document.getElementById('valeursContainer') || document.getElementById('valeursCardsContainer')) {
+                        loadValeursCards();
                     }
                 }
-                
-                // Supprimer une valeur
-                if (e.target.closest('.delete-value-btn')) {
-                    const index = e.target.closest('.delete-value-btn').dataset.index;
-                    if (confirm('Êtes-vous sûr de vouloir supprimer cette valeur ?')) {
-                        values.splice(index, 1);
-                        updateValuesList();
-                        showNotification('Valeur supprimée', 'success');
-                    }
-                }
-                
-                // Éditer un membre
-                if (e.target.closest('.edit-member-btn')) {
-                    const index = e.target.closest('.edit-member-btn').dataset.index;
-                    const member = members[index];
-                    
-                    if (member) {
-                        document.getElementById('member-index').value = index;
-                        document.getElementById('member-name').value = member.name;
-                        document.getElementById('member-position').value = member.position;
-                        document.getElementById('member-description').value = member.description;
-                        
-                        openModal('member-modal');
-                    }
-                }
-                
-                // Supprimer un membre
-                if (e.target.closest('.delete-member-btn')) {
-                    const index = e.target.closest('.delete-member-btn').dataset.index;
-                    if (confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
-                        members.splice(index, 1);
-                        updateMembersList();
-                        showNotification('Membre supprimé', 'success');
-                    }
-                }
-            });
+            } catch (error) {
+                console.error('Erreur lors du chargement des valeurs:', error);
+            }
+        }
+
+        function loadValeursCards() {
+            const container = document.getElementById('valeursContainer') || 
+                             document.getElementById('valeursCardsContainer');
             
-            // Formulaire statistique
-            document.getElementById('stat-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const stat = {
-                    icon: document.getElementById('stat-icon').value,
-                    color: document.getElementById('stat-color').value,
-                    number: document.getElementById('stat-number').value,
-                    label: document.getElementById('stat-label').value
-                };
-                
-                const index = document.getElementById('stat-index').value;
-                
-                if (index === '') {
-                    stats.push(stat);
-                    showNotification('Statistique ajoutée', 'success');
-                } else {
-                    stats[index] = stat;
-                    showNotification('Statistique modifiée', 'success');
-                }
-                
-                updateStatsList();
-                closeModal('stat-modal');
-            });
+            if (!container) return;
             
-            // Formulaire valeur
-            document.getElementById('value-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const value = {
-                    icon: document.getElementById('value-icon').value,
-                    color: document.getElementById('value-color').value,
-                    title: document.getElementById('value-title').value,
-                    description: document.getElementById('value-description').value,
-                    points: document.getElementById('value-points').value.split('\n').filter(p => p.trim() !== '')
-                };
-                
-                const index = document.getElementById('value-index').value;
-                
-                if (index === '') {
-                    values.push(value);
-                    showNotification('Valeur ajoutée', 'success');
-                } else {
-                    values[index] = value;
-                    showNotification('Valeur modifiée', 'success');
-                }
-                
-                updateValuesList();
-                closeModal('value-modal');
-            });
+            // Vider le conteneur
+            container.innerHTML = '';
             
-            // Formulaire membre
-            document.getElementById('member-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const member = {
-                    name: document.getElementById('member-name').value,
-                    position: document.getElementById('member-position').value,
-                    description: document.getElementById('member-description').value
-                };
-                
-                const index = document.getElementById('member-index').value;
-                
-                if (index === '') {
-                    members.push(member);
-                    showNotification('Membre ajouté', 'success');
-                } else {
-                    members[index] = member;
-                    showNotification('Membre modifié', 'success');
-                }
-                
-                updateMembersList();
-                closeModal('member-modal');
-            });
+            // Si pas de données, créer une carte vide
+            if (valeursData.length === 0) {
+                addValueCard();
+                return;
+            }
             
-            // Touches rapides pour sauvegarde
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                    e.preventDefault();
-                    saveAboutData();
-                }
+            // Créer une carte pour chaque valeur
+            valeursData.forEach((value, index) => {
+                const template = document.getElementById('valueCardTemplate');
+                const clone = template.content.cloneNode(true);
+                
+                clone.querySelector('.card-index').textContent = index + 1;
+                clone.querySelector('.value-icon').value = value.icon || '';
+                clone.querySelector('.value-title').value = value.title || '';
+                clone.querySelector('.value-description').value = value.description || '';
+                
+                container.appendChild(clone);
             });
         }
-        
-        // Initialiser au chargement
-        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        async function loadVieCartesData() {
+            try {
+                const doc = await db.collection('content').doc('vie-cartes').get();
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    vieCartesData = data.items || [];
+                    
+                    // Si on est sur la section vie, générer les cartes
+                    if (document.getElementById('vieCartesContainer') || document.getElementById('vieCardsContainer')) {
+                        loadVieCards();
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des cartes vie:', error);
+            }
+        }
+
+        function loadVieCards() {
+            const container = document.getElementById('vieCartesContainer') || 
+                             document.getElementById('vieCardsContainer');
+            
+            if (!container) return;
+            
+            // Vider le conteneur
+            container.innerHTML = '';
+            
+            // Si pas de données, créer une carte vide
+            if (vieCartesData.length === 0) {
+                addVieCard();
+                return;
+            }
+            
+            // Créer une carte pour chaque item
+            vieCartesData.forEach((item, index) => {
+                const template = document.getElementById('vieCardTemplate');
+                const clone = template.content.cloneNode(true);
+                
+                clone.querySelector('.card-index').textContent = index + 1;
+                clone.querySelector('.vie-title').value = item.title || '';
+                clone.querySelector('.vie-description').value = item.description || '';
+                clone.querySelector('.vie-image').value = item.image || '';
+                
+                container.appendChild(clone);
+            });
+        }
+
+        // ==============================================
+        // ÉCOUTE DES MODIFICATIONS EN TEMPS RÉEL
+        // ==============================================
+        // Écouter les changements sur les cartes vie étudiante
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('vie-title') || 
+                e.target.classList.contains('vie-description') || 
+                e.target.classList.contains('vie-image')) {
+                
+                // Sauvegarder automatiquement après 2 secondes d'inactivité
+                clearTimeout(window.vieSaveTimeout);
+                window.vieSaveTimeout = setTimeout(() => {
+                    saveVieCartes();
+                }, 2000);
+            }
+        });
+
+        // Écouter les changements en temps réel de Firestore
+        db.collection('content').onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'modified') {
+                    const docId = change.doc.id;
+                    const data = change.doc.data();
+                    
+                    console.log(`Document ${docId} modifié:`, data);
+                }
+            });
+        });
     </script>
 </body>
-</html>
+</html> 

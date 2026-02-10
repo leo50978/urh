@@ -1,0 +1,99 @@
+<!-- HEADER INTÉGRÉ DIRECTEMENT DANS LA PAGE -->
+<header class="fixed w-full z-50">
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-xl">IFEPT</span>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">IFEPT</span>
+                </div>
+
+                <!-- Navigation Desktop -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-blue-700 font-medium">Accueil</a>
+                    <a href="cours.html" class="text-gray-700 hover:text-blue-700 font-medium">Cours</a>
+                    <a href="admission.html" class="text-gray-700 hover:text-blue-700 font-medium">Admission</a>
+                    <a href="blog.html" class="text-gray-700 hover:text-blue-700 font-medium">Actualités</a>
+                    <a href="contact.html" class="text-gray-700 hover:text-blue-700 font-medium">Contact</a>
+                    
+                    <!-- Boutons d'authentification (visible quand l'utilisateur n'est PAS connecté) -->
+                    <div id="auth-buttons-desktop" class="flex items-center space-x-4">
+                        <a href="connexion.html" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Connexion
+                        </a>
+                        <a href="inscription.html" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                            Inscription
+                        </a>
+                    </div>
+                    
+                    <!-- Menu utilisateur (visible quand l'utilisateur EST connecté) -->
+                    <div id="user-menu-desktop" class="user-menu-hidden flex items-center space-x-4">
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center focus:outline-none">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center user-avatar">
+                                    <i class="fas fa-user text-blue-600"></i>
+                                </div>
+                            </button>
+                            
+                            <!-- Dropdown menu utilisateur -->
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden">
+                                <a href="profil.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user-circle mr-2"></i> Mon profil
+                                </a>
+                                <button id="logout-button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton menu mobile -->
+                <button class="md:hidden text-gray-700 focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="md:hidden bg-white shadow-lg px-4 py-3 hidden">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-blue-700 font-medium py-2">Accueil</a>
+                <a href="cours.html" class="text-gray-700 hover:text-blue-700 font-medium py-2">Cours</a>
+                <a href="blog.html" class="text-gray-700 hover:text-blue-700 font-medium py-2">Actualité</a>
+                <a href="admission.html" class="text-gray-700 hover:text-blue-700 font-medium py-2">Admissions</a>
+                <a href="contact.html" class="text-gray-700 hover:text-blue-700 font-medium py-2">Contact</a>
+                
+                <!-- Boutons d'authentification mobile -->
+                <div id="auth-buttons-mobile" class="pt-4 border-t border-gray-200">
+                    <a href="connexion.html" class="block text-center text-blue-600 hover:text-blue-800 font-medium py-2">
+                        Connexion
+                    </a>
+                    <a href="inscription.html" class="block text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg mt-2 transition duration-300">
+                        Inscription
+                    </a>
+                </div>
+                
+                <!-- Menu utilisateur mobile -->
+                <div id="user-menu-mobile" class="user-menu-hidden pt-4 border-t border-gray-200">
+                    <a href="profil.html" class="flex items-center text-gray-700 hover:text-blue-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        Mon profil
+                    </a>
+                    <button id="logout-button-mobile" class="w-full flex items-center text-left text-gray-700 hover:text-blue-700 font-medium py-2">
+                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        </div>
+                        Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="h-16"></div> <!-- Espace pour le header fixe -->

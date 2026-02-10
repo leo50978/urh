@@ -1,0 +1,16 @@
+/* Styles pour le header */
+.user-menu-hidden {
+    display: none !important;
+}
+
+.auth-buttons-hidden {
+    display: none !important;
+}
+
+.user-avatar {
+    transition: transform 0.2s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.1);
+}
