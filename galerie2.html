@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Galerie 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .sierra-admin-body {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sierra-admin-body h1,
+    .sierra-admin-body h2,
+    .sierra-admin-body h3 {
+      font-family: "Source Serif 4", serif;
+      letter-spacing: 0.01em;
+      color: #111827;
+    }
+
+    .sierra-preview-track {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(79, 102, 85, 0.45) rgba(79, 102, 85, 0.12);
+    }
+
+    .sierra-preview-track::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .sierra-preview-track::-webkit-scrollbar-thumb {
+      background: rgba(79, 102, 85, 0.45);
+      border-radius: 999px;
+    }
+
+    .sierra-preview-track::-webkit-scrollbar-track {
+      background: rgba(79, 102, 85, 0.12);
+    }
+
+    .sierra-preview-card {
+      flex: 0 0 clamp(180px, 66vw, 320px);
+    }
+
+    @media (min-width: 640px) {
+      .sierra-preview-card {
+        flex-basis: clamp(200px, 48vw, 360px);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .sierra-preview-card {
+        flex-basis: clamp(220px, 34vw, 380px);
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .sierra-preview-card {
+        flex-basis: clamp(240px, 26vw, 420px);
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="./admin-ui.css">
+</head>
+<body class="sierra-admin-body min-h-screen bg-stone-100 text-stone-800">
+  <main class="mx-auto max-w-7xl p-4 md:p-8">
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-semibold">Dashboard Galerie 2</h1>
+      <div id="status" class="rounded-md border border-stone-200 bg-white px-3 py-2 text-sm">Pret.</div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Carousel Galerie 2 (CRUD)</h2>
+
+        <div class="space-y-4">
+          <div>
+            <label for="gallery-title" class="mb-1 block text-sm font-medium">Titre section</label>
+            <input id="gallery-title" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Galerie 2 campus">
+          </div>
+
+          <div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
+            <h3 class="mb-3 text-base font-semibold">Carte image</h3>
+            <form id="card-form" class="space-y-3">
+              <div>
+                <label for="card-image-name" class="mb-1 block text-xs font-medium">Nom image</label>
+                <input id="card-image-name" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" placeholder="galerie1.jpg">
+              </div>
+
+              <div>
+                <label for="card-alt" class="mb-1 block text-xs font-medium">Texte alternatif (optionnel)</label>
+                <input id="card-alt" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" placeholder="Laboratoire informatique">
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button id="save-card-btn" type="submit" class="rounded bg-emerald-700 px-3 py-2 text-xs font-medium text-white">Ajouter image</button>
+                <button id="cancel-edit-btn" type="button" class="rounded border border-stone-300 px-3 py-2 text-xs">Annuler edition</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="rounded-lg border border-stone-200 bg-white p-3">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-stone-600">Images enregistrees</p>
+            <div id="saved-cards" class="space-y-2"></div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button id="save-section-btn" type="button" class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Enregistrer galerie</button>
+            <button id="reset-editor-btn" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Vider editeur</button>
+            <button id="delete-section-btn" type="button" class="rounded bg-rose-700 px-4 py-2 text-sm font-medium text-white">Supprimer galerie</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Apercu live</h2>
+        <div id="preview" class="overflow-hidden rounded-lg border border-stone-300"></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import BulbeNavigation from "./bulbe.js";
+    new BulbeNavigation();
+  </script>
+
+  <script type="module">
+    import { db } from "./firebase-init.js";
+    import {
+      deleteDoc,
+      doc,
+      onSnapshot,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const GALLERY_COLLECTION = "gallery2_sections";
+    const GALLERY_DOC_ID = "main";
+
+    const refs = {
+      status: document.getElementById("status"),
+      title: document.getElementById("gallery-title"),
+      cardForm: document.getElementById("card-form"),
+      cardImageName: document.getElementById("card-image-name"),
+      cardAlt: document.getElementById("card-alt"),
+      saveCardBtn: document.getElementById("save-card-btn"),
+      cancelEditBtn: document.getElementById("cancel-edit-btn"),
+      savedCards: document.getElementById("saved-cards"),
+      saveSectionBtn: document.getElementById("save-section-btn"),
+      resetEditorBtn: document.getElementById("reset-editor-btn"),
+      deleteSectionBtn: document.getElementById("delete-section-btn"),
+      preview: document.getElementById("preview")
+    };
+
+    const state = {
+      title: "",
+      cards: [],
+      editingCardId: null
+    };
+
+    function setStatus(message, kind = "info") {
+      const palette = {
+        info: "border-stone-200 bg-white text-stone-700",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        error: "border-rose-200 bg-rose-50 text-rose-700"
+      };
+      refs.status.className = `rounded-md border px-3 py-2 text-sm ${palette[kind] || palette.info}`;
+      refs.status.textContent = message;
+    }
+
+    function createId() {
+      return `gallery_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function normalizeCard(card = {}) {
+      return {
+        id: String(card.id || createId()),
+        imageName: String(card.imageName || card.image || "").trim(),
+        alt: String(card.alt || card.title || "").trim()
+      };
+    }
+
+    function normalizeCards(cards) {
+      if (!Array.isArray(cards)) return [];
+      return cards
+        .map(normalizeCard)
+        .filter((card) => card.imageName);
+    }
+
+    function readCardEditor() {
+      return {
+        id: state.editingCardId || createId(),
+        imageName: refs.cardImageName.value.trim(),
+        alt: refs.cardAlt.value.trim()
+      };
+    }
+
+    function resetCardEditor() {
+      state.editingCardId = null;
+      refs.cardImageName.value = "";
+      refs.cardAlt.value = "";
+      refs.saveCardBtn.textContent = "Ajouter image";
+    }
+
+    function hydrateCardEditor(card) {
+      state.editingCardId = card.id;
+      refs.cardImageName.value = card.imageName || "";
+      refs.cardAlt.value = card.alt || "";
+      refs.saveCardBtn.textContent = "Mettre a jour image";
+    }
+
+    function renderSavedCards() {
+      if (!state.cards.length) {
+        refs.savedCards.innerHTML = '<p class="text-sm text-stone-500">Aucune image enregistree.</p>';
+        return;
+      }
+
+      refs.savedCards.innerHTML = state.cards.map((card) => `
+        <div class="flex items-start justify-between gap-3 rounded border border-stone-200 p-2">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-stone-800">${card.imageName}</p>
+            <p class="truncate text-xs text-stone-500">Alt: ${card.alt || "(vide)"}</p>
+          </div>
+          <div class="flex items-center gap-1">
+            <button type="button" data-action="edit" data-id="${card.id}" class="rounded border border-stone-300 px-2 py-1 text-xs">Modifier</button>
+            <button type="button" data-action="delete" data-id="${card.id}" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Supprimer</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderPreview() {
+      const title = refs.title.value.trim() || state.title || "Galerie 2";
+
+      const cardsHtml = state.cards.map((card) => `
+        <article class="sierra-preview-card h-[50vh] overflow-hidden rounded-xl border border-[#4f6655]/25 bg-white">
+          <img src="./${card.imageName}" alt="${card.alt}" class="h-full w-full object-cover">
+        </article>
+      `).join("");
+
+      refs.preview.innerHTML = `
+        <section class="w-full bg-white p-3 md:p-4">
+          <div class="mb-2 flex items-center justify-between">
+            <h3 class="text-lg font-semibold">${title}</h3>
+            <span class="text-xs uppercase tracking-[0.08em] text-stone-500">Gallery 2</span>
+          </div>
+
+          <div class="sierra-preview-track flex gap-2 overflow-x-auto pb-2 md:gap-3">
+            ${cardsHtml || '<p class="text-sm text-stone-500">Ajoutez des images pour la galerie.</p>'}
+          </div>
+        </section>
+      `;
+    }
+
+    function syncUI() {
+      renderSavedCards();
+      renderPreview();
+    }
+
+    function loadSection(data = {}) {
+      state.title = String(data.title || "");
+      state.cards = normalizeCards(data.items);
+      refs.title.value = state.title;
+      resetCardEditor();
+      syncUI();
+    }
+
+    async function persistGallery() {
+      await setDoc(doc(db, GALLERY_COLLECTION, GALLERY_DOC_ID), {
+        title: refs.title.value.trim(),
+        items: state.cards,
+        updatedAt: Date.now()
+      });
+    }
+
+    refs.cardForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const card = readCardEditor();
+
+      if (!card.imageName) {
+        setStatus("Ajoutez un nom d'image.", "error");
+        return;
+      }
+
+      if (state.editingCardId) {
+        state.cards = state.cards.map((item) => item.id === card.id ? card : item);
+      } else {
+        state.cards = [card, ...state.cards];
+      }
+
+      try {
+        await persistGallery();
+        resetCardEditor();
+        syncUI();
+        setStatus("Image enregistree.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement image.", "error");
+      }
+    });
+
+    refs.cancelEditBtn.addEventListener("click", () => {
+      resetCardEditor();
+      setStatus("Edition annulee.", "info");
+    });
+
+    refs.resetEditorBtn.addEventListener("click", () => {
+      resetCardEditor();
+      setStatus("Editeur vide.", "info");
+    });
+
+    refs.savedCards.addEventListener("click", async (event) => {
+      const editBtn = event.target.closest('[data-action="edit"]');
+      if (editBtn) {
+        const id = String(editBtn.dataset.id || "");
+        const card = state.cards.find((item) => item.id === id);
+        if (!card) return;
+        hydrateCardEditor(card);
+        setStatus("Image chargee pour modification.", "info");
+        return;
+      }
+
+      const deleteBtn = event.target.closest('[data-action="delete"]');
+      if (!deleteBtn) return;
+
+      const id = String(deleteBtn.dataset.id || "");
+      state.cards = state.cards.filter((item) => item.id !== id);
+
+      try {
+        await persistGallery();
+        if (state.editingCardId === id) resetCardEditor();
+        syncUI();
+        setStatus("Image supprimee.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression image.", "error");
+      }
+    });
+
+    refs.saveSectionBtn.addEventListener("click", async () => {
+      try {
+        await persistGallery();
+        setStatus("Galerie 2 enregistree.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement galerie.", "error");
+      }
+    });
+
+    refs.deleteSectionBtn.addEventListener("click", async () => {
+      const ok = window.confirm("Supprimer toute la galerie 2 ?");
+      if (!ok) return;
+
+      try {
+        await deleteDoc(doc(db, GALLERY_COLLECTION, GALLERY_DOC_ID));
+        loadSection({});
+        setStatus("Galerie 2 supprimee.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression galerie.", "error");
+      }
+    });
+
+    refs.title.addEventListener("input", renderPreview);
+    refs.cardForm.addEventListener("input", renderPreview);
+
+    onSnapshot(doc(db, GALLERY_COLLECTION, GALLERY_DOC_ID), (snapshot) => {
+      if (!snapshot.exists()) {
+        loadSection({});
+        setStatus("Aucune galerie 2 enregistree.", "info");
+        return;
+      }
+
+      loadSection(snapshot.data() || {});
+      setStatus("Galerie 2 chargee.", "info");
+    });
+
+    loadSection({});
+  </script>
+</body>
+</html>

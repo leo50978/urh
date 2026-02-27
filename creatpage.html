@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages simples</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .sierra-admin-body {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sierra-admin-body h1,
+    .sierra-admin-body h2,
+    .sierra-admin-body h3 {
+      font-family: "Source Serif 4", serif;
+      letter-spacing: 0.01em;
+      color: #111827;
+    }
+
+    .sierra-admin-body .text-xs {
+      font-size: 0.84rem;
+    }
+
+    .sierra-admin-body .text-sm {
+      font-size: 0.96rem;
+    }
+  </style>
+  <link rel="stylesheet" href="./admin-ui.css">
+</head>
+<body class="sierra-admin-body min-h-screen bg-stone-100 text-stone-800">
+  <main class="mx-auto max-w-7xl p-4 md:p-8">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold">Pages du site</h1>
+        <p class="admin-help mt-1">Créez des pages claires, avec peu de blocs et des titres faciles à comprendre.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button id="open-dashboard" type="button" class="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white">Créer ou modifier une page</button>
+        <div id="status" class="rounded-md border border-stone-200 bg-white px-3 py-2 text-sm">Prêt.</div>
+      </div>
+    </div>
+
+    <section class="admin-intro mt-6">
+      <h2 class="text-lg font-semibold">Une page simple en 3 étapes</h2>
+      <p class="mt-2 text-sm">Le principe recommandé: un bandeau clair, puis un ou deux blocs maximum. Plus la page est simple, plus elle sera facile à utiliser.</p>
+      <div class="admin-step-grid">
+        <div class="admin-step">
+          <strong>1. Nommez la page</strong>
+          <span class="text-sm text-stone-600">Donnez un nom visible et un nom interne court.</span>
+        </div>
+        <div class="admin-step">
+          <strong>2. Ajoutez peu de blocs</strong>
+          <span class="text-sm text-stone-600">Commencez avec un bloc simple avant d'ajouter des options plus riches.</span>
+        </div>
+        <div class="admin-step">
+          <strong>3. Publiez</strong>
+          <span class="text-sm text-stone-600">Enregistrez quand le contenu est lisible et direct.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6 rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+      <h2 class="mb-3 text-lg font-semibold">Pages déjà créées</h2>
+      <div id="pages-list" class="space-y-2"></div>
+    </section>
+
+    <section class="mt-6 rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Messages reçus</h2>
+        <select id="submission-filter-page" class="rounded border border-stone-300 px-3 py-2 text-sm"></select>
+      </div>
+      <div id="submissions-list" class="space-y-2"></div>
+    </section>
+  </main>
+
+  <div id="dashboard-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0f172acc] p-4 backdrop-blur-sm">
+    <section class="admin-modal-shell h-[94vh] w-full max-w-7xl overflow-hidden rounded-2xl border border-stone-300 bg-white shadow-2xl">
+      <div class="admin-modal-header flex items-center justify-between border-b border-stone-200 px-5 py-3">
+        <h2 class="text-base font-semibold">Créer ou modifier une page</h2>
+        <button id="close-dashboard" type="button" class="rounded border border-stone-300 px-2 py-1 text-xs">Fermer l'editeur</button>
+      </div>
+
+      <div class="h-[calc(94vh-57px)] overflow-auto p-5">
+        <div class="admin-soft-note mb-5">
+          <p class="text-sm">Conseil: commencez par remplir le haut de page, puis ajoutez seulement les blocs vraiment nécessaires. Une page claire vaut mieux qu'une page surchargée.</p>
+        </div>
+
+        <form id="page-form" class="space-y-4">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div>
+              <label class="mb-1 block text-sm font-medium" for="page-title">Nom visible de la page</label>
+              <input id="page-title" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Ex: Admission L1">
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium" for="page-slug">Nom interne (court et unique)</label>
+              <input id="page-slug" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="admission-l1">
+              <span class="admin-help">Utilisez des lettres simples et des tirets, par exemple `admission-l1`.</span>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium" for="page-category">Catégorie</label>
+              <select id="page-category" class="w-full rounded border border-stone-300 px-3 py-2 text-sm"></select>
+            </div>
+          </div>
+
+          <div class="rounded-lg border border-stone-200 p-4">
+            <p class="mb-2 text-sm font-semibold">Bandeau en haut de page</p>
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm" for="hero-image">Image du bandeau</label>
+                <input id="hero-image" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="hero.jpg">
+              </div>
+              <div>
+                <label class="mb-1 block text-sm" for="hero-text">Texte court du bandeau</label>
+                <input id="hero-text" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Bienvenue à la faculté">
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-lg border border-stone-200 p-4">
+            <div class="mb-3 flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold">Contenu de la page</p>
+                <p class="admin-help">Pour rester simple, ajoutez un bloc à la fois et gardez seulement ceux qui servent vraiment.</p>
+              </div>
+              <button id="add-section" type="button" class="rounded border border-stone-300 px-3 py-1 text-xs">Ajouter un bloc</button>
+            </div>
+            <div id="sections-container" class="space-y-3"></div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="submit" class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Publier la page</button>
+            <button id="new-page" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Nouvelle page vide</button>
+            <button id="delete-page" type="button" class="rounded bg-rose-700 px-4 py-2 text-sm text-white">Supprimer cette page</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import BulbeNavigation from "./bulbe.js";
+    new BulbeNavigation();
+  </script>
+
+  <template id="section-template">
+    <div class="section-row rounded-md border border-stone-200 p-3" data-section-row>
+      <div class="mb-3 grid grid-cols-1 gap-2 md:grid-cols-4">
+        <input data-field="id" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Nom court du bloc">
+        <input data-field="title" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Titre du bloc">
+        <select data-field="type" class="rounded border border-stone-300 px-3 py-2 text-sm">
+          <option value="media_text">Bloc simple (image + texte)</option>
+          <option value="form">Formulaire</option>
+          <option value="button">Bouton vers une page</option>
+          <option value="table">Tableau simple</option>
+          <option value="card">Carte mise en avant</option>
+          <option value="carousel">Défilement d'images</option>
+        </select>
+        <input data-field="bgColor" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Couleur de fond (optionnel)">
+      </div>
+
+      <div data-type-panel="media_text" class="space-y-2 rounded border border-stone-200 bg-stone-50 p-3">
+        <p class="text-xs font-semibold text-stone-600">Bloc simple</p>
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-3">
+          <select data-field="mediaType" class="rounded border border-stone-300 px-3 py-2 text-sm">
+            <option value="image">Image</option>
+            <option value="video">Vidéo</option>
+          </select>
+          <input data-field="mediaName" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Nom du fichier">
+          <select data-field="layout" class="rounded border border-stone-300 px-3 py-2 text-sm">
+            <option value="media_top_text_bottom">Image en haut, texte en bas</option>
+            <option value="text_left_media_right">Texte à gauche, image à droite</option>
+            <option value="media_left_text_right">Image à gauche, texte à droite</option>
+          </select>
+        </div>
+        <textarea data-field="text" class="h-24 w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Texte du bloc"></textarea>
+      </div>
+
+      <div data-type-panel="form" class="hidden space-y-2 rounded border border-stone-200 bg-stone-50 p-3">
+        <p class="text-xs font-semibold text-stone-600">Bloc Formulaire</p>
+        <div class="flex items-center justify-between">
+          <input data-field="formSubmitLabel" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Texte du bouton">
+          <button type="button" data-action="add-form-field" class="rounded border border-stone-300 px-2 py-1 text-xs">Ajouter champ</button>
+        </div>
+        <div data-form-fields class="space-y-2"></div>
+      </div>
+
+      <div data-type-panel="button" class="hidden space-y-2 rounded border border-stone-200 bg-stone-50 p-3">
+        <p class="text-xs font-semibold text-stone-600">Bouton vers une autre page</p>
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <input data-field="buttonLabel" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Texte du bouton">
+          <select data-field="buttonTargetPage" class="rounded border border-stone-300 px-3 py-2 text-sm"></select>
+        </div>
+      </div>
+
+      <div data-type-panel="table" class="hidden space-y-2 rounded border border-stone-200 bg-stone-50 p-3">
+        <p class="text-xs font-semibold text-stone-600">Tableau simple</p>
+        <input data-field="tableColumns" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Colonnes séparées par une virgule (Nom, Date, Lien)">
+        <div class="flex items-center justify-end">
+          <button type="button" data-action="add-table-row" class="rounded border border-stone-300 px-2 py-1 text-xs">Ajouter ligne</button>
+        </div>
+        <div data-table-rows class="space-y-2"></div>
+      </div>
+
+      <div data-type-panel="card" class="hidden space-y-2 rounded border border-stone-200 bg-stone-50 p-3">
+        <p class="text-xs font-semibold text-stone-600">Carte mise en avant</p>
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <input data-field="cardTitle" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Titre de la carte">
+          <input data-field="cardSubtitle" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Sous-titre de la carte">
+        </div>
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-3">
+          <select data-field="cardContentType" class="rounded border border-stone-300 px-3 py-2 text-sm">
+            <option value="media">Image ou vidéo</option>
+            <option value="table">Tableau</option>
+            <option value="form">Formulaire</option>
+          </select>
+          <input data-field="cardBgColor" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Couleur carte (optionnel)">
+          <select data-field="cardTargetPage" class="rounded border border-stone-300 px-3 py-2 text-sm"></select>
+        </div>
+        <div data-card-media class="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <select data-field="cardMediaType" class="rounded border border-stone-300 px-3 py-2 text-sm">
+            <option value="image">Image</option>
+            <option value="video">Vidéo</option>
+          </select>
+          <input data-field="cardMediaName" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Nom du fichier">
+        </div>
+        <div data-card-table class="hidden space-y-2">
+          <input data-field="cardTableColumns" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Colonnes du tableau">
+          <button type="button" data-action="add-card-table-row" class="rounded border border-stone-300 px-2 py-1 text-xs">Ajouter ligne</button>
+          <div data-card-table-rows class="space-y-2"></div>
+        </div>
+        <div data-card-form class="hidden space-y-2">
+          <input data-field="cardFormSubmitLabel" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Texte du bouton">
+          <button type="button" data-action="add-card-form-field" class="rounded border border-stone-300 px-2 py-1 text-xs">Ajouter champ</button>
+          <div data-card-form-fields class="space-y-2"></div>
+        </div>
+        <input data-field="cardButtonLabel" type="text" class="rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Texte du bouton">
+      </div>
+
+      <div data-type-panel="carousel" class="hidden space-y-2 rounded border border-stone-200 bg-stone-50 p-3">
+        <p class="text-xs font-semibold text-stone-600">Défilement d'images</p>
+        <div class="flex items-center justify-end">
+          <button type="button" data-action="add-slide" class="rounded border border-stone-300 px-2 py-1 text-xs">Ajouter une image</button>
+        </div>
+        <div data-carousel-slides class="space-y-2"></div>
+      </div>
+
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button type="button" data-action="up" class="rounded border border-stone-300 px-2 py-1 text-xs">Monter le bloc</button>
+        <button type="button" data-action="down" class="rounded border border-stone-300 px-2 py-1 text-xs">Descendre le bloc</button>
+        <button type="button" data-action="remove-section" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Supprimer le bloc</button>
+      </div>
+    </div>
+  </template>
+
+  <script type="module">
+    import { db } from "./firebase-init.js";
+    import {
+      collection,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const refs = {
+      openDashboard: document.getElementById("open-dashboard"),
+      closeDashboard: document.getElementById("close-dashboard"),
+      overlay: document.getElementById("dashboard-overlay"),
+      status: document.getElementById("status"),
+      pagesList: document.getElementById("pages-list"),
+      submissionsList: document.getElementById("submissions-list"),
+      submissionFilterPage: document.getElementById("submission-filter-page"),
+      form: document.getElementById("page-form"),
+      title: document.getElementById("page-title"),
+      slug: document.getElementById("page-slug"),
+      category: document.getElementById("page-category"),
+      heroImage: document.getElementById("hero-image"),
+      heroText: document.getElementById("hero-text"),
+      addSection: document.getElementById("add-section"),
+      sections: document.getElementById("sections-container"),
+      newPage: document.getElementById("new-page"),
+      deletePage: document.getElementById("delete-page"),
+      sectionTemplate: document.getElementById("section-template")
+    };
+
+    const state = {
+      pages: [],
+      categories: [],
+      submissions: []
+    };
+
+    function setStatus(text, kind = "info") {
+      const palette = {
+        info: "border-stone-200 bg-white text-stone-700",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        error: "border-rose-200 bg-rose-50 text-rose-700"
+      };
+      refs.status.className = `rounded-md border px-3 py-2 text-sm ${palette[kind] || palette.info}`;
+      refs.status.textContent = text;
+    }
+
+    function normalizeCategoryItem(item) {
+      if (!item) return "";
+      if (typeof item === "string") return item.trim();
+      return (item.name || item.label || item.title || "").trim();
+    }
+
+    function pageOptions(current = "") {
+      const options = ['<option value="">Choisir une page</option>'];
+      state.pages.forEach((page) => {
+        const selected = page.id === current ? "selected" : "";
+        options.push(`<option value="${page.id}" ${selected}>${page.title || page.id}</option>`);
+      });
+      return options.join("");
+    }
+
+    function createSmallFieldRow(type, value = {}) {
+      if (type === "form-field") {
+        return `
+          <div class="grid grid-cols-1 gap-2 rounded border border-stone-200 bg-white p-2 md:grid-cols-6" data-form-field-row>
+            <input data-field="id" type="text" class="rounded border border-stone-300 px-2 py-1 text-xs" placeholder="Nom interne" value="${value.id || ""}">
+            <input data-field="label" type="text" class="rounded border border-stone-300 px-2 py-1 text-xs" placeholder="Libellé visible" value="${value.label || ""}">
+            <select data-field="type" class="rounded border border-stone-300 px-2 py-1 text-xs">
+              ${["text", "email", "number", "textarea", "checkbox", "select"].map((t) => `<option value="${t}" ${value.type === t ? "selected" : ""}>${t}</option>`).join("")}
+            </select>
+            <input data-field="placeholder" type="text" class="rounded border border-stone-300 px-2 py-1 text-xs" placeholder="Texte d'aide" value="${value.placeholder || ""}">
+            <input data-field="options" type="text" class="rounded border border-stone-300 px-2 py-1 text-xs" placeholder="Options séparées par des virgules" value="${Array.isArray(value.options) ? value.options.join(",") : ""}">
+            <div class="flex items-center justify-between gap-2">
+              <label class="inline-flex items-center gap-1 text-xs"><input data-field="required" type="checkbox" ${value.required ? "checked" : ""}>Obligatoire</label>
+              <button type="button" data-action="remove-row" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Retirer</button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (type === "table-row") {
+        return `
+          <div class="grid grid-cols-1 gap-2 rounded border border-stone-200 bg-white p-2 md:grid-cols-[1fr_220px_auto]" data-table-row>
+            <input data-field="cells" type="text" class="rounded border border-stone-300 px-2 py-1 text-xs" placeholder="Valeurs séparées par | (A|B|C)" value="${Array.isArray(value.cells) ? value.cells.join("|") : ""}">
+            <select data-field="targetPage" class="rounded border border-stone-300 px-2 py-1 text-xs">${pageOptions(value.targetPage || "")}</select>
+            <button type="button" data-action="remove-row" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Retirer</button>
+          </div>
+        `;
+      }
+
+      if (type === "slide-row") {
+        return `
+          <div class="grid grid-cols-1 gap-2 rounded border border-stone-200 bg-white p-2 md:grid-cols-[1fr_1fr_220px_auto]" data-slide-row>
+            <input data-field="imageName" type="text" class="rounded border border-stone-300 px-2 py-1 text-xs" placeholder="Nom de l'image" value="${value.imageName || ""}">
+            <input data-field="text" type="text" class="rounded border border-stone-300 px-2 py-1 text-xs" placeholder="Texte affiché" value="${value.text || ""}">
+            <select data-field="targetPage" class="rounded border border-stone-300 px-2 py-1 text-xs">${pageOptions(value.targetPage || "")}</select>
+            <button type="button" data-action="remove-row" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Retirer</button>
+          </div>
+        `;
+      }
+
+      return "";
+    }
+
+    function updateTypePanels(sectionRow) {
+      const type = sectionRow.querySelector('[data-field="type"]').value;
+      sectionRow.querySelectorAll("[data-type-panel]").forEach((panel) => {
+        panel.classList.toggle("hidden", panel.dataset.typePanel !== type);
+      });
+
+      const cardContentType = sectionRow.querySelector('[data-field="cardContentType"]')?.value || "media";
+      const cardMedia = sectionRow.querySelector("[data-card-media]");
+      const cardTable = sectionRow.querySelector("[data-card-table]");
+      const cardForm = sectionRow.querySelector("[data-card-form]");
+      if (cardMedia) cardMedia.classList.toggle("hidden", cardContentType !== "media");
+      if (cardTable) cardTable.classList.toggle("hidden", cardContentType !== "table");
+      if (cardForm) cardForm.classList.toggle("hidden", cardContentType !== "form");
+    }
+
+    function createSectionRow(section = {}) {
+      const fragment = refs.sectionTemplate.content.cloneNode(true);
+      const row = fragment.querySelector("[data-section-row]");
+
+      row.querySelector('[data-field="id"]').value = section.id || "";
+      row.querySelector('[data-field="title"]').value = section.title || "";
+      row.querySelector('[data-field="type"]').value = section.type || "media_text";
+      row.querySelector('[data-field="bgColor"]').value = section.bgColor || "";
+
+      row.querySelector('[data-field="mediaType"]').value = section.mediaType || "image";
+      row.querySelector('[data-field="mediaName"]').value = section.mediaName || "";
+      row.querySelector('[data-field="layout"]').value = section.layout || "media_top_text_bottom";
+      row.querySelector('[data-field="text"]').value = section.text || "";
+
+      row.querySelector('[data-field="formSubmitLabel"]').value = section.form?.submitLabel || "Envoyer";
+      const formFieldsContainer = row.querySelector("[data-form-fields]");
+      const formFields = Array.isArray(section.form?.fields) ? section.form.fields : [];
+      if (!formFields.length) formFieldsContainer.insertAdjacentHTML("beforeend", createSmallFieldRow("form-field"));
+      else formFields.forEach((field) => formFieldsContainer.insertAdjacentHTML("beforeend", createSmallFieldRow("form-field", field)));
+
+      row.querySelector('[data-field="buttonLabel"]').value = section.button?.label || "";
+      row.querySelector('[data-field="buttonTargetPage"]').innerHTML = pageOptions(section.button?.targetPage || "");
+
+      row.querySelector('[data-field="tableColumns"]').value = Array.isArray(section.table?.columns) ? section.table.columns.join(",") : "";
+      const tableRowsContainer = row.querySelector("[data-table-rows]");
+      const tableRows = Array.isArray(section.table?.rows) ? section.table.rows : [];
+      if (!tableRows.length) tableRowsContainer.insertAdjacentHTML("beforeend", createSmallFieldRow("table-row"));
+      else tableRows.forEach((tr) => tableRowsContainer.insertAdjacentHTML("beforeend", createSmallFieldRow("table-row", tr)));
+
+      row.querySelector('[data-field="cardTitle"]').value = section.card?.title || "";
+      row.querySelector('[data-field="cardSubtitle"]').value = section.card?.subtitle || "";
+      row.querySelector('[data-field="cardContentType"]').value = section.card?.contentType || "media";
+      row.querySelector('[data-field="cardBgColor"]').value = section.card?.bgColor || "";
+      row.querySelector('[data-field="cardTargetPage"]').innerHTML = pageOptions(section.card?.targetPage || "");
+      row.querySelector('[data-field="cardMediaType"]').value = section.card?.mediaType || "image";
+      row.querySelector('[data-field="cardMediaName"]').value = section.card?.mediaName || "";
+      row.querySelector('[data-field="cardButtonLabel"]').value = section.card?.buttonLabel || "";
+
+      row.querySelector('[data-field="cardTableColumns"]').value = Array.isArray(section.card?.table?.columns) ? section.card.table.columns.join(",") : "";
+      const cardTableRows = row.querySelector("[data-card-table-rows]");
+      const cardRows = Array.isArray(section.card?.table?.rows) ? section.card.table.rows : [];
+      if (!cardRows.length) cardTableRows.insertAdjacentHTML("beforeend", createSmallFieldRow("table-row"));
+      else cardRows.forEach((tr) => cardTableRows.insertAdjacentHTML("beforeend", createSmallFieldRow("table-row", tr)));
+
+      row.querySelector('[data-field="cardFormSubmitLabel"]').value = section.card?.form?.submitLabel || "Envoyer";
+      const cardFormFields = row.querySelector("[data-card-form-fields]");
+      const cf = Array.isArray(section.card?.form?.fields) ? section.card.form.fields : [];
+      if (!cf.length) cardFormFields.insertAdjacentHTML("beforeend", createSmallFieldRow("form-field"));
+      else cf.forEach((field) => cardFormFields.insertAdjacentHTML("beforeend", createSmallFieldRow("form-field", field)));
+
+      const slidesContainer = row.querySelector("[data-carousel-slides]");
+      const slides = Array.isArray(section.carousel?.slides) ? section.carousel.slides : [];
+      if (!slides.length) slidesContainer.insertAdjacentHTML("beforeend", createSmallFieldRow("slide-row"));
+      else slides.forEach((slide) => slidesContainer.insertAdjacentHTML("beforeend", createSmallFieldRow("slide-row", slide)));
+
+      updateTypePanels(row);
+      return row;
+    }
+
+    function readFormFields(container) {
+      return [...container.querySelectorAll("[data-form-field-row]")].map((row) => {
+        const get = (name) => row.querySelector(`[data-field="${name}"]`)?.value?.trim() || "";
+        const options = get("options") ? get("options").split(",").map((v) => v.trim()).filter(Boolean) : [];
+        return {
+          id: get("id"),
+          label: get("label"),
+          type: get("type") || "text",
+          placeholder: get("placeholder"),
+          required: !!row.querySelector('[data-field="required"]')?.checked,
+          options
+        };
+      }).filter((f) => f.id && f.label);
+    }
+
+    function readTableRows(container) {
+      return [...container.querySelectorAll("[data-table-row]")].map((row) => {
+        const cellsRaw = row.querySelector('[data-field="cells"]')?.value?.trim() || "";
+        return {
+          cells: cellsRaw ? cellsRaw.split("|").map((v) => v.trim()) : [],
+          targetPage: row.querySelector('[data-field="targetPage"]')?.value || ""
+        };
+      }).filter((r) => r.cells.length);
+    }
+
+    function readSlides(container) {
+      return [...container.querySelectorAll("[data-slide-row]")].map((row) => ({
+        imageName: row.querySelector('[data-field="imageName"]')?.value?.trim() || "",
+        text: row.querySelector('[data-field="text"]')?.value?.trim() || "",
+        targetPage: row.querySelector('[data-field="targetPage"]')?.value || ""
+      })).filter((s) => s.imageName && s.targetPage);
+    }
+
+    function resetForm() {
+      refs.title.value = "";
+      refs.slug.value = "";
+      refs.heroImage.value = "";
+      refs.heroText.value = "";
+      refs.sections.innerHTML = "";
+      refs.sections.appendChild(createSectionRow());
+    }
+
+    function getPayload() {
+      const title = refs.title.value.trim();
+      const slug = refs.slug.value.trim();
+      const category = refs.category.value.trim();
+      if (!title || !slug || !category) throw new Error("Le nom visible, le nom interne et la catégorie sont requis.");
+
+      const sections = [...refs.sections.querySelectorAll("[data-section-row]")].map((row, index) => {
+        const get = (name) => row.querySelector(`[data-field="${name}"]`)?.value?.trim() || "";
+        const type = get("type") || "media_text";
+
+        const base = {
+          id: get("id"),
+          title: get("title"),
+          type,
+          bgColor: get("bgColor"),
+          order: index
+        };
+
+        if (type === "form") {
+          base.form = {
+            submitLabel: get("formSubmitLabel") || "Envoyer",
+            fields: readFormFields(row.querySelector("[data-form-fields]"))
+          };
+        } else if (type === "button") {
+          base.button = { label: get("buttonLabel"), targetPage: get("buttonTargetPage") };
+        } else if (type === "table") {
+          base.table = {
+            columns: get("tableColumns").split(",").map((v) => v.trim()).filter(Boolean),
+            rows: readTableRows(row.querySelector("[data-table-rows]"))
+          };
+        } else if (type === "card") {
+          const contentType = get("cardContentType") || "media";
+          base.card = {
+            title: get("cardTitle"),
+            subtitle: get("cardSubtitle"),
+            contentType,
+            bgColor: get("cardBgColor") || "#ffffff",
+            targetPage: get("cardTargetPage"),
+            buttonLabel: get("cardButtonLabel"),
+            mediaType: get("cardMediaType") || "image",
+            mediaName: get("cardMediaName"),
+            table: {
+              columns: get("cardTableColumns").split(",").map((v) => v.trim()).filter(Boolean),
+              rows: readTableRows(row.querySelector("[data-card-table-rows]"))
+            },
+            form: {
+              submitLabel: get("cardFormSubmitLabel") || "Envoyer",
+              fields: readFormFields(row.querySelector("[data-card-form-fields]"))
+            }
+          };
+        } else if (type === "carousel") {
+          base.carousel = { slides: readSlides(row.querySelector("[data-carousel-slides]")) };
+        } else {
+          base.mediaType = get("mediaType") || "image";
+          base.mediaName = get("mediaName");
+          base.layout = get("layout") || "media_top_text_bottom";
+          base.text = get("text");
+        }
+
+        return base;
+      }).filter((section) => section.id && section.title);
+
+      return {
+        title,
+        slug,
+        category,
+        heroImageName: refs.heroImage.value.trim(),
+        heroText: refs.heroText.value.trim(),
+        sections
+      };
+    }
+
+    function fillCategorySelect(categories) {
+      const current = refs.category.value;
+      refs.category.innerHTML = categories.length
+        ? categories.map((c) => `<option value="${c}">${c}</option>`).join("")
+        : '<option value="">Aucune catégorie</option>';
+      if (categories.includes(current)) refs.category.value = current;
+    }
+
+    function fillSubmissionFilter() {
+      const current = refs.submissionFilterPage.value;
+      refs.submissionFilterPage.innerHTML = ['<option value="">Toutes les pages</option>', ...state.pages.map((p) => `<option value="${p.id}">${p.title || p.id}</option>`)].join("");
+      refs.submissionFilterPage.value = [...refs.submissionFilterPage.options].some((o) => o.value === current) ? current : "";
+    }
+
+    function renderSubmissions() {
+      const pageFilter = refs.submissionFilterPage.value;
+      const list = state.submissions
+        .filter((s) => !pageFilter || s.pageId === pageFilter)
+        .sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+
+      refs.submissionsList.innerHTML = list.map((item) => `
+        <article class="rounded border border-stone-200 bg-white p-3">
+          <div class="mb-2 flex flex-wrap items-center gap-2 text-xs text-stone-500">
+            <span>page: ${item.pageId || "-"}</span>
+            <span>section: ${item.sectionId || "-"}</span>
+            <span>${item.submittedAt ? new Date(item.submittedAt).toLocaleString() : ""}</span>
+          </div>
+          <pre class="overflow-x-auto rounded bg-stone-50 p-2 text-xs">${JSON.stringify(item.values || {}, null, 2)}</pre>
+        </article>
+      `).join("") || '<p class="text-sm text-stone-500">Aucun message reçu.</p>';
+    }
+
+    function renderPagesList() {
+      refs.pagesList.innerHTML = state.pages.map((page) => `
+        <div class="flex items-center justify-between rounded border border-stone-200 px-3 py-2">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-medium">${page.title || page.id}</p>
+            <p class="truncate text-xs text-stone-500">Nom interne: ${page.id} | Catégorie: ${page.category || "-"}</p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" data-action="edit" data-id="${page.id}" class="rounded border border-stone-300 px-2 py-1 text-xs">Modifier</button>
+            <button type="button" data-action="delete" data-id="${page.id}" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Supprimer</button>
+          </div>
+        </div>
+      `).join("") || '<p class="text-sm text-stone-500">Aucune page.</p>';
+    }
+
+    function fillForm(page) {
+      refs.title.value = page.title || "";
+      refs.slug.value = page.slug || page.id || "";
+      refs.category.value = page.category || "";
+      refs.heroImage.value = page.heroImageName || "";
+      refs.heroText.value = page.heroText || "";
+      refs.sections.innerHTML = "";
+      const sections = Array.isArray(page.sections) ? [...page.sections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) : [];
+      if (!sections.length) refs.sections.appendChild(createSectionRow());
+      else sections.forEach((section) => refs.sections.appendChild(createSectionRow(section)));
+    }
+
+    async function savePage(event) {
+      event.preventDefault();
+      try {
+        const payload = getPayload();
+        await setDoc(doc(db, "pages", payload.slug), payload);
+        setStatus("Page publiée.", "success");
+      } catch (error) {
+        setStatus(error.message || "Erreur sauvegarde", "error");
+      }
+    }
+
+    async function deletePage(id = "") {
+      const target = id || refs.slug.value.trim();
+      if (!target) {
+        setStatus("Nom interne requis.", "error");
+        return;
+      }
+      try {
+        await deleteDoc(doc(db, "pages", target));
+        if (!id || id === refs.slug.value.trim()) resetForm();
+        setStatus("Page supprimée.", "success");
+      } catch (error) {
+        setStatus(error.message || "Erreur suppression", "error");
+      }
+    }
+
+    function bindEvents() {
+      refs.openDashboard.addEventListener("click", () => {
+        refs.overlay.classList.remove("hidden");
+        refs.overlay.classList.add("flex");
+      });
+      refs.closeDashboard.addEventListener("click", () => {
+        refs.overlay.classList.add("hidden");
+        refs.overlay.classList.remove("flex");
+      });
+      refs.overlay.addEventListener("click", (event) => {
+        if (event.target === refs.overlay) {
+          refs.overlay.classList.add("hidden");
+          refs.overlay.classList.remove("flex");
+        }
+      });
+
+      refs.form.addEventListener("submit", savePage);
+      refs.newPage.addEventListener("click", resetForm);
+      refs.deletePage.addEventListener("click", () => deletePage());
+      refs.submissionFilterPage.addEventListener("change", renderSubmissions);
+
+      refs.addSection.addEventListener("click", () => refs.sections.appendChild(createSectionRow()));
+
+      refs.sections.addEventListener("change", (event) => {
+        const row = event.target.closest("[data-section-row]");
+        if (!row) return;
+        if (event.target.matches('[data-field="type"], [data-field="cardContentType"]')) {
+          updateTypePanels(row);
+        }
+      });
+
+      refs.sections.addEventListener("click", (event) => {
+        const btn = event.target.closest("button[data-action]");
+        if (!btn) return;
+        const row = btn.closest("[data-section-row]");
+
+        if (btn.dataset.action === "remove-section") {
+          if (row) row.remove();
+          if (!refs.sections.children.length) refs.sections.appendChild(createSectionRow());
+          return;
+        }
+
+        if (btn.dataset.action === "up") {
+          if (!row) return;
+          const prev = row.previousElementSibling;
+          if (prev) refs.sections.insertBefore(row, prev);
+          return;
+        }
+
+        if (btn.dataset.action === "down") {
+          if (!row) return;
+          const next = row.nextElementSibling;
+          if (next) refs.sections.insertBefore(next, row);
+          return;
+        }
+
+        if (btn.dataset.action === "add-form-field") {
+          const container = row.querySelector("[data-form-fields]");
+          container.insertAdjacentHTML("beforeend", createSmallFieldRow("form-field"));
+          return;
+        }
+
+        if (btn.dataset.action === "add-card-form-field") {
+          const container = row.querySelector("[data-card-form-fields]");
+          container.insertAdjacentHTML("beforeend", createSmallFieldRow("form-field"));
+          return;
+        }
+
+        if (btn.dataset.action === "add-table-row") {
+          const container = row.querySelector("[data-table-rows]");
+          container.insertAdjacentHTML("beforeend", createSmallFieldRow("table-row"));
+          return;
+        }
+
+        if (btn.dataset.action === "add-card-table-row") {
+          const container = row.querySelector("[data-card-table-rows]");
+          container.insertAdjacentHTML("beforeend", createSmallFieldRow("table-row"));
+          return;
+        }
+
+        if (btn.dataset.action === "add-slide") {
+          const container = row.querySelector("[data-carousel-slides]");
+          container.insertAdjacentHTML("beforeend", createSmallFieldRow("slide-row"));
+          return;
+        }
+
+        if (btn.dataset.action === "remove-row") {
+          const smallRow = btn.closest("[data-form-field-row], [data-table-row], [data-slide-row]");
+          if (smallRow) smallRow.remove();
+          return;
+        }
+      });
+
+      refs.pagesList.addEventListener("click", (event) => {
+        const btn = event.target.closest("button[data-action]");
+        if (!btn) return;
+        const id = btn.dataset.id || "";
+        const page = state.pages.find((p) => p.id === id);
+
+        if (btn.dataset.action === "edit" && page) {
+          fillForm({ ...page, slug: page.id });
+          refs.overlay.classList.remove("hidden");
+          refs.overlay.classList.add("flex");
+          return;
+        }
+
+        if (btn.dataset.action === "delete") {
+          deletePage(id);
+        }
+      });
+    }
+
+    function subscribeData() {
+      onSnapshot(doc(db, "navbar", "main"), (snap) => {
+        const data = snap.exists() ? snap.data() : {};
+        const primary = Array.isArray(data.navLinks) ? data.navLinks.map((l) => (l?.label || "").trim()).filter(Boolean) : [];
+        const secondary = Array.isArray(data.secondaryNavLinks) ? data.secondaryNavLinks.map(normalizeCategoryItem).filter(Boolean) : [];
+        state.categories = [...new Set([...primary, ...secondary])];
+        fillCategorySelect(state.categories);
+      });
+
+      onSnapshot(collection(db, "pages"), (snapshot) => {
+        state.pages = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        renderPagesList();
+        fillSubmissionFilter();
+      });
+
+      onSnapshot(collection(db, "form_submissions"), (snapshot) => {
+        state.submissions = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+        renderSubmissions();
+      });
+    }
+
+    function init() {
+      resetForm();
+      bindEvents();
+      subscribeData();
+    }
+
+    init();
+  </script>
+</body>
+</html>

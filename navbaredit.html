@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navbar Edit Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    .sierra-admin-body {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sierra-admin-body h1,
+    .sierra-admin-body h2,
+    .sierra-admin-body h3 {
+      font-family: "Source Serif 4", serif;
+      letter-spacing: 0.01em;
+      color: #111827;
+    }
+
+    .sierra-admin-body .text-xs {
+      font-size: 0.84rem;
+    }
+
+    .sierra-admin-body .text-sm {
+      font-size: 0.96rem;
+    }
+  </style>
+  <link rel="stylesheet" href="./admin-ui.css">
+</head>
+<body class="sierra-admin-body min-h-screen bg-stone-100 text-stone-800">
+  <main class="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 p-4 md:grid-cols-2 md:p-8">
+    <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+      <div class="mb-4 flex items-center justify-between">
+        <h1 class="text-xl font-semibold">navbaredit</h1>
+      </div>
+
+      <div id="status-box" class="mb-4 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm">Prêt.</div>
+
+      <form id="navbar-form" class="space-y-4">
+        <div>
+          <label for="logoImageName" class="mb-1 block text-sm font-medium">Logo image name</label>
+          <input id="logoImageName" type="text" class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm" placeholder="logo.png">
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div class="rounded-md border border-stone-200 p-3">
+            <div class="mb-2 flex items-center justify-between">
+              <label for="searchIconClass" class="block text-sm font-medium">Search icon class</label>
+              <div id="search-icon-preview" class="text-base text-stone-700"><i class="fa-solid fa-magnifying-glass"></i></div>
+            </div>
+            <input id="searchIconClass" type="text" class="mb-2 w-full rounded-md border border-stone-300 px-3 py-2 text-sm" placeholder="fa-solid fa-magnifying-glass">
+            <button type="button" data-open-icon-picker="search" class="w-full rounded-md border border-stone-300 px-3 py-2 text-xs font-medium">Choisir une icône</button>
+          </div>
+
+          <div class="rounded-md border border-stone-200 p-3">
+            <div class="mb-2 flex items-center justify-between">
+              <label for="menuIconClass" class="block text-sm font-medium">Menu icon class</label>
+              <div id="menu-icon-preview" class="text-base text-stone-700"><i class="fa-solid fa-bars"></i></div>
+            </div>
+            <input id="menuIconClass" type="text" class="mb-2 w-full rounded-md border border-stone-300 px-3 py-2 text-sm" placeholder="fa-solid fa-bars">
+            <button type="button" data-open-icon-picker="menu" class="w-full rounded-md border border-stone-300 px-3 py-2 text-xs font-medium">Choisir une icône</button>
+          </div>
+        </div>
+
+        <div class="rounded-md border border-stone-200 p-3">
+          <div class="mb-2 flex items-center justify-between">
+            <p class="text-sm font-medium">Nav links</p>
+            <button id="add-link-btn" type="button" class="rounded-md border border-stone-300 px-3 py-1 text-xs font-medium">Ajouter lien</button>
+          </div>
+          <div id="links-container" class="space-y-2"></div>
+        </div>
+
+        <div class="rounded-md border border-stone-200 p-3">
+          <div class="mb-2 flex items-center justify-between">
+            <p class="text-sm font-medium">Navbar second links</p>
+            <button id="add-secondary-link-btn" type="button" class="rounded-md border border-stone-300 px-3 py-1 text-xs font-medium">Ajouter lien</button>
+          </div>
+          <div id="secondary-links-container" class="space-y-2"></div>
+          <div class="mt-3 rounded-md border border-stone-200 bg-stone-50 p-3">
+            <p class="mb-2 text-xs font-semibold text-stone-600">Liens enregistrés (navbar second)</p>
+            <div id="saved-secondary-links" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 pt-2">
+          <button id="save-btn" type="submit" class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Enregistrer</button>
+          <button id="delete-btn" type="button" class="rounded-md bg-rose-700 px-4 py-2 text-sm font-medium text-white">Supprimer</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+      <h2 class="mb-4 text-lg font-semibold">Aperçu navbar (live)</h2>
+      <div id="preview-root" class="overflow-hidden rounded-lg border border-stone-200 bg-gradient-to-br from-stone-100 via-amber-50 to-emerald-50"></div>
+    </section>
+  </main>
+
+  <div id="icon-picker-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4">
+    <div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-xl border border-stone-300 bg-white shadow-xl">
+      <div class="flex items-center justify-between border-b border-stone-200 px-4 py-3">
+        <p id="icon-picker-title" class="text-sm font-semibold">Choisir une icône</p>
+        <button id="close-icon-picker" type="button" class="rounded-md border border-stone-300 px-2 py-1 text-xs">Fermer</button>
+      </div>
+      <div class="p-4">
+        <input id="icon-search" type="text" class="mb-3 w-full rounded-md border border-stone-300 px-3 py-2 text-sm" placeholder="Rechercher une icône (ex: bars, user, house)">
+        <div id="icon-grid" class="grid max-h-[60vh] grid-cols-3 gap-2 overflow-auto sm:grid-cols-4 md:grid-cols-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import BulbeNavigation from "./bulbe.js";
+    new BulbeNavigation();
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      deleteDoc,
+      doc,
+      getFirestore,
+      onSnapshot,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAk3TYeyALujTKQbcW7wpmBmcoud6Gv06s",
+      authDomain: "urh2-aaa13.firebaseapp.com",
+      projectId: "urh2-aaa13",
+      storageBucket: "urh2-aaa13.firebasestorage.app",
+      messagingSenderId: "23035313137",
+      appId: "1:23035313137:web:b4600526c3cfe37fea2250"
+    };
+
+    const NAVBAR_DOC_ID = "main";
+    const STATIC_COLORS = {
+      primary: "#4f6655",
+      secondary: "#ddd2b0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const navbarDocRef = doc(db, "navbar", NAVBAR_DOC_ID);
+
+    const ICON_CHOICES = [
+      "fa-solid fa-magnifying-glass", "fa-solid fa-bars", "fa-solid fa-house", "fa-solid fa-building-columns",
+      "fa-solid fa-book-open", "fa-solid fa-graduation-cap", "fa-solid fa-user", "fa-solid fa-user-group",
+      "fa-solid fa-bell", "fa-solid fa-envelope", "fa-solid fa-phone", "fa-solid fa-location-dot",
+      "fa-solid fa-circle-info", "fa-solid fa-circle-question", "fa-solid fa-gear", "fa-solid fa-sliders",
+      "fa-solid fa-calendar", "fa-solid fa-clock", "fa-solid fa-newspaper", "fa-solid fa-award",
+      "fa-solid fa-globe", "fa-solid fa-language", "fa-solid fa-shield-halved", "fa-solid fa-key",
+      "fa-solid fa-download", "fa-solid fa-upload", "fa-solid fa-folder-open", "fa-solid fa-file-lines",
+      "fa-solid fa-pen", "fa-solid fa-pen-to-square", "fa-solid fa-images", "fa-solid fa-camera",
+      "fa-solid fa-video", "fa-solid fa-chart-line", "fa-solid fa-chart-pie", "fa-solid fa-chart-column",
+      "fa-solid fa-list", "fa-solid fa-list-check", "fa-solid fa-square-check", "fa-solid fa-circle-check",
+      "fa-solid fa-star", "fa-solid fa-heart", "fa-solid fa-flag", "fa-solid fa-trophy",
+      "fa-solid fa-arrow-right", "fa-solid fa-arrow-left", "fa-solid fa-arrow-up", "fa-solid fa-arrow-down",
+      "fa-solid fa-chevron-right", "fa-solid fa-chevron-left", "fa-solid fa-chevron-up", "fa-solid fa-chevron-down",
+      "fa-solid fa-ellipsis", "fa-solid fa-ellipsis-vertical", "fa-solid fa-plus", "fa-solid fa-minus",
+      "fa-solid fa-xmark", "fa-solid fa-filter", "fa-solid fa-wand-magic-sparkles", "fa-solid fa-link"
+    ];
+
+    const refs = {
+      form: document.getElementById("navbar-form"),
+      logoImageName: document.getElementById("logoImageName"),
+      searchIconClass: document.getElementById("searchIconClass"),
+      menuIconClass: document.getElementById("menuIconClass"),
+      searchPreview: document.getElementById("search-icon-preview"),
+      menuPreview: document.getElementById("menu-icon-preview"),
+      linksContainer: document.getElementById("links-container"),
+      addLinkBtn: document.getElementById("add-link-btn"),
+      secondaryLinksContainer: document.getElementById("secondary-links-container"),
+      addSecondaryLinkBtn: document.getElementById("add-secondary-link-btn"),
+      savedSecondaryLinks: document.getElementById("saved-secondary-links"),
+      deleteBtn: document.getElementById("delete-btn"),
+      statusBox: document.getElementById("status-box"),
+      previewRoot: document.getElementById("preview-root"),
+      iconModal: document.getElementById("icon-picker-modal"),
+      iconTitle: document.getElementById("icon-picker-title"),
+      iconSearch: document.getElementById("icon-search"),
+      iconGrid: document.getElementById("icon-grid"),
+      closeIconPicker: document.getElementById("close-icon-picker")
+    };
+
+    const iconPickerState = {
+      targetField: null,
+      list: ICON_CHOICES
+    };
+    let latestNavbarData = null;
+
+    function setStatus(message, kind = "info") {
+      const palette = {
+        info: "border-stone-200 bg-stone-50 text-stone-700",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        error: "border-rose-200 bg-rose-50 text-rose-700"
+      };
+      refs.statusBox.className = `mb-4 rounded-md border px-3 py-2 text-sm ${palette[kind] || palette.info}`;
+      refs.statusBox.textContent = message;
+    }
+
+    function createLinkRow(link = { label: "", url: "" }) {
+      const row = document.createElement("div");
+      row.className = "grid grid-cols-1 gap-2 rounded-md border border-stone-200 p-3 md:grid-cols-[1fr_1fr_auto]";
+      row.innerHTML = `
+        <input
+          type="text"
+          data-field="label"
+          class="rounded-md border border-stone-300 px-3 py-2 text-sm"
+          placeholder="Label"
+          value="${link.label || ""}"
+        >
+        <input
+          type="text"
+          data-field="url"
+          class="rounded-md border border-stone-300 px-3 py-2 text-sm"
+          placeholder="/page"
+          value="${link.url || ""}"
+        >
+        <button
+          type="button"
+          data-action="remove-link"
+          class="rounded-md bg-stone-200 px-3 py-2 text-sm font-medium text-stone-700"
+        >
+          Supprimer
+        </button>
+      `;
+      return row;
+    }
+
+    function normalizeSecondaryCategory(item) {
+      if (!item) return "";
+      if (typeof item === "string") return item.trim();
+      return (item.name || item.label || item.title || "").trim();
+    }
+
+    function createSecondaryLinkRow(categoryName = "") {
+      const row = document.createElement("div");
+      row.className = "grid grid-cols-1 gap-2 rounded-md border border-stone-200 p-3 md:grid-cols-[1fr_auto]";
+      row.innerHTML = `
+        <input
+          type="text"
+          data-field="secondary-name"
+          class="rounded-md border border-stone-300 px-3 py-2 text-sm"
+          placeholder="Nom catégorie"
+          value="${categoryName || ""}"
+        >
+        <button
+          type="button"
+          data-action="remove-secondary-link"
+          class="rounded-md bg-stone-200 px-3 py-2 text-sm font-medium text-stone-700"
+        >
+          Supprimer
+        </button>
+      `;
+      return row;
+    }
+
+    function renderSavedSecondaryLinks(links) {
+      const safeLinks = Array.isArray(links) ? links.map(normalizeSecondaryCategory).filter(Boolean) : [];
+      if (!safeLinks.length) {
+        refs.savedSecondaryLinks.innerHTML = '<p class="text-xs text-stone-500">Aucun lien enregistré.</p>';
+        return;
+      }
+
+      refs.savedSecondaryLinks.innerHTML = safeLinks
+        .map((name, index) => `
+          <div class="flex items-center justify-between gap-2 rounded-md border border-stone-200 bg-white px-2 py-2">
+            <div class="min-w-0">
+              <p class="truncate text-xs font-medium text-stone-700">${name}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" data-action="edit-saved-secondary-link" data-index="${index}" class="rounded border border-stone-300 px-2 py-1 text-[11px]">Modifier</button>
+              <button type="button" data-action="delete-saved-secondary-link" data-index="${index}" class="rounded border border-rose-300 px-2 py-1 text-[11px] text-rose-700">Supprimer</button>
+            </div>
+          </div>
+        `)
+        .join("");
+    }
+
+    function getFormData() {
+      const navLinks = [...refs.linksContainer.children]
+        .map((row) => {
+          const label = row.querySelector('[data-field="label"]').value.trim();
+          const url = row.querySelector('[data-field="url"]').value.trim();
+          return { label, url };
+        })
+        .filter((link) => link.label && link.url);
+
+      const secondaryNavLinks = [...refs.secondaryLinksContainer.children]
+        .map((row) => {
+          const name = row.querySelector('[data-field="secondary-name"]').value.trim();
+          return name;
+        })
+        .filter(Boolean);
+
+      return {
+        logoImageName: refs.logoImageName.value.trim(),
+        searchIconClass: refs.searchIconClass.value.trim(),
+        menuIconClass: refs.menuIconClass.value.trim(),
+        navLinks,
+        secondaryNavLinks
+      };
+    }
+
+    function updateIconPreview(kind) {
+      const searchClass = refs.searchIconClass.value.trim();
+      const menuClass = refs.menuIconClass.value.trim();
+
+      if (!kind || kind === "search") {
+        refs.searchPreview.innerHTML = searchClass ? `<i class="${searchClass}"></i>` : "";
+      }
+      if (!kind || kind === "menu") {
+        refs.menuPreview.innerHTML = menuClass ? `<i class="${menuClass}"></i>` : "";
+      }
+    }
+
+    function renderPreview(data) {
+      const safeData = data || {};
+      const links = Array.isArray(safeData.navLinks) ? safeData.navLinks.filter((link) => link && link.label && link.url) : [];
+      const secondaryLinks = Array.isArray(safeData.secondaryNavLinks) ? safeData.secondaryNavLinks.map(normalizeSecondaryCategory).filter(Boolean) : [];
+
+      if (!safeData.logoImageName && !links.length && !safeData.searchIconClass && !safeData.menuIconClass) {
+        refs.previewRoot.innerHTML = '<div class="p-4 text-sm text-stone-500">Aperçu en attente de données.</div>';
+        return;
+      }
+
+      const linksHtml = links
+        .map((link) => `<a href="${link.url}" class="text-[1.05rem] font-medium tracking-[0.01em] transition-colors hover:opacity-85">${link.label}</a>`)
+        .join("");
+      const secondaryLinksHtml = secondaryLinks
+        .map((name) => `<span class="text-[0.95rem] opacity-85">${name}</span>`)
+        .join("");
+
+      refs.previewRoot.innerHTML = `
+        <div class="relative p-4">
+          <div class="pointer-events-none absolute inset-0 opacity-50" style="background: radial-gradient(circle at 15% 20%, #ffffff 0%, transparent 45%), radial-gradient(circle at 85% 80%, #c7d7c8 0%, transparent 40%), linear-gradient(135deg, #f6f0de 0%, #e5ecd9 100%);"></div>
+
+          <div class="relative grid gap-4 md:grid-cols-2">
+            <div class="rounded-md border border-stone-300 bg-white/55 p-3">
+              <p class="mb-2 text-xs font-semibold text-stone-700">Aperçu Desktop</p>
+              <nav
+                class="w-full border-b"
+                style="
+                  background: color-mix(in srgb, ${STATIC_COLORS.secondary} 72%, transparent);
+                  border-color: color-mix(in srgb, ${STATIC_COLORS.primary} 28%, #000000 10%);
+                  color: color-mix(in srgb, ${STATIC_COLORS.primary} 70%, #1f2937 30%);
+                  backdrop-filter: blur(8px);
+                  -webkit-backdrop-filter: blur(8px);
+                "
+              >
+                <div class="mx-auto flex w-full items-center justify-between px-4 py-4">
+                  <div class="flex items-center">
+                    ${safeData.logoImageName ? `<img src="./${safeData.logoImageName}" alt="" class="h-10 w-auto object-contain md:h-12">` : ""}
+                  </div>
+                  <div class="flex items-center gap-6">${linksHtml}</div>
+                  <div class="flex items-center gap-4 md:gap-5">
+                    ${safeData.searchIconClass ? `
+                      <label class="flex items-center gap-2 rounded-full border border-current/30 bg-white/40 px-3 py-2 text-sm">
+                        <input type="text" class="w-36 bg-transparent text-sm outline-none placeholder:opacity-75" placeholder="Rechercher...">
+                        <i class="${safeData.searchIconClass} text-sm"></i>
+                      </label>
+                    ` : ""}
+                  </div>
+                </div>
+              </nav>
+              <div class="flex items-center justify-center gap-5 border-t border-stone-300/50 px-3 py-3 text-base">
+                ${secondaryLinksHtml}
+              </div>
+            </div>
+
+            <div class="rounded-md border border-stone-300 bg-white/55 p-3">
+              <p class="mb-2 text-xs font-semibold text-stone-700">Aperçu Mobile</p>
+              <div
+                class="mx-auto max-w-[340px] rounded-xl border border-stone-300 bg-white/40 p-2 shadow-sm"
+                style="backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);"
+              >
+                <nav
+                  class="w-full rounded-md border-b"
+                  style="
+                    background: color-mix(in srgb, ${STATIC_COLORS.secondary} 72%, transparent);
+                    border-color: color-mix(in srgb, ${STATIC_COLORS.primary} 28%, #000000 10%);
+                    color: color-mix(in srgb, ${STATIC_COLORS.primary} 70%, #1f2937 30%);
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                  "
+                >
+                  <div class="flex items-center justify-between px-3 py-2">
+                    <div class="flex items-center">
+                      ${safeData.logoImageName ? `<img src="./${safeData.logoImageName}" alt="" class="h-8 w-auto object-contain">` : ""}
+                    </div>
+                    <div class="flex items-center gap-4">
+                      ${safeData.searchIconClass ? `<i class="${safeData.searchIconClass}"></i>` : ""}
+                      ${safeData.menuIconClass ? `<i class="${safeData.menuIconClass} md:hidden"></i>` : ""}
+                    </div>
+                  </div>
+                </nav>
+                <div class="flex items-center justify-start gap-4 px-3 py-2 text-xs">
+                  ${secondaryLinksHtml}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function resetForm() {
+      refs.logoImageName.value = "";
+      refs.searchIconClass.value = "";
+      refs.menuIconClass.value = "";
+      refs.linksContainer.innerHTML = "";
+      refs.linksContainer.appendChild(createLinkRow());
+      refs.secondaryLinksContainer.innerHTML = "";
+      refs.secondaryLinksContainer.appendChild(createSecondaryLinkRow());
+      updateIconPreview();
+      renderPreview(getFormData());
+    }
+
+    function fillForm(data) {
+      refs.logoImageName.value = data.logoImageName || "";
+      refs.searchIconClass.value = data.searchIconClass || "";
+      refs.menuIconClass.value = data.menuIconClass || "";
+
+      refs.linksContainer.innerHTML = "";
+      const links = Array.isArray(data.navLinks) ? data.navLinks : [];
+      if (!links.length) {
+        refs.linksContainer.appendChild(createLinkRow());
+      } else {
+        links.forEach((link) => refs.linksContainer.appendChild(createLinkRow(link)));
+      }
+
+      refs.secondaryLinksContainer.innerHTML = "";
+      const secondaryLinks = Array.isArray(data.secondaryNavLinks) ? data.secondaryNavLinks : [];
+      if (!secondaryLinks.length) {
+        refs.secondaryLinksContainer.appendChild(createSecondaryLinkRow());
+      } else {
+        secondaryLinks.forEach((item) => refs.secondaryLinksContainer.appendChild(createSecondaryLinkRow(normalizeSecondaryCategory(item))));
+      }
+
+      updateIconPreview();
+      renderPreview(getFormData());
+    }
+
+    function collectPayload() {
+      const payload = getFormData();
+      const missingRequired =
+        !payload.logoImageName ||
+        !payload.searchIconClass ||
+        !payload.menuIconClass ||
+        !payload.navLinks.length;
+
+      if (missingRequired) {
+        throw new Error("Tous les champs sont requis et au moins un lien valide est nécessaire.");
+      }
+
+      return payload;
+    }
+
+    function renderIconGrid(filterText = "") {
+      const query = filterText.trim().toLowerCase();
+      const filtered = iconPickerState.list.filter((iconClass) => iconClass.toLowerCase().includes(query));
+
+      refs.iconGrid.innerHTML = filtered.map((iconClass) => `
+        <button
+          type="button"
+          data-icon-class="${iconClass}"
+          class="flex flex-col items-center justify-center gap-2 rounded-md border border-stone-200 p-3 text-stone-700 transition hover:border-stone-400 hover:bg-stone-50"
+        >
+          <i class="${iconClass} text-lg"></i>
+          <span class="text-[10px] leading-tight">${iconClass.replace("fa-solid ", "")}</span>
+        </button>
+      `).join("");
+
+      if (!filtered.length) {
+        refs.iconGrid.innerHTML = '<p class="col-span-full rounded-md border border-dashed border-stone-300 p-4 text-center text-sm text-stone-500">Aucune icône trouvée.</p>';
+      }
+    }
+
+    function openIconPicker(targetField) {
+      iconPickerState.targetField = targetField;
+      refs.iconTitle.textContent = targetField === "search" ? "Choisir l'icône de recherche" : "Choisir l'icône menu";
+      refs.iconSearch.value = "";
+      renderIconGrid();
+      refs.iconModal.classList.remove("hidden");
+      refs.iconModal.classList.add("flex");
+    }
+
+    function closeIconPicker() {
+      refs.iconModal.classList.add("hidden");
+      refs.iconModal.classList.remove("flex");
+      iconPickerState.targetField = null;
+    }
+
+    async function handleSave(event) {
+      event.preventDefault();
+      try {
+        const payload = collectPayload();
+        await setDoc(navbarDocRef, payload);
+        setStatus("Navbar enregistrée.", "success");
+      } catch (error) {
+        setStatus(error.message || "Erreur pendant l'enregistrement.", "error");
+      }
+    }
+
+    async function handleDelete() {
+      try {
+        await deleteDoc(navbarDocRef);
+        resetForm();
+        setStatus("Navbar supprimée.", "success");
+      } catch (error) {
+        setStatus(error.message || "Erreur pendant la suppression.", "error");
+      }
+    }
+
+    function bindEvents() {
+      refs.form.addEventListener("submit", handleSave);
+      refs.deleteBtn.addEventListener("click", handleDelete);
+
+      refs.addLinkBtn.addEventListener("click", () => {
+        refs.linksContainer.appendChild(createLinkRow());
+        renderPreview(getFormData());
+      });
+      refs.addSecondaryLinkBtn.addEventListener("click", () => {
+        refs.secondaryLinksContainer.appendChild(createSecondaryLinkRow());
+        renderPreview(getFormData());
+      });
+
+      refs.linksContainer.addEventListener("click", (event) => {
+        const trigger = event.target.closest('[data-action="remove-link"]');
+        if (!trigger) return;
+        const row = trigger.closest("div");
+        if (!row) return;
+        row.remove();
+        if (!refs.linksContainer.children.length) {
+          refs.linksContainer.appendChild(createLinkRow());
+        }
+        renderPreview(getFormData());
+      });
+
+      refs.linksContainer.addEventListener("input", () => {
+        renderPreview(getFormData());
+      });
+      refs.secondaryLinksContainer.addEventListener("click", (event) => {
+        const trigger = event.target.closest('[data-action="remove-secondary-link"]');
+        if (!trigger) return;
+        const row = trigger.closest("div");
+        if (!row) return;
+        row.remove();
+        if (!refs.secondaryLinksContainer.children.length) {
+          refs.secondaryLinksContainer.appendChild(createSecondaryLinkRow());
+        }
+        renderPreview(getFormData());
+      });
+      refs.secondaryLinksContainer.addEventListener("input", () => {
+        renderPreview(getFormData());
+      });
+      refs.savedSecondaryLinks.addEventListener("click", async (event) => {
+        const trigger = event.target.closest("button[data-action]");
+        if (!trigger) return;
+
+        const index = Number(trigger.dataset.index);
+        const currentSecondaryLinks = Array.isArray(latestNavbarData?.secondaryNavLinks)
+          ? latestNavbarData.secondaryNavLinks.map(normalizeSecondaryCategory).filter(Boolean)
+          : [];
+        const selected = currentSecondaryLinks[index];
+        if (!selected) return;
+
+        if (trigger.dataset.action === "edit-saved-secondary-link") {
+          refs.secondaryLinksContainer.appendChild(createSecondaryLinkRow(selected));
+          renderPreview(getFormData());
+          setStatus("Lien ajouté dans le formulaire pour modification.", "info");
+          return;
+        }
+
+        if (trigger.dataset.action === "delete-saved-secondary-link") {
+          try {
+            const nextSecondaryLinks = currentSecondaryLinks.filter((_, i) => i !== index);
+            const nextPayload = {
+              ...(latestNavbarData || {}),
+              secondaryNavLinks: nextSecondaryLinks
+            };
+            await setDoc(navbarDocRef, nextPayload);
+            setStatus("Lien supprimé de navbar second.", "success");
+          } catch (error) {
+            setStatus(error.message || "Erreur pendant la suppression du lien.", "error");
+          }
+        }
+      });
+
+      refs.logoImageName.addEventListener("input", () => renderPreview(getFormData()));
+      refs.searchIconClass.addEventListener("input", () => {
+        updateIconPreview("search");
+        renderPreview(getFormData());
+      });
+      refs.menuIconClass.addEventListener("input", () => {
+        updateIconPreview("menu");
+        renderPreview(getFormData());
+      });
+
+      document.querySelectorAll("[data-open-icon-picker]").forEach((button) => {
+        button.addEventListener("click", () => openIconPicker(button.dataset.openIconPicker));
+      });
+
+      refs.closeIconPicker.addEventListener("click", closeIconPicker);
+      refs.iconModal.addEventListener("click", (event) => {
+        if (event.target === refs.iconModal) closeIconPicker();
+      });
+
+      refs.iconSearch.addEventListener("input", (event) => {
+        renderIconGrid(event.target.value);
+      });
+
+      refs.iconGrid.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-icon-class]");
+        if (!trigger || !iconPickerState.targetField) return;
+
+        const value = trigger.dataset.iconClass;
+        if (iconPickerState.targetField === "search") {
+          refs.searchIconClass.value = value;
+          updateIconPreview("search");
+        }
+
+        if (iconPickerState.targetField === "menu") {
+          refs.menuIconClass.value = value;
+          updateIconPreview("menu");
+        }
+
+        renderPreview(getFormData());
+        closeIconPicker();
+      });
+    }
+
+    function subscribeSingleNavbar() {
+      onSnapshot(navbarDocRef, (snapshot) => {
+        if (!snapshot.exists()) {
+          latestNavbarData = null;
+          resetForm();
+          renderSavedSecondaryLinks([]);
+          setStatus("Aucune navbar enregistrée pour le moment.", "info");
+          return;
+        }
+
+        latestNavbarData = snapshot.data();
+        fillForm(latestNavbarData);
+        renderSavedSecondaryLinks(latestNavbarData.secondaryNavLinks);
+        setStatus("Navbar chargée.", "info");
+      });
+    }
+
+    function initDashboard() {
+      resetForm();
+      bindEvents();
+      subscribeSingleNavbar();
+    }
+
+    initDashboard();
+  </script>
+</body>
+</html>

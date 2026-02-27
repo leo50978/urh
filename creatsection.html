@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard CreatSection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .sierra-admin-body {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sierra-admin-body h1,
+    .sierra-admin-body h2,
+    .sierra-admin-body h3 {
+      font-family: "Source Serif 4", serif;
+      letter-spacing: 0.01em;
+      color: #111827;
+    }
+
+    .sierra-letters-bg {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(31, 81, 53, 0.08), transparent 42%),
+        radial-gradient(circle at 80% 30%, rgba(79, 102, 85, 0.08), transparent 45%),
+        linear-gradient(180deg, #f7faf8 0%, #f4f7f5 100%);
+    }
+
+    .sierra-letters-bg span {
+      position: absolute;
+      font-family: "Source Serif 4", serif;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: rgba(31, 81, 53, 0.14);
+      text-transform: uppercase;
+      animation: sierraFloat 18s ease-in-out infinite;
+      user-select: none;
+      filter: blur(0.15px);
+    }
+
+    .sierra-letters-bg span:nth-child(2n) {
+      color: rgba(79, 102, 85, 0.16);
+      animation-duration: 24s;
+    }
+
+    .sierra-letters-bg span:nth-child(3n) {
+      color: rgba(31, 81, 53, 0.1);
+      animation-duration: 30s;
+    }
+
+    @keyframes sierraFloat {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 0.2;
+      }
+      50% {
+        transform: translate3d(0, -24px, 0) rotate(1.5deg);
+        opacity: 0.42;
+      }
+      100% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 0.2;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="./admin-ui.css">
+</head>
+<body class="sierra-admin-body min-h-screen bg-stone-100 text-stone-800">
+  <div class="sierra-letters-bg" aria-hidden="true">
+    <span style="left:6%;top:10%;font-size:clamp(2.4rem,5vw,5.2rem);">URH</span>
+    <span style="left:24%;top:34%;font-size:clamp(1.6rem,3.5vw,3.6rem);">Campus</span>
+    <span style="left:68%;top:16%;font-size:clamp(1.8rem,4vw,4rem);">Savoir</span>
+    <span style="left:78%;top:58%;font-size:clamp(2.2rem,4.5vw,4.8rem);">Excellence</span>
+    <span style="left:10%;top:70%;font-size:clamp(1.4rem,3vw,3rem);">Recherche</span>
+    <span style="left:44%;top:76%;font-size:clamp(1.5rem,3.2vw,3.2rem);">Innovation</span>
+    <span style="left:48%;top:14%;font-size:clamp(1.2rem,2.6vw,2.6rem);">URH</span>
+    <span style="left:34%;top:56%;font-size:clamp(1.2rem,2.6vw,2.5rem);">Academie</span>
+  </div>
+
+  <main class="relative z-10 mx-auto max-w-7xl p-4 md:p-8">
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-semibold">Dashboard CreatSection</h1>
+      <div id="status" class="rounded-md border border-stone-200 bg-white px-3 py-2 text-sm">Pret.</div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Creer section (1 a 4 colonnes)</h2>
+
+        <form id="section-form" class="space-y-4">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="section-title" class="mb-1 block text-sm font-medium">Titre section (optionnel)</label>
+              <input id="section-title" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Nos programmes">
+            </div>
+            <div>
+              <label for="column-count" class="mb-1 block text-sm font-medium">Nombre de colonnes</label>
+              <select id="column-count" class="w-full rounded border border-stone-300 px-3 py-2 text-sm">
+                <option value="1">1 colonne</option>
+                <option value="2">2 colonnes</option>
+                <option value="3">3 colonnes</option>
+                <option value="4">4 colonnes</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="columns-editor" class="space-y-3"></div>
+
+          <div class="flex flex-wrap gap-2">
+            <button id="save-section-item-btn" type="submit" class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Ajouter section</button>
+            <button id="cancel-edit-btn" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Annuler edition</button>
+            <button id="reset-editor-btn" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Vider editeur</button>
+          </div>
+        </form>
+
+        <div class="mt-5 rounded-lg border border-stone-200 bg-white p-3">
+          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-stone-600">Sections enregistrees</p>
+          <div id="saved-sections" class="space-y-2"></div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="save-all-btn" type="button" class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Enregistrer toutes les sections</button>
+          <button id="delete-all-btn" type="button" class="rounded bg-rose-700 px-4 py-2 text-sm font-medium text-white">Supprimer toutes les sections</button>
+        </div>
+      </section>
+
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Apercu live</h2>
+        <div id="preview" class="overflow-hidden rounded-lg border border-stone-300 bg-white"></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import BulbeNavigation from "./bulbe.js";
+    new BulbeNavigation();
+  </script>
+
+  <script type="module">
+    import { db } from "./firebase-init.js";
+    import {
+      collection,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const COLLECTION = "created_sections";
+    const DOC_ID = "main";
+
+    const refs = {
+      status: document.getElementById("status"),
+      form: document.getElementById("section-form"),
+      title: document.getElementById("section-title"),
+      columnCount: document.getElementById("column-count"),
+      columnsEditor: document.getElementById("columns-editor"),
+      saveSectionItemBtn: document.getElementById("save-section-item-btn"),
+      cancelEditBtn: document.getElementById("cancel-edit-btn"),
+      resetEditorBtn: document.getElementById("reset-editor-btn"),
+      savedSections: document.getElementById("saved-sections"),
+      saveAllBtn: document.getElementById("save-all-btn"),
+      deleteAllBtn: document.getElementById("delete-all-btn"),
+      preview: document.getElementById("preview")
+    };
+
+    const state = {
+      pages: [],
+      sections: [],
+      editingId: null,
+      editorColumns: []
+    };
+
+    function setStatus(message, kind = "info") {
+      const palette = {
+        info: "border-stone-200 bg-white text-stone-700",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        error: "border-rose-200 bg-rose-50 text-rose-700"
+      };
+      refs.status.className = `rounded-md border px-3 py-2 text-sm ${palette[kind] || palette.info}`;
+      refs.status.textContent = message;
+    }
+
+    function createId(prefix = "sec") {
+      return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function toColor(value, fallback) {
+      const v = String(value || "").trim();
+      return /^#[0-9a-fA-F]{6}$/.test(v) ? v : fallback;
+    }
+
+    function toCount(value) {
+      const n = Number.parseInt(String(value || ""), 10);
+      if (Number.isNaN(n)) return 1;
+      return Math.min(4, Math.max(1, n));
+    }
+
+    function toWidth(value) {
+      const n = Number.parseFloat(String(value || ""));
+      if (Number.isNaN(n)) return 42;
+      return Math.min(80, Math.max(20, n));
+    }
+
+    function toColumnWidth(value, fallback = 100) {
+      const n = Number.parseFloat(String(value || ""));
+      if (Number.isNaN(n)) return fallback;
+      return Math.min(100, Math.max(10, n));
+    }
+
+    function pageOptions(selected = "") {
+      const options = ['<option value="">-- Choisir page --</option>'];
+      state.pages.forEach((page) => {
+        const title = page.title || page.id;
+        options.push(`<option value="${page.id}" ${selected === page.id ? "selected" : ""}>${title}</option>`);
+      });
+      return options.join("");
+    }
+
+    function defaultColumn() {
+      return {
+        id: createId("col"),
+        mediaMode: "image",
+        mediaType: "image",
+        mediaName: "",
+        mediaText: "",
+        mediaTextColor: "#0f172a",
+        mediaBgColor: "#eef3f0",
+        title: "",
+        subtitle: "",
+        titleColor: "#111827",
+        subtitleColor: "#334155",
+        columnBgColor: "#ffffff",
+        mediaVertical: "top",
+        buttonEnabled: false,
+        buttonLabel: "",
+        buttonTargetPage: "",
+        buttonAlign: "left",
+        singleMediaSide: "left",
+        singleMediaWidth: 42,
+        columnWidth: 100
+      };
+    }
+
+    function normalizeColumn(column = {}) {
+      const mediaMode = ["image", "video", "text"].includes(column.mediaMode)
+        ? column.mediaMode
+        : (column.mediaType === "video" ? "video" : "image");
+      return {
+        ...defaultColumn(),
+        ...column,
+        mediaMode,
+        mediaType: mediaMode === "video" ? "video" : "image",
+        mediaName: String(column.mediaName || "").trim(),
+        mediaText: String(column.mediaText || "").trim(),
+        mediaTextColor: toColor(column.mediaTextColor, "#0f172a"),
+        mediaBgColor: toColor(column.mediaBgColor, "#eef3f0"),
+        title: String(column.title || "").trim(),
+        subtitle: String(column.subtitle || "").trim(),
+        titleColor: toColor(column.titleColor, "#111827"),
+        subtitleColor: toColor(column.subtitleColor, "#334155"),
+        columnBgColor: toColor(column.columnBgColor, "#ffffff"),
+        mediaVertical: column.mediaVertical === "bottom" ? "bottom" : "top",
+        buttonEnabled: Boolean(column.buttonEnabled),
+        buttonLabel: String(column.buttonLabel || "").trim(),
+        buttonTargetPage: String(column.buttonTargetPage || "").trim(),
+        buttonAlign: ["left", "center", "right"].includes(column.buttonAlign) ? column.buttonAlign : "left",
+        singleMediaSide: column.singleMediaSide === "right" ? "right" : "left",
+        singleMediaWidth: toWidth(column.singleMediaWidth),
+        columnWidth: toColumnWidth(column.columnWidth, 100)
+      };
+    }
+
+    function normalizeSection(section = {}) {
+      const count = toCount(section.columnCount);
+      const cols = Array.isArray(section.columns) ? section.columns.map(normalizeColumn) : [];
+      while (cols.length < count) cols.push(defaultColumn());
+
+      return {
+        id: String(section.id || createId("section")),
+        title: String(section.title || "").trim(),
+        columnCount: count,
+        columns: cols.slice(0, count)
+      };
+    }
+
+    function normalizeSections(sections) {
+      if (!Array.isArray(sections)) return [];
+      return sections.map(normalizeSection);
+    }
+
+    function renderColumnEditor(column, index, count) {
+      const singleOnly = count === 1 ? "" : "hidden";
+      return `
+        <article class="rounded-lg border border-stone-200 bg-stone-50 p-3" data-column-row>
+          <p class="mb-2 text-sm font-semibold">Colonne ${index + 1}</p>
+
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-medium">Type de zone media</label>
+              <select data-field="mediaMode" data-index="${index}" class="w-full rounded border border-stone-300 px-2 py-2 text-sm">
+                <option value="image" ${column.mediaMode === "image" ? "selected" : ""}>Image</option>
+                <option value="video" ${column.mediaMode === "video" ? "selected" : ""}>Video</option>
+                <option value="text" ${column.mediaMode === "text" ? "selected" : ""}>Texte</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium">Nom fichier media</label>
+              <input data-field="mediaName" data-index="${index}" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" value="${column.mediaName}" placeholder="photo.jpg ou film.mp4">
+            </div>
+          </div>
+
+          <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-medium">Texte zone media (si type Texte)</label>
+              <input data-field="mediaText" data-index="${index}" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" value="${column.mediaText}" placeholder="Texte affiche dans la zone media">
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium">Largeur colonne desktop (%)</label>
+              <input data-field="columnWidth" data-index="${index}" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" value="${column.columnWidth}">
+            </div>
+          </div>
+
+          <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-medium">Titre</label>
+              <input data-field="title" data-index="${index}" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" value="${column.title}">
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium">Sous-titre</label>
+              <input data-field="subtitle" data-index="${index}" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" value="${column.subtitle}">
+            </div>
+          </div>
+
+          <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div>
+              <label class="mb-1 block text-xs font-medium">Couleur texte media</label>
+              <input data-field="mediaTextColor" data-index="${index}" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="${column.mediaTextColor}">
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium">Fond zone media</label>
+              <input data-field="mediaBgColor" data-index="${index}" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="${column.mediaBgColor}">
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-medium">Couleur titre</label>
+              <input data-field="titleColor" data-index="${index}" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="${column.titleColor}">
+            </div>
+            <div class="md:col-span-1">
+              <label class="mb-1 block text-xs font-medium">Couleur sous-titre</label>
+              <input data-field="subtitleColor" data-index="${index}" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="${column.subtitleColor}">
+            </div>
+            <div class="md:col-span-1">
+              <label class="mb-1 block text-xs font-medium">Couleur colonne</label>
+              <input data-field="columnBgColor" data-index="${index}" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="${column.columnBgColor}">
+            </div>
+          </div>
+
+          <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-xs font-medium">Image/Video en haut ou bas</label>
+              <select data-field="mediaVertical" data-index="${index}" class="w-full rounded border border-stone-300 px-2 py-2 text-sm">
+                <option value="top" ${column.mediaVertical === "top" ? "selected" : ""}>En haut</option>
+                <option value="bottom" ${column.mediaVertical === "bottom" ? "selected" : ""}>En bas</option>
+              </select>
+            </div>
+            <div class="${singleOnly}">
+              <label class="mb-1 block text-xs font-medium">(1 colonne) Image/Video gauche ou droite</label>
+              <select data-field="singleMediaSide" data-index="${index}" class="w-full rounded border border-stone-300 px-2 py-2 text-sm">
+                <option value="left" ${column.singleMediaSide === "left" ? "selected" : ""}>Gauche</option>
+                <option value="right" ${column.singleMediaSide === "right" ? "selected" : ""}>Droite</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-3 ${singleOnly}">
+            <label class="mb-1 block text-xs font-medium">(1 colonne) % largeur media</label>
+            <input data-field="singleMediaWidth" data-index="${index}" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" value="${column.singleMediaWidth}">
+          </div>
+
+          <div class="mt-3 rounded border border-stone-200 bg-white p-3">
+            <label class="inline-flex items-center gap-2 text-xs font-medium">
+              <input data-field="buttonEnabled" data-index="${index}" type="checkbox" ${column.buttonEnabled ? "checked" : ""}>
+              Activer bouton
+            </label>
+
+            <div class="mt-2 grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div>
+                <label class="mb-1 block text-xs font-medium">Texte bouton</label>
+                <input data-field="buttonLabel" data-index="${index}" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" value="${column.buttonLabel}">
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-medium">Page cible</label>
+                <select data-field="buttonTargetPage" data-index="${index}" class="w-full rounded border border-stone-300 px-2 py-2 text-sm">
+                  ${pageOptions(column.buttonTargetPage)}
+                </select>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-medium">Alignement bouton</label>
+                <select data-field="buttonAlign" data-index="${index}" class="w-full rounded border border-stone-300 px-2 py-2 text-sm">
+                  <option value="left" ${column.buttonAlign === "left" ? "selected" : ""}>Gauche</option>
+                  <option value="center" ${column.buttonAlign === "center" ? "selected" : ""}>Milieu</option>
+                  <option value="right" ${column.buttonAlign === "right" ? "selected" : ""}>Droite</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function setEditorColumns(count, keepExisting = true) {
+      const total = toCount(count);
+      const source = keepExisting ? readColumnsFromDom() : state.editorColumns;
+      const next = [];
+      for (let i = 0; i < total; i += 1) {
+        next.push(normalizeColumn(source[i] || defaultColumn()));
+      }
+      state.editorColumns = next;
+      refs.columnsEditor.innerHTML = next.map((col, index) => renderColumnEditor(col, index, total)).join("");
+    }
+
+    function readColumnsFromDom() {
+      const rows = refs.columnsEditor.querySelectorAll("[data-column-row]");
+      const cols = [];
+
+      rows.forEach((row, index) => {
+        const value = (field) => row.querySelector(`[data-field="${field}"]`);
+        cols.push(normalizeColumn({
+          id: state.editorColumns[index]?.id || createId("col"),
+          mediaMode: value("mediaMode")?.value,
+          mediaName: value("mediaName")?.value,
+          mediaText: value("mediaText")?.value,
+          mediaTextColor: value("mediaTextColor")?.value,
+          mediaBgColor: value("mediaBgColor")?.value,
+          title: value("title")?.value,
+          subtitle: value("subtitle")?.value,
+          titleColor: value("titleColor")?.value,
+          subtitleColor: value("subtitleColor")?.value,
+          columnBgColor: value("columnBgColor")?.value,
+          mediaVertical: value("mediaVertical")?.value,
+          buttonEnabled: Boolean(value("buttonEnabled")?.checked),
+          buttonLabel: value("buttonLabel")?.value,
+          buttonTargetPage: value("buttonTargetPage")?.value,
+          buttonAlign: value("buttonAlign")?.value,
+          singleMediaSide: value("singleMediaSide")?.value,
+          singleMediaWidth: value("singleMediaWidth")?.value,
+          columnWidth: value("columnWidth")?.value
+        }));
+      });
+
+      return cols;
+    }
+
+    function readEditorSection() {
+      return normalizeSection({
+        id: state.editingId || createId("section"),
+        title: refs.title.value.trim(),
+        columnCount: refs.columnCount.value,
+        columns: readColumnsFromDom()
+      });
+    }
+
+    function resetEditor() {
+      state.editingId = null;
+      refs.title.value = "";
+      refs.columnCount.value = "1";
+      state.editorColumns = [defaultColumn()];
+      setEditorColumns(1, false);
+      refs.saveSectionItemBtn.textContent = "Ajouter section";
+      renderPreview();
+    }
+
+    function hydrateEditor(section) {
+      const s = normalizeSection(section);
+      state.editingId = s.id;
+      refs.title.value = s.title;
+      refs.columnCount.value = String(s.columnCount);
+      state.editorColumns = s.columns;
+      setEditorColumns(s.columnCount, false);
+      refs.saveSectionItemBtn.textContent = "Mettre a jour section";
+      renderPreview();
+    }
+
+    function renderSavedSections() {
+      if (!state.sections.length) {
+        refs.savedSections.innerHTML = '<p class="text-sm text-stone-500">Aucune section enregistree.</p>';
+        return;
+      }
+
+      refs.savedSections.innerHTML = state.sections.map((s, index) => `
+        <div class="flex items-start justify-between gap-3 rounded border border-stone-200 p-2">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-stone-800">${index + 1}. ${s.title || "(Sans titre)"}</p>
+            <p class="truncate text-xs text-stone-500">Colonnes: ${s.columnCount}</p>
+          </div>
+          <div class="flex items-center gap-1">
+            <button type="button" data-action="move-up" data-id="${s.id}" ${index === 0 ? "disabled" : ""} class="rounded border border-stone-300 px-2 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40">Monter</button>
+            <button type="button" data-action="move-down" data-id="${s.id}" ${index === state.sections.length - 1 ? "disabled" : ""} class="rounded border border-stone-300 px-2 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40">Descendre</button>
+            <button type="button" data-action="edit" data-id="${s.id}" class="rounded border border-stone-300 px-2 py-1 text-xs">Modifier</button>
+            <button type="button" data-action="delete" data-id="${s.id}" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Supprimer</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function moveSectionById(id, direction) {
+      const index = state.sections.findIndex((s) => s.id === id);
+      if (index < 0) return false;
+
+      const target = direction === "up" ? index - 1 : index + 1;
+      if (target < 0 || target >= state.sections.length) return false;
+
+      const next = [...state.sections];
+      const [item] = next.splice(index, 1);
+      next.splice(target, 0, item);
+      state.sections = next;
+      return true;
+    }
+
+    function renderMedia(column) {
+      if (column.mediaMode === "text") {
+        return `
+          <div class="flex h-full w-full items-center justify-center p-4 text-center" style="background:${column.mediaBgColor};">
+            <p class="text-sm font-semibold md:text-lg" style="color:${column.mediaTextColor};">${column.mediaText || ""}</p>
+          </div>
+        `;
+      }
+      if (!column.mediaName) return "";
+      if (column.mediaMode === "video") {
+        return `<video autoplay muted loop playsinline class="h-full w-full object-contain" style="background:${column.mediaBgColor};"><source src="./${column.mediaName}"></video>`;
+      }
+      return `<img src="./${column.mediaName}" alt="" class="h-full w-full object-contain" style="background:${column.mediaBgColor};">`;
+    }
+
+    function hasMediaPanel(column) {
+      if (column.mediaMode === "text") return Boolean(column.mediaText);
+      return Boolean(column.mediaName);
+    }
+
+    function buildDesktopColumns(columns = []) {
+      const raw = columns.map((c) => toColumnWidth(c.columnWidth, 100 / Math.max(1, columns.length)));
+      const sum = raw.reduce((acc, val) => acc + val, 0) || 1;
+      const normalized = raw.map((val) => Number((val / sum).toFixed(4)));
+      return normalized.map((val) => `minmax(0, ${val}fr)`).join(" ");
+    }
+
+    function btnAlignClass(align) {
+      if (align === "right") return "justify-end";
+      if (align === "center") return "justify-center";
+      return "justify-start";
+    }
+
+    function renderButton(column) {
+      if (!column.buttonEnabled || !column.buttonLabel || !column.buttonTargetPage) return "";
+      return `
+        <div class="mt-3 flex ${btnAlignClass(column.buttonAlign)}">
+          <a href="./index.html?page=${column.buttonTargetPage}" class="inline-flex rounded bg-[#1f5135] px-3 py-2 text-xs font-medium text-white">
+            ${column.buttonLabel}
+          </a>
+        </div>
+      `;
+    }
+
+    function renderOneSection(section) {
+      if (section.columnCount === 1) {
+        const c = section.columns[0];
+        const mediaExists = hasMediaPanel(c);
+        const mediaWidth = mediaExists ? toWidth(c.singleMediaWidth) : 0;
+        const textWidth = 100 - mediaWidth;
+        const mediaSpan = Math.max(2, Math.min(8, Math.round(mediaWidth / 10)));
+        const textSpan = 10 - mediaSpan;
+        const mediaOrder = c.singleMediaSide === "right" ? "md:order-2" : "md:order-1";
+        const textOrder = c.singleMediaSide === "right" ? "md:order-1" : "md:order-2";
+
+        return `
+          <section class="overflow-hidden rounded border border-stone-200" style="background:${c.columnBgColor};">
+            ${section.title ? `<h3 class="px-4 pt-3 text-lg font-semibold">${section.title}</h3>` : ""}
+            <div class="grid min-h-[60vh] grid-cols-1 md:grid-cols-10">
+              ${mediaExists ? `<div class="h-[48vh] md:h-auto ${mediaOrder}" style="grid-column:span ${mediaSpan} / span ${mediaSpan};">${renderMedia(c)}</div>` : ""}
+              <div class="${textOrder} flex items-center" style="grid-column:span ${mediaExists ? textSpan : 10} / span ${mediaExists ? textSpan : 10};">
+                <div class="w-full p-4 md:p-6">
+                  <h4 class="text-xl font-semibold md:text-3xl" style="color:${c.titleColor};">${c.title}</h4>
+                  <p class="mt-2 text-sm md:text-base" style="color:${c.subtitleColor};">${c.subtitle}</p>
+                  ${renderButton(c)}
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+      const desktopCols = buildDesktopColumns(section.columns);
+
+      return `
+        <section>
+          ${section.title ? `<h3 class="mb-2 text-lg font-semibold">${section.title}</h3>` : ""}
+          <div class="grid grid-cols-1 gap-2 md:[grid-template-columns:var(--desktop-cols)]" style="--desktop-cols:${desktopCols};">
+            ${section.columns.map((c) => {
+              const mediaFirst = c.mediaVertical !== "bottom";
+              const mediaExists = hasMediaPanel(c);
+              return `
+                <article class="flex h-[60vh] min-h-[380px] flex-col overflow-hidden rounded border border-stone-200" style="background:${c.columnBgColor};">
+                  ${mediaExists ? `<div class="${mediaFirst ? "order-1" : "order-2"} h-[52%]">${renderMedia(c)}</div>` : ""}
+                  <div class="${mediaFirst ? "order-2" : "order-1"} h-[48%] p-4">
+                    <h4 class="text-lg font-semibold" style="color:${c.titleColor};">${c.title}</h4>
+                    <p class="mt-2 text-sm" style="color:${c.subtitleColor};">${c.subtitle}</p>
+                    ${renderButton(c)}
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function sectionsForPreview() {
+      const base = [...state.sections];
+      const hasContent = refs.title.value.trim() || readColumnsFromDom().some((c) => c.mediaName || c.title || c.subtitle || c.buttonLabel);
+      if (!hasContent) return base;
+
+      const draft = readEditorSection();
+      if (state.editingId) {
+        return base.map((s) => s.id === draft.id ? draft : s);
+      }
+      return [draft, ...base];
+    }
+
+    function renderPreview() {
+      const list = sectionsForPreview();
+      if (!list.length) {
+        refs.preview.innerHTML = '<div class="p-4 text-sm text-stone-500">Ajoutez une section pour previsualiser.</div>';
+        return;
+      }
+
+      refs.preview.innerHTML = `
+        <div class="space-y-3 p-3">
+          ${list.map((s) => renderOneSection(s)).join("")}
+        </div>
+      `;
+    }
+
+    async function persistAll() {
+      await setDoc(doc(db, COLLECTION, DOC_ID), {
+        sections: state.sections,
+        updatedAt: Date.now()
+      });
+    }
+
+    function syncUI() {
+      renderSavedSections();
+      renderPreview();
+    }
+
+    function loadSections(data = {}) {
+      state.sections = normalizeSections(data.sections);
+      resetEditor();
+      syncUI();
+    }
+
+    refs.columnCount.addEventListener("change", () => {
+      setEditorColumns(refs.columnCount.value, true);
+      renderPreview();
+    });
+
+    refs.form.addEventListener("input", () => {
+      renderPreview();
+    });
+
+    refs.form.addEventListener("change", () => {
+      renderPreview();
+    });
+
+    refs.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const section = readEditorSection();
+
+      const valid = section.columns.some((c) => c.mediaName || c.title || c.subtitle || (c.buttonEnabled && c.buttonLabel));
+      if (!valid) {
+        setStatus("Ajoutez au moins du contenu dans une colonne.", "error");
+        return;
+      }
+
+      if (state.editingId) {
+        state.sections = state.sections.map((s) => s.id === section.id ? section : s);
+      } else {
+        state.sections = [section, ...state.sections];
+      }
+
+      try {
+        await persistAll();
+        resetEditor();
+        syncUI();
+        setStatus("Section enregistree.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement section.", "error");
+      }
+    });
+
+    refs.cancelEditBtn.addEventListener("click", () => {
+      resetEditor();
+      setStatus("Edition annulee.", "info");
+    });
+
+    refs.resetEditorBtn.addEventListener("click", () => {
+      resetEditor();
+      setStatus("Editeur vide.", "info");
+    });
+
+    refs.savedSections.addEventListener("click", async (event) => {
+      const moveUpBtn = event.target.closest('[data-action="move-up"]');
+      if (moveUpBtn) {
+        const id = String(moveUpBtn.dataset.id || "");
+        const moved = moveSectionById(id, "up");
+        if (!moved) return;
+
+        try {
+          await persistAll();
+          syncUI();
+          setStatus("Ordre des sections mis a jour.", "success");
+        } catch (error) {
+          console.error(error);
+          setStatus("Erreur mise a jour de l'ordre.", "error");
+        }
+        return;
+      }
+
+      const moveDownBtn = event.target.closest('[data-action="move-down"]');
+      if (moveDownBtn) {
+        const id = String(moveDownBtn.dataset.id || "");
+        const moved = moveSectionById(id, "down");
+        if (!moved) return;
+
+        try {
+          await persistAll();
+          syncUI();
+          setStatus("Ordre des sections mis a jour.", "success");
+        } catch (error) {
+          console.error(error);
+          setStatus("Erreur mise a jour de l'ordre.", "error");
+        }
+        return;
+      }
+
+      const editBtn = event.target.closest('[data-action="edit"]');
+      if (editBtn) {
+        const id = String(editBtn.dataset.id || "");
+        const section = state.sections.find((s) => s.id === id);
+        if (!section) return;
+        hydrateEditor(section);
+        setStatus("Section chargee pour modification.", "info");
+        return;
+      }
+
+      const deleteBtn = event.target.closest('[data-action="delete"]');
+      if (!deleteBtn) return;
+      const id = String(deleteBtn.dataset.id || "");
+      state.sections = state.sections.filter((s) => s.id !== id);
+
+      try {
+        await persistAll();
+        if (state.editingId === id) resetEditor();
+        syncUI();
+        setStatus("Section supprimee.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression section.", "error");
+      }
+    });
+
+    refs.saveAllBtn.addEventListener("click", async () => {
+      try {
+        await persistAll();
+        setStatus("Toutes les sections sont enregistrees.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement global.", "error");
+      }
+    });
+
+    refs.deleteAllBtn.addEventListener("click", async () => {
+      const ok = window.confirm("Supprimer toutes les sections creees ?");
+      if (!ok) return;
+
+      try {
+        await deleteDoc(doc(db, COLLECTION, DOC_ID));
+        loadSections({});
+        setStatus("Toutes les sections ont ete supprimees.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression globale.", "error");
+      }
+    });
+
+    onSnapshot(collection(db, "pages"), (snapshot) => {
+      state.pages = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() || {}) }));
+      setEditorColumns(refs.columnCount.value, true);
+      renderPreview();
+    });
+
+    onSnapshot(doc(db, COLLECTION, DOC_ID), (snapshot) => {
+      if (!snapshot.exists()) {
+        loadSections({});
+        setStatus("Aucune section enregistree.", "info");
+        return;
+      }
+      loadSections(snapshot.data() || {});
+      setStatus("Sections chargees.", "info");
+    });
+
+    resetEditor();
+  </script>
+</body>
+</html>

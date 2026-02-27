@@ -1,0 +1,271 @@
+:root {
+  --admin-bg: #eef5ef;
+  --admin-bg-strong: #dfeadc;
+  --admin-panel: rgba(255, 255, 255, 0.9);
+  --admin-panel-soft: rgba(248, 251, 248, 0.92);
+  --admin-border: rgba(76, 95, 82, 0.18);
+  --admin-border-strong: rgba(76, 95, 82, 0.28);
+  --admin-text: #17221a;
+  --admin-text-soft: #516055;
+  --admin-success: #1d6a47;
+  --admin-danger: #a03535;
+  --admin-shadow: 0 28px 55px -38px rgba(27, 55, 35, 0.45), 0 18px 24px -28px rgba(27, 55, 35, 0.28);
+}
+
+.sierra-admin-body {
+  position: relative;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(191, 220, 192, 0.52), transparent 24%),
+    radial-gradient(circle at 85% 18%, rgba(222, 213, 182, 0.38), transparent 24%),
+    radial-gradient(circle at 78% 78%, rgba(179, 204, 186, 0.34), transparent 28%),
+    linear-gradient(180deg, var(--admin-bg) 0%, #f6f9f4 100%);
+  color: var(--admin-text);
+}
+
+.sierra-admin-body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 78%);
+}
+
+.sierra-admin-body main,
+.sierra-admin-body .sierra-main,
+.sierra-admin-body .sierra-shell,
+.sierra-admin-body #dashboard-overlay {
+  position: relative;
+  z-index: 1;
+}
+
+.sierra-admin-body h1,
+.sierra-admin-body h2,
+.sierra-admin-body h3,
+.sierra-admin-body h4 {
+  color: var(--admin-text);
+}
+
+.sierra-admin-body .rounded-xl,
+.sierra-admin-body .rounded-lg,
+.sierra-admin-body .rounded-md {
+  border-radius: 1rem;
+}
+
+.sierra-admin-body main > section,
+.sierra-admin-body main > div > section,
+.sierra-admin-body #dashboard-overlay > section,
+.sierra-admin-body .sierra-card,
+.sierra-admin-body .section-row {
+  border-color: var(--admin-border) !important;
+  box-shadow: var(--admin-shadow);
+}
+
+.sierra-admin-body .bg-white,
+.sierra-admin-body .bg-stone-50,
+.sierra-admin-body .bg-stone-100 {
+  background-color: var(--admin-panel);
+}
+
+.sierra-admin-body .border-stone-200,
+.sierra-admin-body .border-stone-300,
+.sierra-admin-body .border-stone-400 {
+  border-color: var(--admin-border) !important;
+}
+
+.sierra-admin-body label,
+.sierra-admin-body .font-medium {
+  color: #223127;
+}
+
+.sierra-admin-body input:not([type="color"]):not([type="checkbox"]):not([type="file"]),
+.sierra-admin-body select,
+.sierra-admin-body textarea {
+  min-height: 3rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--admin-border-strong) !important;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.sierra-admin-body input[type="color"] {
+  min-height: 3rem;
+  min-width: 4.5rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--admin-border-strong) !important;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.sierra-admin-body input:focus,
+.sierra-admin-body select:focus,
+.sierra-admin-body textarea:focus {
+  outline: none;
+  border-color: rgba(29, 106, 71, 0.48) !important;
+  box-shadow: 0 0 0 4px rgba(29, 106, 71, 0.12);
+}
+
+.sierra-admin-body input::placeholder,
+.sierra-admin-body textarea::placeholder {
+  color: #809083;
+}
+
+.sierra-admin-body button {
+  min-height: 2.85rem;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+}
+
+.sierra-admin-body button:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.04);
+}
+
+.sierra-admin-body button.bg-emerald-700 {
+  background: var(--admin-success) !important;
+}
+
+.sierra-admin-body button.bg-rose-700 {
+  background: var(--admin-danger) !important;
+}
+
+.sierra-admin-body button.bg-stone-900,
+.sierra-admin-body button.bg-slate-800 {
+  background: #15211a !important;
+}
+
+.sierra-admin-body button.text-white,
+.sierra-admin-body button.bg-emerald-700,
+.sierra-admin-body button.bg-rose-700,
+.sierra-admin-body button.bg-stone-900,
+.sierra-admin-body button.bg-slate-800 {
+  box-shadow: 0 14px 22px -18px rgba(21, 33, 26, 0.5);
+}
+
+.sierra-admin-body pre {
+  border-radius: 1rem;
+  border: 1px solid var(--admin-border);
+}
+
+#status,
+#status-box {
+  min-height: 2.85rem;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border-color: var(--admin-border) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--admin-text-soft) !important;
+  font-weight: 600;
+  box-shadow: 0 12px 24px -22px rgba(21, 33, 26, 0.45);
+}
+
+.admin-intro {
+  overflow: hidden;
+  border: 1px solid rgba(79, 102, 85, 0.2);
+  border-radius: 1.25rem;
+  padding: 1.2rem 1.3rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(245, 249, 245, 0.93) 56%, rgba(226, 236, 226, 0.92) 100%);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-intro h2,
+.admin-intro h3,
+.admin-intro p {
+  margin: 0;
+}
+
+.admin-intro p {
+  color: var(--admin-text-soft);
+}
+
+.admin-step-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.admin-step {
+  border: 1px solid rgba(79, 102, 85, 0.14);
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.admin-step strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--admin-text);
+}
+
+.admin-help {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--admin-text-soft);
+}
+
+.admin-soft-note {
+  border-radius: 1rem;
+  border: 1px solid rgba(79, 102, 85, 0.14);
+  background: rgba(245, 249, 245, 0.88);
+  padding: 0.9rem 1rem;
+}
+
+.admin-soft-note p {
+  margin: 0;
+  color: var(--admin-text-soft);
+}
+
+details.admin-advanced {
+  border: 1px dashed rgba(79, 102, 85, 0.28);
+  border-radius: 1rem;
+  background: rgba(246, 250, 246, 0.82);
+  padding: 0.35rem 1rem 1rem;
+}
+
+details.admin-advanced > summary {
+  cursor: pointer;
+  padding: 0.7rem 0;
+  font-weight: 700;
+  color: var(--admin-text);
+  list-style: none;
+}
+
+details.admin-advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.admin-advanced[open] > summary {
+  margin-bottom: 0.5rem;
+}
+
+.admin-modal-shell {
+  border: 1px solid rgba(79, 102, 85, 0.18);
+  background: rgba(248, 251, 248, 0.97) !important;
+  box-shadow: 0 34px 80px -34px rgba(13, 24, 18, 0.62);
+}
+
+.admin-modal-header {
+  background: linear-gradient(180deg, rgba(246, 250, 246, 0.98) 0%, rgba(239, 244, 239, 0.94) 100%);
+}
+
+.sierra-admin-body .section-row {
+  background: rgba(250, 252, 249, 0.92);
+}
+
+@media (min-width: 1024px) {
+  .admin-sticky-preview {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+  }
+}

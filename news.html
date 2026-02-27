@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .sierra-admin-body {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sierra-admin-body h1,
+    .sierra-admin-body h2,
+    .sierra-admin-body h3 {
+      font-family: "Source Serif 4", serif;
+      letter-spacing: 0.01em;
+      color: #111827;
+    }
+  </style>
+  <link rel="stylesheet" href="./admin-ui.css">
+</head>
+<body class="sierra-admin-body min-h-screen bg-stone-100 text-stone-800">
+  <main class="mx-auto max-w-7xl p-4 md:p-8">
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-semibold">Dashboard News</h1>
+      <div id="status" class="rounded-md border border-stone-200 bg-white px-3 py-2 text-sm">Pret.</div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Configuration section news</h2>
+
+        <div class="space-y-4">
+          <div>
+            <label for="news-title" class="mb-1 block text-sm font-medium">Titre section</label>
+            <input id="news-title" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Actualites">
+          </div>
+
+          <div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
+            <h3 class="mb-3 text-base font-semibold">Carte news (CRUD)</h3>
+            <form id="card-form" class="space-y-3">
+              <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div>
+                  <label for="card-media-type" class="mb-1 block text-xs font-medium">Type media</label>
+                  <select id="card-media-type" class="w-full rounded border border-stone-300 px-2 py-2 text-sm">
+                    <option value="image">Image</option>
+                    <option value="video">Video</option>
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label for="card-media-name" class="mb-1 block text-xs font-medium">Nom fichier media</label>
+                  <input id="card-media-name" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" placeholder="news1.jpg ou news1.mp4">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <label for="card-text" class="mb-1 block text-xs font-medium">Texte</label>
+                  <input id="card-text" type="text" class="w-full rounded border border-stone-300 px-2 py-2 text-sm" placeholder="Nouvelle filiere ouverte">
+                </div>
+                <div>
+                  <label for="card-target-page" class="mb-1 block text-xs font-medium">Page cible</label>
+                  <select id="card-target-page" class="w-full rounded border border-stone-300 px-2 py-2 text-sm"></select>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button id="save-card-btn" type="submit" class="rounded bg-emerald-700 px-3 py-2 text-xs font-medium text-white">Ajouter carte</button>
+                <button id="cancel-edit-btn" type="button" class="rounded border border-stone-300 px-3 py-2 text-xs">Annuler edition</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="rounded-lg border border-stone-200 bg-white p-3">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-stone-600">Cartes enregistrees</p>
+            <div id="saved-cards" class="space-y-2"></div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button id="save-section-btn" type="button" class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Enregistrer section</button>
+            <button id="reset-editor-btn" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Vider editeur carte</button>
+            <button id="delete-section-btn" type="button" class="rounded bg-rose-700 px-4 py-2 text-sm font-medium text-white">Supprimer section</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Apercu news (live)</h2>
+        <div id="preview" class="overflow-hidden rounded-lg border border-stone-300"></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import BulbeNavigation from "./bulbe.js";
+    new BulbeNavigation();
+  </script>
+
+  <script type="module">
+    import { db } from "./firebase-init.js";
+    import {
+      collection,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const NEWS_COLLECTION = "news_sections";
+    const NEWS_DOC_ID = "main";
+
+    const refs = {
+      status: document.getElementById("status"),
+      title: document.getElementById("news-title"),
+      cardForm: document.getElementById("card-form"),
+      cardMediaType: document.getElementById("card-media-type"),
+      cardMediaName: document.getElementById("card-media-name"),
+      cardText: document.getElementById("card-text"),
+      cardTargetPage: document.getElementById("card-target-page"),
+      saveCardBtn: document.getElementById("save-card-btn"),
+      cancelEditBtn: document.getElementById("cancel-edit-btn"),
+      savedCards: document.getElementById("saved-cards"),
+      saveSectionBtn: document.getElementById("save-section-btn"),
+      resetEditorBtn: document.getElementById("reset-editor-btn"),
+      deleteSectionBtn: document.getElementById("delete-section-btn"),
+      preview: document.getElementById("preview")
+    };
+
+    const state = {
+      pages: [],
+      title: "",
+      cards: [],
+      editingCardId: null
+    };
+
+    function setStatus(message, kind = "info") {
+      const palette = {
+        info: "border-stone-200 bg-white text-stone-700",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        error: "border-rose-200 bg-rose-50 text-rose-700"
+      };
+      refs.status.className = `rounded-md border px-3 py-2 text-sm ${palette[kind] || palette.info}`;
+      refs.status.textContent = message;
+    }
+
+    function createId() {
+      return `news_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function normalizeCard(card = {}) {
+      const mediaType = card.mediaType === "video" ? "video" : "image";
+      return {
+        id: String(card.id || createId()),
+        mediaType,
+        mediaName: String(card.mediaName || card.imageName || card.image || "").trim(),
+        text: String(card.text || card.title || card.description || "").trim(),
+        targetPage: String(card.targetPage || card.pageId || card.page || "").trim()
+      };
+    }
+
+    function normalizeCards(cards) {
+      if (!Array.isArray(cards)) return [];
+      return cards
+        .map(normalizeCard)
+        .filter((card) => card.mediaName && card.text && card.targetPage);
+    }
+
+    function pageOptions(selected = "") {
+      const options = ['<option value="">-- Choisir page --</option>'];
+      state.pages.forEach((page) => {
+        options.push(`<option value="${page.id}" ${selected === page.id ? "selected" : ""}>${page.title || page.id}</option>`);
+      });
+      return options.join("");
+    }
+
+    function readCardEditor() {
+      return {
+        id: state.editingCardId || createId(),
+        mediaType: refs.cardMediaType.value === "video" ? "video" : "image",
+        mediaName: refs.cardMediaName.value.trim(),
+        text: refs.cardText.value.trim(),
+        targetPage: refs.cardTargetPage.value.trim()
+      };
+    }
+
+    function resetCardEditor() {
+      state.editingCardId = null;
+      refs.cardMediaType.value = "image";
+      refs.cardMediaName.value = "";
+      refs.cardText.value = "";
+      refs.cardTargetPage.innerHTML = pageOptions("");
+      refs.saveCardBtn.textContent = "Ajouter carte";
+    }
+
+    function hydrateCardEditor(card) {
+      state.editingCardId = card.id;
+      refs.cardMediaType.value = card.mediaType === "video" ? "video" : "image";
+      refs.cardMediaName.value = card.mediaName || "";
+      refs.cardText.value = card.text || "";
+      refs.cardTargetPage.innerHTML = pageOptions(card.targetPage || "");
+      refs.saveCardBtn.textContent = "Mettre a jour carte";
+    }
+
+    function renderSavedCards() {
+      if (!state.cards.length) {
+        refs.savedCards.innerHTML = '<p class="text-sm text-stone-500">Aucune carte enregistree.</p>';
+        return;
+      }
+
+      refs.savedCards.innerHTML = state.cards.map((card) => `
+        <div class="flex items-start justify-between gap-3 rounded border border-stone-200 p-2">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-stone-800">${card.text}</p>
+            <p class="truncate text-xs text-stone-500">Type: ${card.mediaType} | Media: ${card.mediaName}</p>
+            <p class="truncate text-xs text-stone-500">Page: ${card.targetPage}</p>
+          </div>
+          <div class="flex items-center gap-1">
+            <button type="button" data-action="edit" data-id="${card.id}" class="rounded border border-stone-300 px-2 py-1 text-xs">Modifier</button>
+            <button type="button" data-action="delete" data-id="${card.id}" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Supprimer</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderPreview() {
+      const title = refs.title.value.trim() || state.title || "Actualites";
+      const cardsHtml = state.cards.map((card) => {
+        const media = card.mediaType === "video"
+          ? `<video autoplay muted loop playsinline class="h-full w-full object-cover"><source src="./${card.mediaName}"></video>`
+          : `<img src="./${card.mediaName}" alt="" class="h-full w-full object-cover">`;
+
+        return `
+          <a href="./index.html?page=${card.targetPage}" class="relative h-[50vh] min-w-[calc(50%-0.5rem)] overflow-hidden rounded-xl border border-[#4f6655]/25 bg-black md:min-w-[260px]">
+            ${media}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+            <div class="absolute inset-x-0 bottom-0 p-3">
+              <p class="line-clamp-3 text-xs font-semibold text-white md:text-sm">${card.text}</p>
+            </div>
+          </a>
+        `;
+      }).join("");
+
+      refs.preview.innerHTML = `
+        <section class="w-full bg-white">
+          <div class="px-3 py-3">
+            <div class="mb-2 flex items-center justify-between">
+              <h3 class="text-lg font-semibold">${title}</h3>
+              <span class="text-xs uppercase tracking-[0.08em] text-stone-500">News</span>
+            </div>
+            <div class="flex gap-2 overflow-x-auto">
+              ${cardsHtml || '<p class="text-sm text-stone-500">Ajoutez des cartes news.</p>'}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    async function persistNews() {
+      const payload = {
+        title: refs.title.value.trim(),
+        cards: state.cards,
+        updatedAt: Date.now()
+      };
+      await setDoc(doc(db, NEWS_COLLECTION, NEWS_DOC_ID), payload);
+    }
+
+    function syncUI() {
+      renderSavedCards();
+      renderPreview();
+    }
+
+    function loadSection(data = {}) {
+      state.title = String(data.title || "");
+      state.cards = normalizeCards(data.cards);
+      refs.title.value = state.title;
+      resetCardEditor();
+      syncUI();
+    }
+
+    refs.cardForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const card = readCardEditor();
+      if (!card.mediaName || !card.text || !card.targetPage) {
+        setStatus("Remplissez media, texte et page cible.", "error");
+        return;
+      }
+
+      if (state.editingCardId) {
+        state.cards = state.cards.map((item) => item.id === card.id ? card : item);
+      } else {
+        state.cards = [card, ...state.cards];
+      }
+
+      try {
+        await persistNews();
+        resetCardEditor();
+        syncUI();
+        setStatus("Carte enregistree.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement carte.", "error");
+      }
+    });
+
+    refs.cancelEditBtn.addEventListener("click", () => {
+      resetCardEditor();
+      setStatus("Edition annulee.", "info");
+    });
+
+    refs.resetEditorBtn.addEventListener("click", () => {
+      resetCardEditor();
+      setStatus("Editeur carte vide.", "info");
+    });
+
+    refs.savedCards.addEventListener("click", async (event) => {
+      const editBtn = event.target.closest('[data-action="edit"]');
+      if (editBtn) {
+        const id = String(editBtn.dataset.id || "");
+        const card = state.cards.find((item) => item.id === id);
+        if (!card) return;
+        hydrateCardEditor(card);
+        setStatus("Carte chargee pour modification.", "info");
+        return;
+      }
+
+      const deleteBtn = event.target.closest('[data-action="delete"]');
+      if (!deleteBtn) return;
+      const id = String(deleteBtn.dataset.id || "");
+      state.cards = state.cards.filter((item) => item.id !== id);
+      try {
+        await persistNews();
+        if (state.editingCardId === id) resetCardEditor();
+        syncUI();
+        setStatus("Carte supprimee.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression carte.", "error");
+      }
+    });
+
+    refs.saveSectionBtn.addEventListener("click", async () => {
+      try {
+        await persistNews();
+        setStatus("Section news enregistree.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement section.", "error");
+      }
+    });
+
+    refs.deleteSectionBtn.addEventListener("click", async () => {
+      const ok = window.confirm("Supprimer toute la section news ?");
+      if (!ok) return;
+      try {
+        await deleteDoc(doc(db, NEWS_COLLECTION, NEWS_DOC_ID));
+        loadSection({});
+        setStatus("Section supprimee.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression section.", "error");
+      }
+    });
+
+    refs.title.addEventListener("input", renderPreview);
+    refs.cardForm.addEventListener("input", renderPreview);
+    refs.cardForm.addEventListener("change", renderPreview);
+
+    onSnapshot(collection(db, "pages"), (snapshot) => {
+      state.pages = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+      const selected = refs.cardTargetPage.value || "";
+      refs.cardTargetPage.innerHTML = pageOptions(selected);
+      renderPreview();
+    });
+
+    onSnapshot(doc(db, NEWS_COLLECTION, NEWS_DOC_ID), (snapshot) => {
+      if (!snapshot.exists()) {
+        loadSection({});
+        setStatus("Aucune section news enregistree.", "info");
+        return;
+      }
+      loadSection(snapshot.data() || {});
+      setStatus("Section news chargee.", "info");
+    });
+
+    loadSection({});
+  </script>
+</body>
+</html>

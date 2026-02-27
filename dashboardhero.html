@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero simple</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=Fira+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Noto+Serif:wght@400;600;700&family=Nunito+Sans:wght@400;600;700&family=PT+Sans:wght@400;700&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto+Slab:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .sierra-admin-body {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sierra-admin-body h1,
+    .sierra-admin-body h2,
+    .sierra-admin-body h3 {
+      font-family: "Source Serif 4", serif;
+      letter-spacing: 0.01em;
+      color: #111827;
+    }
+  </style>
+  <link rel="stylesheet" href="./admin-ui.css">
+</head>
+<body class="sierra-admin-body min-h-screen bg-stone-100 text-stone-800">
+  <main class="mx-auto max-w-7xl p-4 md:p-8">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold">Hero principal</h1>
+        <p class="admin-help mt-1">Remplissez le visuel, le texte et le bouton principal. Le reste est optionnel.</p>
+      </div>
+      <div id="status" class="rounded-md border border-stone-200 bg-white px-3 py-2 text-sm">Prêt.</div>
+    </div>
+
+    <section class="admin-intro mt-6">
+      <h2 class="text-lg font-semibold">Un hero simple en 3 étapes</h2>
+      <p class="mt-2 text-sm">L'utilisateur final ne doit pas avoir à réfléchir. Ce formulaire privilégie donc le contenu visible avant les réglages fins.</p>
+      <div class="admin-step-grid">
+        <div class="admin-step">
+          <strong>1. Ajoutez le visuel</strong>
+          <span class="text-sm text-stone-600">Choisissez une image ou une vidéo facile à reconnaître.</span>
+        </div>
+        <div class="admin-step">
+          <strong>2. Écrivez l'essentiel</strong>
+          <span class="text-sm text-stone-600">Un titre court, une phrase simple, un bouton utile.</span>
+        </div>
+        <div class="admin-step">
+          <strong>3. Vérifiez l'aperçu</strong>
+          <span class="text-sm text-stone-600">L'aperçu se met à jour automatiquement avant publication.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-2 text-lg font-semibold">Contenu visible</h2>
+        <p class="admin-help mb-4">Les réglages avancés sont rangés plus bas pour garder un écran simple.</p>
+        <form id="hero-form" class="space-y-4">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="mediaType" class="mb-1 block text-sm font-medium">Type de visuel</label>
+              <select id="mediaType" class="w-full rounded border border-stone-300 px-3 py-2 text-sm">
+                <option value="image">Image</option>
+                <option value="video">Vidéo</option>
+              </select>
+            </div>
+            <div>
+              <label for="mediaName" class="mb-1 block text-sm font-medium">Nom du fichier</label>
+              <input id="mediaName" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="hero.jpg ou hero.mp4">
+              <span class="admin-help">Entrez simplement le nom du fichier déjà présent dans le projet.</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="title" class="mb-1 block text-sm font-medium">Titre</label>
+              <input id="title" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Faculté des Sciences et Techniques">
+            </div>
+            <div>
+              <label for="subtitle" class="mb-1 block text-sm font-medium">Sous-titre</label>
+              <input id="subtitle" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Un enseignement d'excellence pour votre avenir.">
+            </div>
+          </div>
+
+          <div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
+            <h3 class="mb-3 text-base font-semibold">Bouton principal</h3>
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <label for="button1Label" class="mb-1 block text-sm font-medium">Texte bouton</label>
+                <input id="button1Label" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Découvrir les formations">
+              </div>
+              <div>
+                <label for="button1Page" class="mb-1 block text-sm font-medium">Page cible</label>
+                <select id="button1Page" class="w-full rounded border border-stone-300 px-3 py-2 text-sm"></select>
+              </div>
+            </div>
+          </div>
+
+          <details class="admin-advanced">
+            <summary>Ouvrir les réglages avancés (optionnel)</summary>
+            <p class="admin-help mb-4">À utiliser seulement si vous voulez ajuster la position, les couleurs ou un second bouton.</p>
+
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <label for="contentPosition" class="mb-1 block text-sm font-medium">Position du texte</label>
+                <select id="contentPosition" class="w-full rounded border border-stone-300 px-3 py-2 text-sm">
+                  <option value="top_left">Haut gauche</option>
+                  <option value="top_right">Haut droite</option>
+                  <option value="center_center">Milieu centre</option>
+                  <option value="bottom_left">Bas gauche</option>
+                  <option value="bottom_right">Bas droite</option>
+                </select>
+              </div>
+              <div>
+                <label for="overlayOpacity" class="mb-1 block text-sm font-medium">Assombrir le fond</label>
+                <input id="overlayOpacity" type="number" min="0.1" max="0.8" step="0.05" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="0.38">
+                <span class="admin-help">Valeur conseillée: entre 0.3 et 0.5 pour garder le texte lisible.</span>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-4">
+              <h3 class="mb-3 text-base font-semibold">Couleurs et styles</h3>
+              <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <label for="titleColor" class="mb-1 block text-sm font-medium">Couleur titre</label>
+                  <input id="titleColor" type="color" class="h-10 w-20 cursor-pointer rounded border border-stone-300 p-1" value="#ffffff">
+                </div>
+                <div>
+                  <label for="subtitleColor" class="mb-1 block text-sm font-medium">Couleur sous-titre</label>
+                  <input id="subtitleColor" type="color" class="h-10 w-20 cursor-pointer rounded border border-stone-300 p-1" value="#f5f5f5">
+                </div>
+                <div>
+                  <label for="buttonBgColor" class="mb-1 block text-sm font-medium">Couleur bouton</label>
+                  <input id="buttonBgColor" type="color" class="h-10 w-20 cursor-pointer rounded border border-stone-300 p-1" value="#2f4d3a">
+                </div>
+                <div>
+                  <label for="buttonTextColor" class="mb-1 block text-sm font-medium">Couleur texte bouton</label>
+                  <input id="buttonTextColor" type="color" class="h-10 w-20 cursor-pointer rounded border border-stone-300 p-1" value="#ffffff">
+                </div>
+                <div>
+                  <label for="titleSize" class="mb-1 block text-sm font-medium">Taille titre (px)</label>
+                  <input id="titleSize" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="64">
+                </div>
+                <div>
+                  <label for="subtitleSize" class="mb-1 block text-sm font-medium">Taille sous-titre (px)</label>
+                  <input id="subtitleSize" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="22">
+                </div>
+                <div>
+                  <label for="buttonTextSize" class="mb-1 block text-sm font-medium">Taille texte bouton (px)</label>
+                  <input id="buttonTextSize" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="16">
+                </div>
+                <div>
+                  <label for="titleFontFamily" class="mb-1 block text-sm font-medium">Police titre</label>
+                  <select id="titleFontFamily" class="w-full rounded border border-stone-300 px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label for="subtitleFontFamily" class="mb-1 block text-sm font-medium">Police sous-titre</label>
+                  <select id="subtitleFontFamily" class="w-full rounded border border-stone-300 px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label for="buttonFontFamily" class="mb-1 block text-sm font-medium">Police boutons</label>
+                  <select id="buttonFontFamily" class="w-full rounded border border-stone-300 px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label for="titleLetterSpacing" class="mb-1 block text-sm font-medium">Espacement lettres titre (px)</label>
+                  <input id="titleLetterSpacing" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="0.2">
+                </div>
+                <div>
+                  <label for="subtitleLetterSpacing" class="mb-1 block text-sm font-medium">Espacement lettres sous-titre (px)</label>
+                  <input id="subtitleLetterSpacing" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="0.1">
+                </div>
+                <div>
+                  <label for="buttonLetterSpacing" class="mb-1 block text-sm font-medium">Espacement lettres boutons (px)</label>
+                  <input id="buttonLetterSpacing" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="0.2">
+                </div>
+                <div>
+                  <label for="titleLineHeight" class="mb-1 block text-sm font-medium">Hauteur ligne titre</label>
+                  <input id="titleLineHeight" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="1.12">
+                </div>
+                <div>
+                  <label for="subtitleLineHeight" class="mb-1 block text-sm font-medium">Hauteur ligne sous-titre</label>
+                  <input id="subtitleLineHeight" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="1.45">
+                </div>
+                <div>
+                  <label for="buttonLineHeight" class="mb-1 block text-sm font-medium">Hauteur ligne boutons</label>
+                  <input id="buttonLineHeight" type="number" step="any" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" value="1.2">
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-4">
+              <h3 class="mb-3 text-base font-semibold">Deuxième bouton (facultatif)</h3>
+              <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
+                  <label for="button2Label" class="mb-1 block text-sm font-medium">Texte bouton</label>
+                  <input id="button2Label" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Nous contacter">
+                </div>
+                <div>
+                  <label for="button2Page" class="mb-1 block text-sm font-medium">Page cible</label>
+                  <select id="button2Page" class="w-full rounded border border-stone-300 px-3 py-2 text-sm"></select>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button type="submit" class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Publier le hero</button>
+            <button id="reset-btn" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Repartir du modèle</button>
+            <button id="delete-btn" type="button" class="rounded bg-rose-700 px-4 py-2 text-sm font-medium text-white">Supprimer ce hero</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="admin-sticky-preview rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-2 text-lg font-semibold">Aperçu en direct</h2>
+        <p class="admin-help mb-4">Chaque modification s'affiche ici automatiquement.</p>
+        <div id="preview" class="overflow-hidden rounded-lg border border-stone-300"></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import BulbeNavigation from "./bulbe.js";
+    new BulbeNavigation();
+  </script>
+
+  <script type="module">
+    import { db } from "./firebase-init.js";
+    import {
+      collection,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const HERO_COLLECTION = "hero_sections";
+    const HERO_DOC_ID = "main";
+
+    const refs = {
+      form: document.getElementById("hero-form"),
+      status: document.getElementById("status"),
+      mediaType: document.getElementById("mediaType"),
+      mediaName: document.getElementById("mediaName"),
+      title: document.getElementById("title"),
+      subtitle: document.getElementById("subtitle"),
+      contentPosition: document.getElementById("contentPosition"),
+      overlayOpacity: document.getElementById("overlayOpacity"),
+      titleColor: document.getElementById("titleColor"),
+      subtitleColor: document.getElementById("subtitleColor"),
+      buttonBgColor: document.getElementById("buttonBgColor"),
+      buttonTextColor: document.getElementById("buttonTextColor"),
+      titleSize: document.getElementById("titleSize"),
+      subtitleSize: document.getElementById("subtitleSize"),
+      buttonTextSize: document.getElementById("buttonTextSize"),
+      titleFontFamily: document.getElementById("titleFontFamily"),
+      subtitleFontFamily: document.getElementById("subtitleFontFamily"),
+      buttonFontFamily: document.getElementById("buttonFontFamily"),
+      titleLetterSpacing: document.getElementById("titleLetterSpacing"),
+      subtitleLetterSpacing: document.getElementById("subtitleLetterSpacing"),
+      buttonLetterSpacing: document.getElementById("buttonLetterSpacing"),
+      titleLineHeight: document.getElementById("titleLineHeight"),
+      subtitleLineHeight: document.getElementById("subtitleLineHeight"),
+      buttonLineHeight: document.getElementById("buttonLineHeight"),
+      button1Label: document.getElementById("button1Label"),
+      button1Page: document.getElementById("button1Page"),
+      button2Label: document.getElementById("button2Label"),
+      button2Page: document.getElementById("button2Page"),
+      resetBtn: document.getElementById("reset-btn"),
+      deleteBtn: document.getElementById("delete-btn"),
+      preview: document.getElementById("preview")
+    };
+
+    const state = {
+      pages: [],
+      hero: null
+    };
+
+    const FONT_CHOICES = [
+      { label: "Source Sans 3", value: "\"Source Sans 3\", sans-serif" },
+      { label: "Source Serif 4", value: "\"Source Serif 4\", serif" },
+      { label: "Inter", value: "\"Inter\", sans-serif" },
+      { label: "Manrope", value: "\"Manrope\", sans-serif" },
+      { label: "Poppins", value: "\"Poppins\", sans-serif" },
+      { label: "Montserrat", value: "\"Montserrat\", sans-serif" },
+      { label: "Work Sans", value: "\"Work Sans\", sans-serif" },
+      { label: "DM Sans", value: "\"DM Sans\", sans-serif" },
+      { label: "Fira Sans", value: "\"Fira Sans\", sans-serif" },
+      { label: "Nunito Sans", value: "\"Nunito Sans\", sans-serif" },
+      { label: "PT Sans", value: "\"PT Sans\", sans-serif" },
+      { label: "Lora", value: "\"Lora\", serif" },
+      { label: "Merriweather", value: "\"Merriweather\", serif" },
+      { label: "Playfair Display", value: "\"Playfair Display\", serif" },
+      { label: "Cormorant Garamond", value: "\"Cormorant Garamond\", serif" },
+      { label: "Libre Baskerville", value: "\"Libre Baskerville\", serif" },
+      { label: "Roboto Slab", value: "\"Roboto Slab\", serif" },
+      { label: "Noto Serif", value: "\"Noto Serif\", serif" }
+    ];
+
+    function setStatus(message, kind = "info") {
+      const palette = {
+        info: "border-stone-200 bg-white text-stone-700",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        error: "border-rose-200 bg-rose-50 text-rose-700"
+      };
+      refs.status.className = `rounded-md border px-3 py-2 text-sm ${palette[kind] || palette.info}`;
+      refs.status.textContent = message;
+    }
+
+    function pageOptions(selected = "") {
+      const options = ['<option value="">Choisir une page</option>'];
+      state.pages.forEach((page) => {
+        const value = page.id;
+        const label = page.title || page.id;
+        options.push(`<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`);
+      });
+      return options.join("");
+    }
+
+    function normalizeColor(value, fallback = "#ffffff") {
+      return /^#[0-9a-fA-F]{6}$/.test(String(value || "").trim()) ? String(value).trim() : fallback;
+    }
+
+    function clamp(value, min, max, fallback) {
+      const num = Number(value);
+      if (Number.isNaN(num)) return fallback;
+      return Math.min(Math.max(num, min), max);
+    }
+
+    function toNumber(value, fallback) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : fallback;
+    }
+
+    function normalizeFont(value, fallback) {
+      const font = String(value || "").trim();
+      return FONT_CHOICES.some((item) => item.value === font) ? font : fallback;
+    }
+
+    function fontOptions(selected) {
+      return FONT_CHOICES.map((item) => `<option value="${item.value}" ${item.value === selected ? "selected" : ""}>${item.label}</option>`).join("");
+    }
+
+    function mapPosition(position) {
+      const map = {
+        top_left: { box: "items-start justify-start", text: "text-left", actions: "justify-start" },
+        top_right: { box: "items-end justify-start", text: "text-right", actions: "justify-end" },
+        center_center: { box: "items-center justify-center", text: "text-center", actions: "justify-center" },
+        bottom_left: { box: "items-start justify-end", text: "text-left", actions: "justify-start" },
+        bottom_right: { box: "items-end justify-end", text: "text-right", actions: "justify-end" }
+      };
+      return map[position] || map.center_center;
+    }
+
+    function buildPayload() {
+      const buttons = [];
+      const b1Label = refs.button1Label.value.trim();
+      const b1Page = refs.button1Page.value.trim();
+      const b2Label = refs.button2Label.value.trim();
+      const b2Page = refs.button2Page.value.trim();
+
+      if (b1Label && b1Page) buttons.push({ label: b1Label, targetPage: b1Page });
+      if (b2Label && b2Page) buttons.push({ label: b2Label, targetPage: b2Page });
+
+      return {
+        mediaType: refs.mediaType.value === "video" ? "video" : "image",
+        mediaName: refs.mediaName.value.trim(),
+        title: refs.title.value.trim(),
+        subtitle: refs.subtitle.value.trim(),
+        contentPosition: refs.contentPosition.value,
+        overlayOpacity: Math.min(Math.max(Number(refs.overlayOpacity.value || 0.38), 0.1), 0.8),
+        style: {
+          titleColor: normalizeColor(refs.titleColor.value, "#ffffff"),
+          subtitleColor: normalizeColor(refs.subtitleColor.value, "#f5f5f5"),
+          buttonBgColor: normalizeColor(refs.buttonBgColor.value, "#2f4d3a"),
+          buttonTextColor: normalizeColor(refs.buttonTextColor.value, "#ffffff"),
+          titleSize: toNumber(refs.titleSize.value, 64),
+          subtitleSize: toNumber(refs.subtitleSize.value, 22),
+          buttonTextSize: toNumber(refs.buttonTextSize.value, 16),
+          titleFontFamily: normalizeFont(refs.titleFontFamily.value, "\"Source Serif 4\", serif"),
+          subtitleFontFamily: normalizeFont(refs.subtitleFontFamily.value, "\"Source Sans 3\", sans-serif"),
+          buttonFontFamily: normalizeFont(refs.buttonFontFamily.value, "\"Source Sans 3\", sans-serif"),
+          titleLetterSpacing: toNumber(refs.titleLetterSpacing.value, 0.2),
+          subtitleLetterSpacing: toNumber(refs.subtitleLetterSpacing.value, 0.1),
+          buttonLetterSpacing: toNumber(refs.buttonLetterSpacing.value, 0.2),
+          titleLineHeight: toNumber(refs.titleLineHeight.value, 1.12),
+          subtitleLineHeight: toNumber(refs.subtitleLineHeight.value, 1.45),
+          buttonLineHeight: toNumber(refs.buttonLineHeight.value, 1.2)
+        },
+        buttons,
+        updatedAt: Date.now()
+      };
+    }
+
+    function resetForm() {
+      refs.mediaType.value = "image";
+      refs.mediaName.value = "";
+      refs.title.value = "";
+      refs.subtitle.value = "";
+      refs.contentPosition.value = "center_center";
+      refs.overlayOpacity.value = "0.38";
+      refs.titleColor.value = "#ffffff";
+      refs.subtitleColor.value = "#f5f5f5";
+      refs.buttonBgColor.value = "#2f4d3a";
+      refs.buttonTextColor.value = "#ffffff";
+      refs.titleSize.value = "64";
+      refs.subtitleSize.value = "22";
+      refs.buttonTextSize.value = "16";
+      refs.titleFontFamily.innerHTML = fontOptions("\"Source Serif 4\", serif");
+      refs.subtitleFontFamily.innerHTML = fontOptions("\"Source Sans 3\", sans-serif");
+      refs.buttonFontFamily.innerHTML = fontOptions("\"Source Sans 3\", sans-serif");
+      refs.titleLetterSpacing.value = "0.2";
+      refs.subtitleLetterSpacing.value = "0.1";
+      refs.buttonLetterSpacing.value = "0.2";
+      refs.titleLineHeight.value = "1.12";
+      refs.subtitleLineHeight.value = "1.45";
+      refs.buttonLineHeight.value = "1.2";
+      refs.button1Label.value = "";
+      refs.button1Page.innerHTML = pageOptions("");
+      refs.button2Label.value = "";
+      refs.button2Page.innerHTML = pageOptions("");
+      renderPreview(buildPayload());
+    }
+
+    function hydrateForm(hero = {}) {
+      refs.mediaType.value = hero.mediaType === "video" ? "video" : "image";
+      refs.mediaName.value = hero.mediaName || "";
+      refs.title.value = hero.title || "";
+      refs.subtitle.value = hero.subtitle || "";
+      refs.contentPosition.value = hero.contentPosition || "center_center";
+      refs.overlayOpacity.value = Number(hero.overlayOpacity || 0.38).toString();
+      const style = hero.style || {};
+      const legacyTextColor = normalizeColor(hero.textColor, "#ffffff");
+      refs.titleColor.value = normalizeColor(style.titleColor, legacyTextColor);
+      refs.subtitleColor.value = normalizeColor(style.subtitleColor, legacyTextColor);
+      refs.buttonBgColor.value = normalizeColor(style.buttonBgColor, "#2f4d3a");
+      refs.buttonTextColor.value = normalizeColor(style.buttonTextColor, legacyTextColor);
+      refs.titleSize.value = String(toNumber(style.titleSize, 64));
+      refs.subtitleSize.value = String(toNumber(style.subtitleSize, 22));
+      refs.buttonTextSize.value = String(toNumber(style.buttonTextSize, 16));
+      refs.titleFontFamily.innerHTML = fontOptions(normalizeFont(style.titleFontFamily, "\"Source Serif 4\", serif"));
+      refs.subtitleFontFamily.innerHTML = fontOptions(normalizeFont(style.subtitleFontFamily, "\"Source Sans 3\", sans-serif"));
+      refs.buttonFontFamily.innerHTML = fontOptions(normalizeFont(style.buttonFontFamily, "\"Source Sans 3\", sans-serif"));
+      refs.titleLetterSpacing.value = String(toNumber(style.titleLetterSpacing, 0.2));
+      refs.subtitleLetterSpacing.value = String(toNumber(style.subtitleLetterSpacing, 0.1));
+      refs.buttonLetterSpacing.value = String(toNumber(style.buttonLetterSpacing, 0.2));
+      refs.titleLineHeight.value = String(toNumber(style.titleLineHeight, 1.12));
+      refs.subtitleLineHeight.value = String(toNumber(style.subtitleLineHeight, 1.45));
+      refs.buttonLineHeight.value = String(toNumber(style.buttonLineHeight, 1.2));
+
+      const buttons = Array.isArray(hero.buttons) ? hero.buttons : [];
+      const b1 = buttons[0] || {};
+      const b2 = buttons[1] || {};
+
+      refs.button1Label.value = b1.label || "";
+      refs.button1Page.innerHTML = pageOptions(b1.targetPage || "");
+      refs.button2Label.value = b2.label || "";
+      refs.button2Page.innerHTML = pageOptions(b2.targetPage || "");
+      renderPreview(buildPayload());
+    }
+
+    function syncSelectsWithPages() {
+      const selected1 = refs.button1Page.value;
+      const selected2 = refs.button2Page.value;
+      refs.button1Page.innerHTML = pageOptions(selected1);
+      refs.button2Page.innerHTML = pageOptions(selected2);
+    }
+
+    function renderPreview(hero) {
+      const pos = mapPosition(hero.contentPosition);
+      const hasVideo = hero.mediaType === "video" && hero.mediaName;
+      const media = hasVideo
+        ? `<video autoplay muted loop playsinline class="absolute inset-0 h-full w-full object-cover"><source src="./${hero.mediaName}"></video>`
+        : hero.mediaName
+          ? `<img src="./${hero.mediaName}" alt="" class="absolute inset-0 h-full w-full object-cover">`
+          : '<div class="absolute inset-0" style="background:linear-gradient(130deg,#1d3e2b 0%,#4f7a61 40%,#a0b7a3 100%);"></div>';
+
+      const style = hero.style || {};
+      const titleColor = normalizeColor(style.titleColor, "#ffffff");
+      const subtitleColor = normalizeColor(style.subtitleColor, "#f5f5f5");
+      const buttonBgColor = normalizeColor(style.buttonBgColor, "#2f4d3a");
+      const buttonTextColor = normalizeColor(style.buttonTextColor, "#ffffff");
+      const titleSize = toNumber(style.titleSize, 64);
+      const subtitleSize = toNumber(style.subtitleSize, 22);
+      const buttonTextSize = toNumber(style.buttonTextSize, 16);
+      const titleFontFamily = normalizeFont(style.titleFontFamily, "\"Source Serif 4\", serif");
+      const subtitleFontFamily = normalizeFont(style.subtitleFontFamily, "\"Source Sans 3\", sans-serif");
+      const buttonFontFamily = normalizeFont(style.buttonFontFamily, "\"Source Sans 3\", sans-serif");
+      const titleLetterSpacing = toNumber(style.titleLetterSpacing, 0.2);
+      const subtitleLetterSpacing = toNumber(style.subtitleLetterSpacing, 0.1);
+      const buttonLetterSpacing = toNumber(style.buttonLetterSpacing, 0.2);
+      const titleLineHeight = toNumber(style.titleLineHeight, 1.12);
+      const subtitleLineHeight = toNumber(style.subtitleLineHeight, 1.45);
+      const buttonLineHeight = toNumber(style.buttonLineHeight, 1.2);
+
+      const buttons = Array.isArray(hero.buttons) ? hero.buttons : [];
+      const buttonsHtml = buttons.map((button, index) => `
+        <a href="./index.html?page=${button.targetPage}" class="inline-flex items-center rounded-md border px-4 py-2 font-semibold transition border-transparent" style="background:${index === 0 ? buttonBgColor : `${buttonBgColor}cc`};color:${buttonTextColor};font-size:${buttonTextSize}px;font-family:${buttonFontFamily};letter-spacing:${buttonLetterSpacing}px;line-height:${buttonLineHeight};">
+          ${button.label}
+        </a>
+      `).join("");
+
+      refs.preview.innerHTML = `
+        <section class="relative h-[430px] w-full overflow-hidden">
+          ${media}
+          <div class="absolute inset-0" style="background:rgba(10,15,12,${hero.overlayOpacity || 0.38});"></div>
+          <div class="relative z-10 mx-auto flex h-full w-full max-w-5xl px-4 py-5 md:px-8 md:py-8 ${pos.box}">
+            <div class="max-w-xl ${pos.text}">
+              <h3 class="font-semibold" style="color:${titleColor};font-size:clamp(${titleSize * 0.62}px,6vw,${titleSize}px);font-family:${titleFontFamily};letter-spacing:${titleLetterSpacing}px;line-height:${titleLineHeight};">${hero.title || "Titre hero"}</h3>
+              <p class="mt-2" style="color:${subtitleColor};font-size:clamp(${subtitleSize * 0.82}px,2.6vw,${subtitleSize}px);font-family:${subtitleFontFamily};letter-spacing:${subtitleLetterSpacing}px;line-height:${subtitleLineHeight};">${hero.subtitle || "Sous-titre hero"}</p>
+              <div class="mt-4 flex flex-wrap gap-2 ${pos.actions}">
+                ${buttonsHtml}
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function syncPreview() {
+      renderPreview(buildPayload());
+    }
+
+    refs.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const payload = buildPayload();
+        await setDoc(doc(db, HERO_COLLECTION, HERO_DOC_ID), payload);
+        setStatus("Hero mis à jour.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Impossible d'enregistrer pour le moment.", "error");
+      }
+    });
+
+    refs.deleteBtn.addEventListener("click", async () => {
+      const ok = window.confirm("Supprimer ce hero ?");
+      if (!ok) return;
+      try {
+        await deleteDoc(doc(db, HERO_COLLECTION, HERO_DOC_ID));
+        resetForm();
+        setStatus("Hero supprimé.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Impossible de supprimer pour le moment.", "error");
+      }
+    });
+
+    refs.resetBtn.addEventListener("click", () => {
+      resetForm();
+      setStatus("Retour au modèle de base.", "info");
+    });
+
+    refs.form.addEventListener("input", syncPreview);
+    refs.form.addEventListener("change", syncPreview);
+
+    onSnapshot(collection(db, "pages"), (snapshot) => {
+      state.pages = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+      syncSelectsWithPages();
+      syncPreview();
+    });
+
+    onSnapshot(doc(db, HERO_COLLECTION, HERO_DOC_ID), (snapshot) => {
+      state.hero = snapshot.exists() ? snapshot.data() : null;
+      if (state.hero) {
+        hydrateForm(state.hero);
+        setStatus("Hero chargé.", "info");
+      } else {
+        resetForm();
+        setStatus("Aucun hero enregistré pour le moment.", "info");
+      }
+    });
+
+    resetForm();
+  </script>
+</body>
+</html>

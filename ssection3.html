@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Section3 Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .sierra-admin-body {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sierra-admin-body h1,
+    .sierra-admin-body h2,
+    .sierra-admin-body h3 {
+      font-family: "Source Serif 4", serif;
+      letter-spacing: 0.01em;
+      color: #111827;
+    }
+  </style>
+  <link rel="stylesheet" href="./admin-ui.css">
+</head>
+<body class="sierra-admin-body min-h-screen bg-stone-100 text-stone-800">
+  <main class="mx-auto max-w-7xl p-4 md:p-8">
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-semibold">Dashboard Section3</h1>
+      <div id="status" class="rounded-md border border-stone-200 bg-white px-3 py-2 text-sm">Pret.</div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr]">
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Full Container (CRUD)</h2>
+
+        <form id="container-form" class="space-y-4">
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="media-type" class="mb-1 block text-sm font-medium">Partie 30% (gauche/droite)</label>
+              <select id="media-type" class="w-full rounded border border-stone-300 px-3 py-2 text-sm">
+                <option value="image">Image</option>
+                <option value="text">Texte</option>
+              </select>
+            </div>
+            <div>
+              <label for="image-side" class="mb-1 block text-sm font-medium">Position desktop</label>
+              <select id="image-side" class="w-full rounded border border-stone-300 px-3 py-2 text-sm">
+                <option value="left">Media a gauche</option>
+                <option value="right">Media a droite</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="separator-type" class="mb-1 block text-sm font-medium">Separateur apres ce container</label>
+              <select id="separator-type" class="w-full rounded border border-stone-300 px-3 py-2 text-sm">
+                <option value="line">Ligne fine</option>
+                <option value="line-bold">Ligne epaisse</option>
+                <option value="double-line">Double ligne</option>
+                <option value="dashed">Tirets</option>
+                <option value="dotted">Points</option>
+                <option value="gradient-fade">Degrade centre</option>
+                <option value="center-diamond">Losange centre</option>
+                <option value="three-dots">Trois points</option>
+                <option value="soft-gap">Bande douce</option>
+                <option value="none">Aucun</option>
+              </select>
+            </div>
+            <div>
+              <label for="separator-color" class="mb-1 block text-sm font-medium">Couleur separateur</label>
+              <input id="separator-color" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="#1f5135">
+            </div>
+          </div>
+
+          <div id="image-fields" class="grid grid-cols-1 gap-3">
+            <div>
+              <label for="image-name" class="mb-1 block text-sm font-medium">Nom image</label>
+              <input id="image-name" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="section3.jpg">
+            </div>
+          </div>
+
+          <div id="text-fields" class="hidden grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="media-text" class="mb-1 block text-sm font-medium">Texte media</label>
+              <input id="media-text" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Texte sur zone media">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="media-bg-color" class="mb-1 block text-sm font-medium">BG media</label>
+                <input id="media-bg-color" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="#2f4d3a">
+              </div>
+              <div>
+                <label for="media-text-color" class="mb-1 block text-sm font-medium">Texte media</label>
+                <input id="media-text-color" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="#ffffff">
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="content-bg-color" class="mb-1 block text-sm font-medium">BG partie 70%</label>
+              <input id="content-bg-color" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="#f8fafc">
+            </div>
+            <div>
+              <label for="title-color" class="mb-1 block text-sm font-medium">Couleur titre</label>
+              <input id="title-color" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="#111827">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label for="title" class="mb-1 block text-sm font-medium">Titre</label>
+              <input id="title" type="text" class="w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Titre du container">
+            </div>
+            <div>
+              <label for="subtitle-color" class="mb-1 block text-sm font-medium">Couleur sous-titre</label>
+              <input id="subtitle-color" type="color" class="h-10 w-full rounded border border-stone-300 p-1" value="#374151">
+            </div>
+          </div>
+
+          <div>
+            <label for="subtitle" class="mb-1 block text-sm font-medium">Sous-titre</label>
+            <textarea id="subtitle" class="h-24 w-full rounded border border-stone-300 px-3 py-2 text-sm" placeholder="Sous-titre du container"></textarea>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button id="save-item-btn" type="submit" class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Ajouter element</button>
+            <button id="cancel-edit-btn" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Annuler edition</button>
+            <button id="reset-editor-btn" type="button" class="rounded border border-stone-300 px-4 py-2 text-sm">Vider editeur</button>
+          </div>
+        </form>
+
+        <div class="mt-5 rounded-lg border border-stone-200 bg-white p-3">
+          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-stone-600">Elements enregistres</p>
+          <div id="saved-items" class="space-y-2"></div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="save-section-btn" type="button" class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white">Enregistrer section</button>
+          <button id="delete-section-btn" type="button" class="rounded bg-rose-700 px-4 py-2 text-sm font-medium text-white">Supprimer section</button>
+        </div>
+      </section>
+
+      <section class="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold">Apercu live</h2>
+        <div id="preview" class="overflow-hidden rounded-lg border border-stone-300"></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import BulbeNavigation from "./bulbe.js";
+    new BulbeNavigation();
+  </script>
+
+  <script type="module">
+    import { db } from "./firebase-init.js";
+    import {
+      deleteDoc,
+      doc,
+      onSnapshot,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const SECTION3_COLLECTION = "section3_sections";
+    const SECTION3_DOC_ID = "main";
+    const SEPARATOR_TYPES = new Set([
+      "none",
+      "line",
+      "line-bold",
+      "double-line",
+      "dashed",
+      "dotted",
+      "gradient-fade",
+      "center-diamond",
+      "three-dots",
+      "soft-gap"
+    ]);
+
+    const refs = {
+      status: document.getElementById("status"),
+      form: document.getElementById("container-form"),
+      mediaType: document.getElementById("media-type"),
+      imageSide: document.getElementById("image-side"),
+      separatorType: document.getElementById("separator-type"),
+      separatorColor: document.getElementById("separator-color"),
+      imageFields: document.getElementById("image-fields"),
+      textFields: document.getElementById("text-fields"),
+      imageName: document.getElementById("image-name"),
+      mediaText: document.getElementById("media-text"),
+      mediaBgColor: document.getElementById("media-bg-color"),
+      mediaTextColor: document.getElementById("media-text-color"),
+      contentBgColor: document.getElementById("content-bg-color"),
+      titleColor: document.getElementById("title-color"),
+      subtitleColor: document.getElementById("subtitle-color"),
+      title: document.getElementById("title"),
+      subtitle: document.getElementById("subtitle"),
+      saveItemBtn: document.getElementById("save-item-btn"),
+      cancelEditBtn: document.getElementById("cancel-edit-btn"),
+      resetEditorBtn: document.getElementById("reset-editor-btn"),
+      savedItems: document.getElementById("saved-items"),
+      saveSectionBtn: document.getElementById("save-section-btn"),
+      deleteSectionBtn: document.getElementById("delete-section-btn"),
+      preview: document.getElementById("preview")
+    };
+
+    const state = {
+      items: [],
+      editingId: null
+    };
+
+    function setStatus(message, kind = "info") {
+      const palette = {
+        info: "border-stone-200 bg-white text-stone-700",
+        success: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        error: "border-rose-200 bg-rose-50 text-rose-700"
+      };
+      refs.status.className = `rounded-md border px-3 py-2 text-sm ${palette[kind] || palette.info}`;
+      refs.status.textContent = message;
+    }
+
+    function createId() {
+      return `full_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function normalizeColor(value, fallback) {
+      return /^#[0-9a-fA-F]{6}$/.test(String(value || "").trim()) ? String(value).trim() : fallback;
+    }
+
+    function normalizeSeparatorType(value) {
+      return SEPARATOR_TYPES.has(value) ? value : "line";
+    }
+
+    function toggleMediaFields() {
+      const textMode = refs.mediaType.value === "text";
+      refs.textFields.classList.toggle("hidden", !textMode);
+      refs.imageFields.classList.toggle("hidden", textMode);
+    }
+
+    function readEditor() {
+      return {
+        id: state.editingId || createId(),
+        mediaType: refs.mediaType.value === "text" ? "text" : "image",
+        imageSide: refs.imageSide.value === "right" ? "right" : "left",
+        separatorType: normalizeSeparatorType(refs.separatorType.value),
+        separatorColor: normalizeColor(refs.separatorColor.value, "#1f5135"),
+        imageName: refs.imageName.value.trim(),
+        mediaText: refs.mediaText.value.trim(),
+        mediaBgColor: normalizeColor(refs.mediaBgColor.value, "#2f4d3a"),
+        mediaTextColor: normalizeColor(refs.mediaTextColor.value, "#ffffff"),
+        contentBgColor: normalizeColor(refs.contentBgColor.value, "#f8fafc"),
+        title: refs.title.value.trim(),
+        subtitle: refs.subtitle.value.trim(),
+        titleColor: normalizeColor(refs.titleColor.value, "#111827"),
+        subtitleColor: normalizeColor(refs.subtitleColor.value, "#374151")
+      };
+    }
+
+    function resetEditor() {
+      state.editingId = null;
+      refs.mediaType.value = "image";
+      refs.imageSide.value = "left";
+      refs.separatorType.value = "line";
+      refs.separatorColor.value = "#1f5135";
+      refs.imageName.value = "";
+      refs.mediaText.value = "";
+      refs.mediaBgColor.value = "#2f4d3a";
+      refs.mediaTextColor.value = "#ffffff";
+      refs.contentBgColor.value = "#f8fafc";
+      refs.titleColor.value = "#111827";
+      refs.subtitleColor.value = "#374151";
+      refs.title.value = "";
+      refs.subtitle.value = "";
+      refs.saveItemBtn.textContent = "Ajouter element";
+      toggleMediaFields();
+    }
+
+    function hydrateEditor(item) {
+      state.editingId = item.id;
+      refs.mediaType.value = item.mediaType === "text" ? "text" : "image";
+      refs.imageSide.value = item.imageSide === "right" ? "right" : "left";
+      refs.separatorType.value = normalizeSeparatorType(item.separatorType);
+      refs.separatorColor.value = normalizeColor(item.separatorColor, "#1f5135");
+      refs.imageName.value = item.imageName || "";
+      refs.mediaText.value = item.mediaText || "";
+      refs.mediaBgColor.value = normalizeColor(item.mediaBgColor, "#2f4d3a");
+      refs.mediaTextColor.value = normalizeColor(item.mediaTextColor, "#ffffff");
+      refs.contentBgColor.value = normalizeColor(item.contentBgColor, "#f8fafc");
+      refs.titleColor.value = normalizeColor(item.titleColor, "#111827");
+      refs.subtitleColor.value = normalizeColor(item.subtitleColor, "#374151");
+      refs.title.value = item.title || "";
+      refs.subtitle.value = item.subtitle || "";
+      refs.saveItemBtn.textContent = "Mettre a jour element";
+      toggleMediaFields();
+    }
+
+    function renderSavedItems() {
+      if (!state.items.length) {
+        refs.savedItems.innerHTML = '<p class="text-sm text-stone-500">Aucun element enregistre.</p>';
+        return;
+      }
+
+      refs.savedItems.innerHTML = state.items.map((item) => `
+        <div class="flex items-start justify-between gap-3 rounded border border-stone-200 p-2">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-stone-800">${item.title || "(Sans titre)"}</p>
+            <p class="truncate text-xs text-stone-500">Type: ${item.mediaType} | Cote: ${item.imageSide} | Separateur: ${normalizeSeparatorType(item.separatorType)}</p>
+          </div>
+          <div class="flex items-center gap-1">
+            <button type="button" data-action="edit" data-id="${item.id}" class="rounded border border-stone-300 px-2 py-1 text-xs">Modifier</button>
+            <button type="button" data-action="delete" data-id="${item.id}" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700">Supprimer</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderPreview() {
+      if (!state.items.length) {
+        refs.preview.innerHTML = '<div class="p-4 text-sm text-stone-500">Ajoutez des elements pour previsualiser.</div>';
+        return;
+      }
+
+      refs.preview.innerHTML = `
+        <div class="mx-4 my-3 space-y-3 md:mx-8">
+          ${state.items.map((item, index) => {
+        const mediaFirstDesktop = item.imageSide === "left";
+        const mediaOrder = mediaFirstDesktop ? "md:order-1" : "md:order-2";
+        const contentOrder = mediaFirstDesktop ? "md:order-2" : "md:order-1";
+        const separator = index < state.items.length - 1 ? renderSeparator(item) : "";
+        const media = item.mediaType === "text"
+          ? `<div class="flex h-full items-center justify-center p-3 text-center text-xs font-semibold md:text-sm" style="background:${item.mediaBgColor};color:${item.mediaTextColor};">${item.mediaText || ""}</div>`
+          : `<img src="./${item.imageName}" alt="" class="h-full w-full object-cover">`;
+
+        return `
+          <div>
+            <section class="h-[50vh] min-h-[300px] overflow-hidden rounded-md border border-stone-200">
+              <div class="grid h-full grid-cols-1 md:grid-cols-10">
+                <div class="h-[45%] md:h-full md:col-span-3 ${mediaOrder}">
+                  ${media}
+                </div>
+                <div class="h-[55%] md:h-full md:col-span-7 ${contentOrder} flex items-center" style="background:${item.contentBgColor};">
+                  <div class="w-full p-4 md:p-6">
+                    <h3 class="text-xl font-semibold md:text-2xl" style="color:${item.titleColor};">${item.title || ""}</h3>
+                    <p class="mt-2 text-sm md:text-base" style="color:${item.subtitleColor};">${item.subtitle || ""}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+            ${separator}
+          </div>
+        `;
+      }).join("")}
+        </div>
+      `;
+    }
+
+    function renderSeparator(item) {
+      const color = normalizeColor(item.separatorColor, "#1f5135");
+      const type = normalizeSeparatorType(item.separatorType);
+
+      switch (type) {
+        case "none":
+          return "";
+        case "line-bold":
+          return `<div class="my-2 h-[3px] w-full rounded-full" style="background:${color};opacity:0.45;"></div>`;
+        case "double-line":
+          return `
+            <div class="my-2 space-y-1">
+              <div class="h-px w-full" style="background:${color};opacity:0.42;"></div>
+              <div class="h-px w-full" style="background:${color};opacity:0.42;"></div>
+            </div>
+          `;
+        case "dashed":
+          return `<div class="my-2 h-px w-full" style="background:repeating-linear-gradient(90deg, ${color} 0 14px, transparent 14px 24px);opacity:0.5;"></div>`;
+        case "dotted":
+          return `<div class="my-2 h-[6px] w-full" style="background:radial-gradient(circle, ${color} 2px, transparent 2px);background-size:14px 6px;background-repeat:repeat-x;opacity:0.5;"></div>`;
+        case "gradient-fade":
+          return `<div class="my-2 h-px w-full" style="background:linear-gradient(90deg, transparent 0%, ${color} 50%, transparent 100%);opacity:0.6;"></div>`;
+        case "center-diamond":
+          return `
+            <div class="my-2 flex items-center gap-2">
+              <div class="h-px flex-1" style="background:${color};opacity:0.4;"></div>
+              <div class="h-2.5 w-2.5 rotate-45" style="background:${color};opacity:0.65;"></div>
+              <div class="h-px flex-1" style="background:${color};opacity:0.4;"></div>
+            </div>
+          `;
+        case "three-dots":
+          return `
+            <div class="my-2 flex items-center justify-center gap-2">
+              <span class="h-1.5 w-1.5 rounded-full" style="background:${color};opacity:0.65;"></span>
+              <span class="h-1.5 w-1.5 rounded-full" style="background:${color};opacity:0.65;"></span>
+              <span class="h-1.5 w-1.5 rounded-full" style="background:${color};opacity:0.65;"></span>
+            </div>
+          `;
+        case "soft-gap":
+          return `<div class="my-2 h-3.5 w-full rounded-full" style="background:${color};opacity:0.08;"></div>`;
+        case "line":
+        default:
+          return `<div class="my-2 h-px w-full" style="background:${color};opacity:0.45;"></div>`;
+      }
+    }
+
+    function syncUI() {
+      renderSavedItems();
+      renderPreview();
+    }
+
+    function loadSection(data = {}) {
+      state.items = Array.isArray(data.items) ? data.items : [];
+      resetEditor();
+      syncUI();
+    }
+
+    async function persistSection() {
+      await setDoc(doc(db, SECTION3_COLLECTION, SECTION3_DOC_ID), {
+        items: state.items,
+        updatedAt: Date.now()
+      });
+    }
+
+    refs.mediaType.addEventListener("change", () => {
+      toggleMediaFields();
+    });
+
+    refs.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const item = readEditor();
+      if (!item.title && !item.subtitle) {
+        setStatus("Ajoutez au moins un titre ou un sous-titre.", "error");
+        return;
+      }
+      if (item.mediaType === "image" && !item.imageName) {
+        setStatus("Ajoutez une image.", "error");
+        return;
+      }
+
+      if (state.editingId) {
+        state.items = state.items.map((entry) => entry.id === item.id ? item : entry);
+      } else {
+        state.items = [item, ...state.items];
+      }
+
+      try {
+        await persistSection();
+        resetEditor();
+        syncUI();
+        setStatus("Element enregistre.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement element.", "error");
+      }
+    });
+
+    refs.cancelEditBtn.addEventListener("click", () => {
+      resetEditor();
+      setStatus("Edition annulee.", "info");
+    });
+
+    refs.resetEditorBtn.addEventListener("click", () => {
+      resetEditor();
+      setStatus("Editeur vide.", "info");
+    });
+
+    refs.savedItems.addEventListener("click", async (event) => {
+      const editBtn = event.target.closest('[data-action="edit"]');
+      if (editBtn) {
+        const id = String(editBtn.dataset.id || "");
+        const item = state.items.find((entry) => entry.id === id);
+        if (!item) return;
+        hydrateEditor(item);
+        setStatus("Element charge pour modification.", "info");
+        return;
+      }
+
+      const deleteBtn = event.target.closest('[data-action="delete"]');
+      if (!deleteBtn) return;
+      const id = String(deleteBtn.dataset.id || "");
+      state.items = state.items.filter((entry) => entry.id !== id);
+      try {
+        await persistSection();
+        if (state.editingId === id) resetEditor();
+        syncUI();
+        setStatus("Element supprime.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression element.", "error");
+      }
+    });
+
+    refs.saveSectionBtn.addEventListener("click", async () => {
+      try {
+        await persistSection();
+        setStatus("Section enregistree.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur enregistrement section.", "error");
+      }
+    });
+
+    refs.deleteSectionBtn.addEventListener("click", async () => {
+      const ok = window.confirm("Supprimer toute la section ?");
+      if (!ok) return;
+      try {
+        await deleteDoc(doc(db, SECTION3_COLLECTION, SECTION3_DOC_ID));
+        loadSection({});
+        setStatus("Section supprimee.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("Erreur suppression section.", "error");
+      }
+    });
+
+    refs.form.addEventListener("input", renderPreview);
+    refs.form.addEventListener("change", renderPreview);
+
+    onSnapshot(doc(db, SECTION3_COLLECTION, SECTION3_DOC_ID), (snapshot) => {
+      if (!snapshot.exists()) {
+        loadSection({});
+        setStatus("Aucune section enregistree.", "info");
+        return;
+      }
+      loadSection(snapshot.data() || {});
+      setStatus("Section chargee.", "info");
+    });
+
+    loadSection({});
+  </script>
+</body>
+</html>
