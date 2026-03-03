@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URH | Vision Institutionnelle</title>
+  <meta name="description" content="Mission, objectifs, valeurs, direction et vision de l'Universite Republicaine d'Haiti.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: "#275846",
+            burgundy: "#1c4638",
+            cream: "#f7f3e6",
+            gold: "#c4a34d",
+            ink: "#18211c",
+            sand: "#dbe3cf"
+          },
+          fontFamily: {
+            serif: ["Cormorant Garamond", "serif"],
+            sans: ["Source Sans 3", "sans-serif"]
+          },
+          boxShadow: {
+            soft: "0 24px 60px rgba(24, 33, 28, 0.12)"
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    :root { color-scheme: light; }
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(196, 163, 77, 0.22), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(39, 88, 70, 0.08), transparent 40%),
+        #f7f3e6;
+      color: #18211c;
+    }
+    .hero-overlay {
+      background:
+        linear-gradient(180deg, rgba(24, 33, 28, 0.18) 0%, rgba(24, 33, 28, 0.7) 100%),
+        linear-gradient(120deg, rgba(39, 88, 70, 0.52), rgba(28, 70, 56, 0.35));
+    }
+    .noise::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 16px 16px;
+      opacity: 0.24;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-maroon/95 text-white backdrop-blur-xl">
+    <section class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <a href="index.html" class="flex items-center">
+        <img src="logo.png" alt="Logo de l'Universite Republicaine d'Haiti" class="h-12 w-auto object-contain sm:h-14">
+      </a>
+      <button
+        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 transition hover:bg-white/20 md:hidden"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="hidden items-center gap-4 text-sm font-semibold tracking-[0.08em] md:flex">
+        <a class="transition hover:text-gold" href="index.html">Accueil</a>
+        <a class="text-gold" href="vision.html" aria-current="page">Vision</a>
+        <a class="transition hover:text-gold" href="facultes.html">Facultes</a>
+        <a class="transition hover:text-gold" href="admissions.html">Admissions</a>
+        <a class="transition hover:text-gold" href="actualites.html">Actualites</a>
+        <a class="transition hover:text-gold" href="rayonnement.html">Rayonnement</a>
+        <a class="transition hover:text-gold" href="contact.html">Contact</a>
+      </nav>
+    </section>
+    <nav id="mobile-menu" class="hidden border-t border-white/10 bg-[#183529] md:hidden">
+      <section class="mx-auto grid max-w-7xl gap-2 px-4 py-4 sm:px-6">
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="index.html">Accueil</a>
+        <a class="rounded-2xl bg-gold px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-ink" href="vision.html">Vision</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="facultes.html">Facultes</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="admissions.html">Admissions</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="actualites.html">Actualites</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="rayonnement.html">Rayonnement</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="contact.html">Contact</a>
+      </section>
+    </nav>
+  </header>
+
+  <main>
+    <section class="relative isolate overflow-hidden bg-ink text-white">
+      <video
+        autoplay
+        muted
+        loop
+        playsinline
+        poster="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1800&q=80"
+        class="absolute inset-0 h-full w-full object-cover"
+      >
+        <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay absolute inset-0"></div>
+      <section class="noise relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+        <p class="hero-copy text-xs font-bold uppercase tracking-[0.26em] text-gold">Vision institutionnelle | mission, valeurs et direction</p>
+        <section class="mt-8 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+          <article class="hero-copy max-w-3xl">
+            <h1 class="font-serif text-5xl leading-[0.88] sm:text-6xl lg:text-8xl">
+              Une universite qui pense loin,
+              <span class="block text-gold">agit juste, sert Haiti.</span>
+            </h1>
+            <p class="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">
+              L'URH se definit comme une universite a but non lucratif, ouverte a la jeunesse haitienne, orientee vers l'acces aux etudes superieures et la preparation de parcours utiles au pays.
+            </p>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a href="admissions.html" class="inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-ink transition hover:bg-[#d3b66c]">
+                Voir les admissions
+              </a>
+              <a href="contact.html" class="inline-flex items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-white/10">
+                Contacter l'URH
+              </a>
+            </div>
+          </article>
+          <aside class="hero-copy border-l border-white/[0.12] pl-0 sm:pl-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-white/60">Valeurs institutionnelles</p>
+            <ul class="mt-6 space-y-5 text-sm leading-7 text-white/[0.78] sm:text-base">
+              <li>Aim high et chercher l'excellence, la qualite et le service.</li>
+              <li>Strive to control our destiny et exercer une gestion responsable.</li>
+              <li>Traiter chacun avec dignite, respect et promouvoir la citoyennete.</li>
+              <li>Favoriser l'innovation, la creativite et une liberte totale de pensee.</li>
+            </ul>
+          </aside>
+        </section>
+      </section>
+    </section>
+
+    <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+      <article class="reveal">
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Direction generale</p>
+        <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Le mot du directeur et la trajectoire de l'URH.</h2>
+        <p class="mt-6 text-base leading-8 text-ink/75 sm:text-lg">
+          Depuis 2007, l'URH avance avec une ambition claire: elargir l'acces a l'enseignement superieur, renforcer les competences locales et construire des parcours solides pour la jeunesse haitienne.
+        </p>
+        <p class="mt-5 text-sm leading-8 text-ink/70 sm:text-base">
+          La direction de l'institution porte une vision de responsabilite, de service public, de qualite academique et de formation de cadres capables de participer a la reconstruction du pays.
+        </p>
+        <blockquote class="mt-10 border-l-2 border-gold pl-6 font-serif text-3xl leading-tight text-maroon sm:text-4xl">
+          "To create a brilliant future for the URH."
+        </blockquote>
+      </article>
+      <figure class="reveal overflow-hidden bg-white shadow-soft">
+        <img src="teur.jpeg" alt="Directeur de l'URH" class="min-h-[360px] w-full object-cover object-top sm:min-h-[520px]">
+        <figcaption class="bg-white px-6 py-5 text-sm leading-7 text-ink/[0.72]">
+          La direction de l'URH affirme une universite de recherche, de debat, de creativite et de diffusion des savoirs.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="border-y border-maroon/10 bg-white">
+      <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
+        <figure class="reveal overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs en echange pedagogique" class="min-h-[340px] w-full object-cover sm:min-h-[460px]">
+        </figure>
+        <article class="reveal">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Objectifs declares</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Former a une citoyennete responsable et a un monde en mutation.</h2>
+          <p class="mt-6 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            L'URH veut faire evoluer la pedagogie vers l'apprentissage actif, la formation tout au long de la vie et des partenariats durables avec les acteurs politiques, culturels, sociaux et economiques.
+          </p>
+          <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Il est aussi precise que l'URH veut rayonner par des valeurs humanistes, republicaines et democratiques, dans une perspective d'excellence et de developpement durable.
+          </p>
+          <ul class="mt-8 space-y-3 text-sm leading-7 text-ink/70 sm:text-base">
+            <li><i class="fa-solid fa-check mr-2 text-gold"></i> Cycles courts et licences a court terme</li>
+            <li><i class="fa-solid fa-check mr-2 text-gold"></i> Masters en droit et sciences du langage a moyen terme</li>
+            <li><i class="fa-solid fa-check mr-2 text-gold"></i> Doctorats et recherche en matieres cles a long terme</li>
+          </ul>
+        </article>
+      </section>
+    </section>
+
+    <section class="relative overflow-hidden bg-maroon text-white">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(196,163,77,0.16),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_32%)]"></div>
+      <section class="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+        <article class="reveal">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">Campus et methodes</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">FOAD, formation continue et recherche contractuelle.</h2>
+          <p class="mt-5 text-sm leading-8 text-white/[0.78] sm:text-base">
+            La FOAD s'appuie sur internet, les ressources pedagogiques, l'auto-evaluation, le travail collaboratif, les forums, les web conferences et le suivi des memes enseignants que pour les cours en presence.
+          </p>
+          <ul class="mt-8 space-y-4 text-sm leading-7 text-white/[0.74] sm:text-base">
+            <li>Departement de formation continue et services aux entreprises</li>
+            <li>Relations contractuelles avec le milieu economique et industriel</li>
+            <li>Interface universite / entreprises et aide a l'insertion professionnelle</li>
+          </ul>
+        </article>
+        <figure class="reveal overflow-hidden border border-white/10 bg-black/20 shadow-soft">
+          <video
+            controls
+            playsinline
+            preload="metadata"
+            poster="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80"
+            class="aspect-video w-full object-cover"
+          >
+            <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
+          </video>
+          <figcaption class="bg-white/[0.06] px-5 py-4 text-sm leading-7 text-white/70">
+            Cette zone video met en scene la FOAD, les CLOM, le campus numerique et les outils d'enseignement deployes par l'URH.
+          </figcaption>
+        </figure>
+      </section>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+      <header class="reveal max-w-4xl">
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Axes institutionnels</p>
+        <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Trois engagements qui structurent la vision URH.</h2>
+      </header>
+      <section class="mt-10 grid gap-10 lg:grid-cols-3">
+        <article class="reveal">
+          <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en ceremonie academique" class="h-72 w-full object-cover">
+          <h3 class="mt-5 font-serif text-3xl leading-tight">Acces</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Reduire le cout de l'enseignement superieur pour que les limitations financieres ne barrent pas l'entree aux etudes.
+          </p>
+        </article>
+        <article class="reveal">
+          <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en travail collectif" class="h-72 w-full object-cover">
+          <h3 class="mt-5 font-serif text-3xl leading-tight">Excellence</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Former des diplomes capables d'assumer des taches professionnelles en Haiti sans dependre de cadres etrangers.
+          </p>
+        </article>
+        <article class="reveal">
+          <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en bibliotheque universitaire" class="h-72 w-full object-cover">
+          <h3 class="mt-5 font-serif text-3xl leading-tight">Ouverture</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Multiplier les accords, les doubles diplomes, la mobilite internationale et les cours ouverts sur plusieurs continents.
+          </p>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <footer class="bg-[#0d1711] text-white">
+    <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
+      <article>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">URH</p>
+        <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Vision et gouvernance</h2>
+        <p class="mt-5 max-w-xl text-sm leading-8 text-white/[0.68] sm:text-base">
+          Mission, objectifs, valeurs, liberte de pensee et logique institutionnelle structurent la vision de l'URH.
+        </p>
+      </article>
+      <nav>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Pages</p>
+        <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+          <li><a class="transition hover:text-gold" href="index.html">Accueil</a></li>
+          <li><a class="transition hover:text-gold" href="facultes.html">Facultes</a></li>
+          <li><a class="transition hover:text-gold" href="admissions.html">Admissions</a></li>
+          <li><a class="transition hover:text-gold" href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <section>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Coordonnees</p>
+        <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+          <li>Annexe Port-au-Prince, Imp. Rigaud #18, Bois Verna</li>
+          <li>urhedu@hotmail.com</li>
+          <li>(509) 4346-6126 | (509) 3772-9391</li>
+          <li>Vision, gouvernance et informations generales</li>
+        </ul>
+      </section>
+    </section>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-98Zb1sQ7sQX6M1tFoZT3zh/OElBTtPlqvGjYH6G+jD/adJzi10BGSAdoo6gWQBaIj++ImQxGc1dQc5sKXc5teQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.querySelector("[data-menu-toggle]");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener("click", () => {
+          const isHidden = mobileMenu.classList.contains("hidden");
+          mobileMenu.classList.toggle("hidden");
+          menuToggle.setAttribute("aria-expanded", String(isHidden));
+          anime({
+            targets: "#mobile-menu a",
+            translateY: isHidden ? [12, 0] : [0, 0],
+            opacity: isHidden ? [0, 1] : [1, 1],
+            easing: "easeOutQuad",
+            duration: 320,
+            delay: anime.stagger(40)
+          });
+        });
+      }
+
+      anime({
+        targets: ".hero-copy",
+        translateY: [30, 0],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 1100,
+        delay: anime.stagger(140)
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || entry.target.dataset.animated === "true") return;
+          entry.target.dataset.animated = "true";
+          anime({
+            targets: entry.target,
+            translateY: [36, 0],
+            opacity: [0, 1],
+            easing: "easeOutCubic",
+            duration: 900
+          });
+        });
+      }, { threshold: 0.14 });
+
+      document.querySelectorAll(".reveal").forEach((element) => {
+        element.style.opacity = "0";
+        observer.observe(element);
+      });
+    });
+  </script>
+</body>
+</html>

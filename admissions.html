@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URH | Admissions</title>
+  <meta name="description" content="Admissions, frais, aides, Student Services et partenariat Suntel de l'Universite Republicaine d'Haiti.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: "#275846",
+            burgundy: "#1c4638",
+            cream: "#f7f3e6",
+            gold: "#c4a34d",
+            ink: "#18211c",
+            sand: "#dbe3cf"
+          },
+          fontFamily: {
+            serif: ["Cormorant Garamond", "serif"],
+            sans: ["Source Sans 3", "sans-serif"]
+          },
+          boxShadow: {
+            soft: "0 24px 60px rgba(24, 33, 28, 0.12)"
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    :root { color-scheme: light; }
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(196, 163, 77, 0.22), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(39, 88, 70, 0.08), transparent 40%),
+        #f7f3e6;
+      color: #18211c;
+    }
+    .hero-overlay {
+      background:
+        linear-gradient(180deg, rgba(24, 33, 28, 0.18) 0%, rgba(24, 33, 28, 0.72) 100%),
+        linear-gradient(120deg, rgba(39, 88, 70, 0.46), rgba(28, 70, 56, 0.32));
+    }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-maroon/95 text-white backdrop-blur-xl">
+    <section class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <a href="index.html" class="flex items-center">
+        <img src="logo.png" alt="Logo de l'Universite Republicaine d'Haiti" class="h-12 w-auto object-contain sm:h-14">
+      </a>
+      <button
+        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 transition hover:bg-white/20 md:hidden"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="hidden items-center gap-4 text-sm font-semibold tracking-[0.08em] md:flex">
+        <a class="transition hover:text-gold" href="index.html">Accueil</a>
+        <a class="transition hover:text-gold" href="vision.html">Vision</a>
+        <a class="transition hover:text-gold" href="facultes.html">Facultes</a>
+        <a class="text-gold" href="admissions.html" aria-current="page">Admissions</a>
+        <a class="transition hover:text-gold" href="actualites.html">Actualites</a>
+        <a class="transition hover:text-gold" href="rayonnement.html">Rayonnement</a>
+        <a class="transition hover:text-gold" href="contact.html">Contact</a>
+      </nav>
+    </section>
+    <nav id="mobile-menu" class="hidden border-t border-white/10 bg-[#183529] md:hidden">
+      <section class="mx-auto grid max-w-7xl gap-2 px-4 py-4 sm:px-6">
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="index.html">Accueil</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="vision.html">Vision</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="facultes.html">Facultes</a>
+        <a class="rounded-2xl bg-gold px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-ink" href="admissions.html">Admissions</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="actualites.html">Actualites</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="rayonnement.html">Rayonnement</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="contact.html">Contact</a>
+      </section>
+    </nav>
+  </header>
+
+  <main>
+    <section class="relative isolate overflow-hidden bg-ink text-white">
+      <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1800&q=80" alt="Etudiants noirs celebrant leur reussite" class="absolute inset-0 h-full w-full object-cover">
+      <div class="hero-overlay absolute inset-0"></div>
+      <section class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+        <p class="hero-copy text-xs font-bold uppercase tracking-[0.26em] text-gold">Admissions | aide financiere | partenariat Suntel</p>
+        <section class="mt-8 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+          <article class="hero-copy max-w-3xl">
+              <h1 class="font-serif text-5xl leading-[0.88] sm:text-6xl lg:text-8xl">
+                Un acces finance,
+                <span class="block text-gold">avec un accompagnement concret.</span>
+              </h1>
+              <p class="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">
+              L'URH veut reduire le cout de l'enseignement superieur et indique qu'une large majorite d'etudiants peut recevoir une forme d'aide financiere.
+              </p>
+          </article>
+          <aside class="hero-copy border-l border-white/[0.12] pl-0 sm:pl-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-white/60">Conditions resumees</p>
+            <ul class="mt-6 space-y-4 text-sm leading-7 text-white/[0.78] sm:text-base">
+              <li>Frais reguliers: 125 dollars US par an via un grassroots</li>
+              <li>Tuition gratuite pour les membres d'une organisation affiliee</li>
+              <li>Frais de dossier annonces entre 10 et 18 dollars</li>
+              <li>Ordinateur possible jusqu'a 400 dollars en dix mensualites</li>
+            </ul>
+          </aside>
+        </section>
+      </section>
+    </section>
+
+    <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+      <article class="reveal">
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Admission et conditions URH</p>
+        <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Trois reperes pour preparer son inscription.</h2>
+        <ol class="mt-10">
+          <li class="grid gap-3 border-t border-maroon/10 py-5 sm:grid-cols-[56px_1fr]">
+            <span class="font-serif text-4xl text-maroon">1</span>
+            <span class="text-sm leading-7 text-ink/[0.74]">Le candidat se presente avec un voucher URH tamponne par l'organisation de base a laquelle il est affilie.</span>
+          </li>
+          <li class="grid gap-3 border-t border-maroon/10 py-5 sm:grid-cols-[56px_1fr]">
+            <span class="font-serif text-4xl text-maroon">2</span>
+            <span class="text-sm leading-7 text-ink/[0.74]">Les frais directs pour l'etudiant comprennent les fees; d'autres couts indirects peuvent inclure livres, fournitures, transport et entretien du foyer.</span>
+          </li>
+          <li class="grid gap-3 border-y border-maroon/10 py-5 sm:grid-cols-[56px_1fr]">
+            <span class="font-serif text-4xl text-maroon">3</span>
+            <span class="text-sm leading-7 text-ink/[0.74]">Les Student Services affirment accompagner la maturation intellectuelle, spirituelle et personnelle des etudiants.</span>
+          </li>
+        </ol>
+      </article>
+      <figure class="reveal overflow-hidden bg-white shadow-soft">
+        <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs en bibliotheque" class="min-h-[360px] w-full object-cover sm:min-h-[520px]">
+        <figcaption class="bg-white px-6 py-5 text-sm leading-7 text-ink/[0.72]">
+          Les textes d'admission distinguent les couts directs et indirects et presentent les bureaux du Student Services Cluster.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="border-y border-maroon/10 bg-white">
+      <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:px-8">
+        <article class="reveal">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Bourses et soutien</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Une universite qui dit travailler pour que les limites financieres ne soient pas une barriere.</h2>
+          <p class="mt-6 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            L'URH met en avant un fonds de bourses, un secours direct pour les etudiants en urgence, l'encouragement a la perseverance scolaire et un appui aux projets etudiants.
+          </p>
+          <ul class="mt-8 space-y-3 text-sm leading-7 text-ink/70 sm:text-base">
+            <li><i class="fa-solid fa-circle-check mr-2 text-gold"></i> Bourses d'etudes scientifiques et technologiques</li>
+            <li><i class="fa-solid fa-circle-check mr-2 text-gold"></i> Achat d'equipements de laboratoire</li>
+            <li><i class="fa-solid fa-circle-check mr-2 text-gold"></i> Ressources specialisees et projets d'innovation ou de recherche</li>
+          </ul>
+        </article>
+        <figure class="reveal overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80" alt="Groupe d'etudiants noirs" class="min-h-[340px] w-full object-cover sm:min-h-[460px]">
+        </figure>
+      </section>
+    </section>
+
+    <section class="relative overflow-hidden bg-maroon text-white">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(196,163,77,0.16),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_32%)]"></div>
+      <section class="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+        <article class="reveal">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">Partenariat Suntel</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Laptop et internet etudiant pour soutenir la reussite.</h2>
+          <p class="mt-5 text-sm leading-8 text-white/[0.78] sm:text-base">
+            Le partenariat Suntel prevoit un laptop garanti deux ans, payable sans interet sur une annee academique, ainsi qu'un plan internet etudiant a 9.99 dollars plus taxe par mois.
+          </p>
+        </article>
+        <figure class="reveal overflow-hidden border border-white/10 bg-black/20 shadow-soft">
+          <video
+            controls
+            playsinline
+            preload="metadata"
+            poster="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1400&q=80"
+            class="aspect-video w-full object-cover"
+          >
+            <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" type="video/mp4">
+          </video>
+          <figcaption class="bg-white/[0.06] px-5 py-4 text-sm leading-7 text-white/70">
+            Le partenariat Suntel donne aussi un calendrier de paiement et renvoie les etudiants au registrariat pour plus d'informations.
+          </figcaption>
+        </figure>
+      </section>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+      <header class="reveal flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <section class="max-w-3xl">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Questions frequentes</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Les reponses essentielles pour rassurer les candidats.</h2>
+        </section>
+        <a href="contact.html" class="inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-ink transition hover:bg-[#d3b66c]">
+          Contacter un conseiller
+        </a>
+      </header>
+      <section class="mt-10 grid gap-8 lg:grid-cols-3">
+        <article class="reveal border-t border-maroon/10 pt-5">
+          <h3 class="font-serif text-3xl leading-tight">Quel est le cout ?</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Les fees sont annonces a 125 dollars US par an via un grassroots, avec tuition gratuite pour les etudiants affilies.
+          </p>
+        </article>
+        <article class="reveal border-t border-maroon/10 pt-5">
+          <h3 class="font-serif text-3xl leading-tight">Y a-t-il un ordinateur ?</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Oui. L'acquisition informatique peut aller jusqu'a 400 dollars, avec un paiement detaille sur dix mensualites.
+          </p>
+        </article>
+        <article class="reveal border-t border-maroon/10 pt-5">
+          <h3 class="font-serif text-3xl leading-tight">Existe-t-il des aides ?</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Oui. Les textes parlent d'aides, de bourses, de secours directs, de fonds de projets et d'un accompagnement par les Student Services.
+          </p>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <footer class="bg-[#0d1711] text-white">
+    <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
+      <article>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">URH</p>
+        <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Admissions et orientation</h2>
+        <p class="mt-5 max-w-xl text-sm leading-8 text-white/[0.68] sm:text-base">
+          Couts, aides, Student Services et partenariat Suntel composent l'offre d'accompagnement de l'URH.
+        </p>
+      </article>
+      <nav>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Liens</p>
+        <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+          <li><a class="transition hover:text-gold" href="facultes.html">Facultes</a></li>
+          <li><a class="transition hover:text-gold" href="vision.html">Vision</a></li>
+          <li><a class="transition hover:text-gold" href="contact.html">Contact</a></li>
+          <li><a class="transition hover:text-gold" href="index.html">Accueil</a></li>
+        </ul>
+      </nav>
+      <section>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Aide</p>
+        <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+          <li>Admissions generales</li>
+          <li>Bourses et financement</li>
+          <li>Laptop et internet Suntel</li>
+          <li>Registrariat: (509) 4346-6126 / 3772-9391</li>
+        </ul>
+      </section>
+    </section>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-98Zb1sQ7sQX6M1tFoZT3zh/OElBTtPlqvGjYH6G+jD/adJzi10BGSAdoo6gWQBaIj++ImQxGc1dQc5sKXc5teQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.querySelector("[data-menu-toggle]");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener("click", () => {
+          const isHidden = mobileMenu.classList.contains("hidden");
+          mobileMenu.classList.toggle("hidden");
+          menuToggle.setAttribute("aria-expanded", String(isHidden));
+          anime({
+            targets: "#mobile-menu a",
+            translateY: isHidden ? [12, 0] : [0, 0],
+            opacity: isHidden ? [0, 1] : [1, 1],
+            easing: "easeOutQuad",
+            duration: 320,
+            delay: anime.stagger(40)
+          });
+        });
+      }
+
+      anime({
+        targets: ".hero-copy",
+        translateY: [30, 0],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 1100,
+        delay: anime.stagger(140)
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || entry.target.dataset.animated === "true") return;
+          entry.target.dataset.animated = "true";
+          anime({
+            targets: entry.target,
+            translateY: [36, 0],
+            opacity: [0, 1],
+            easing: "easeOutCubic",
+            duration: 900
+          });
+        });
+      }, { threshold: 0.14 });
+
+      document.querySelectorAll(".reveal").forEach((element) => {
+        element.style.opacity = "0";
+        observer.observe(element);
+      });
+    });
+  </script>
+</body>
+</html>

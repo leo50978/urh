@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URH | Actualites</title>
+  <meta name="description" content="Dossier institutionnel URH: contexte, objectifs, prospection, FOAD et levee de fonds.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: "#275846",
+            burgundy: "#1c4638",
+            cream: "#f7f3e6",
+            gold: "#c4a34d",
+            ink: "#18211c",
+            sand: "#dbe3cf"
+          },
+          fontFamily: {
+            serif: ["Cormorant Garamond", "serif"],
+            sans: ["Source Sans 3", "sans-serif"]
+          },
+          boxShadow: {
+            soft: "0 24px 60px rgba(24, 33, 28, 0.12)"
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <style>
+    :root { color-scheme: light; }
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(196, 163, 77, 0.22), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(39, 88, 70, 0.08), transparent 40%),
+        #f7f3e6;
+      color: #18211c;
+    }
+    .hero-overlay {
+      background:
+        linear-gradient(180deg, rgba(24, 33, 28, 0.14) 0%, rgba(24, 33, 28, 0.74) 100%),
+        linear-gradient(120deg, rgba(39, 88, 70, 0.44), rgba(28, 70, 56, 0.3));
+    }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-maroon/95 text-white backdrop-blur-xl">
+    <section class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <a href="index.html" class="flex items-center">
+        <img src="logo.png" alt="Logo de l'Universite Republicaine d'Haiti" class="h-12 w-auto object-contain sm:h-14">
+      </a>
+      <button
+        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 transition hover:bg-white/20 md:hidden"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="hidden items-center gap-4 text-sm font-semibold tracking-[0.08em] md:flex">
+        <a class="transition hover:text-gold" href="index.html">Accueil</a>
+        <a class="transition hover:text-gold" href="vision.html">Vision</a>
+        <a class="transition hover:text-gold" href="facultes.html">Facultes</a>
+        <a class="transition hover:text-gold" href="admissions.html">Admissions</a>
+        <a class="text-gold" href="actualites.html" aria-current="page">Actualites</a>
+        <a class="transition hover:text-gold" href="rayonnement.html">Rayonnement</a>
+        <a class="transition hover:text-gold" href="contact.html">Contact</a>
+      </nav>
+    </section>
+    <nav id="mobile-menu" class="hidden border-t border-white/10 bg-[#183529] md:hidden">
+      <section class="mx-auto grid max-w-7xl gap-2 px-4 py-4 sm:px-6">
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="index.html">Accueil</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="vision.html">Vision</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="facultes.html">Facultes</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="admissions.html">Admissions</a>
+        <a class="rounded-2xl bg-gold px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-ink" href="actualites.html">Actualites</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="rayonnement.html">Rayonnement</a>
+        <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="contact.html">Contact</a>
+      </section>
+    </nav>
+  </header>
+
+  <main>
+    <section class="relative isolate overflow-hidden bg-ink text-white">
+      <video
+        autoplay
+        muted
+        loop
+        playsinline
+        poster="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1800&q=80"
+        class="absolute inset-0 h-full w-full object-cover"
+      >
+        <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay absolute inset-0"></div>
+      <section class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+        <p class="hero-copy text-xs font-bold uppercase tracking-[0.26em] text-gold">Dossier institutionnel | contexte, objectifs, financement</p>
+        <section class="mt-8 grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+          <article class="hero-copy max-w-3xl">
+            <h1 class="font-serif text-5xl leading-[0.88] sm:text-6xl lg:text-8xl">
+              Les grands axes de l'URH,
+              <span class="block text-gold">rassembles dans une lecture unique.</span>
+            </h1>
+            <p class="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">
+              Cette page reunit le contexte de creation, les objectifs, la prospection, la FOAD et la levee de fonds dans une presentation continue.
+            </p>
+          </article>
+          <aside class="hero-copy border-l border-white/[0.12] pl-0 sm:pl-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-white/60">Axes du dossier</p>
+            <ul class="mt-6 space-y-4 text-sm leading-7 text-white/[0.78] sm:text-base">
+              <li>Contexte et objectifs du projet URH</li>
+              <li>Prospections et justification des filieres</li>
+              <li>Methodes, FOAD et campus numerique</li>
+              <li>Levee de fonds et objectifs financiers</li>
+            </ul>
+          </aside>
+        </section>
+      </section>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+      <article class="reveal grid gap-10 border-b border-maroon/10 pb-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <figure class="overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1500&q=80" alt="Etudiants noirs en bibliotheque universitaire" class="min-h-[360px] w-full object-cover sm:min-h-[520px]">
+        </figure>
+        <section>
+          <p class="text-xs font-bold uppercase tracking-[0.22em] text-maroon">Contexte</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Un projet pense pour repondre aux limites du systeme universitaire haitien.</h2>
+          <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Le projet URH est elabore en tenant compte des problemes du pays sur le plan universitaire et des innovations necessaires pour ameliorer la qualite de la formation estudiantine.
+          </p>
+          <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            Il insiste aussi sur la necessite de proposer de meilleures alternatives a la jeunesse haitienne et de former des cadres locaux pour la reconstruction du pays.
+          </p>
+        </section>
+      </article>
+
+      <section class="mt-12 grid gap-10 lg:grid-cols-3">
+        <article class="reveal">
+          <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en amphitheatre" class="h-72 w-full object-cover">
+          <p class="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-maroon">Prospections</p>
+          <h3 class="mt-3 font-serif text-3xl leading-tight">50 000 a 60 000 jeunes a orienter chaque annee apres le baccalaureat.</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            La presentation souligne que les capacites existantes sont insuffisantes et que beaucoup de bacheliers quittent le pays faute de moyens ou de confiance dans l'offre locale.
+          </p>
+        </article>
+        <article class="reveal">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en travail d'equipe" class="h-72 w-full object-cover">
+          <p class="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-maroon">Objectifs financiers</p>
+          <h3 class="mt-3 font-serif text-3xl leading-tight">Bourses, laboratoires, ressources et projets etudiants.</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            L'URH affiche un objectif financier global de 1 000 000 dollars pour le secours direct, l'equipement de laboratoire, les ressources specialisees et les projets d'innovation.
+          </p>
+        </article>
+        <article class="reveal">
+          <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en ceremonie academique" class="h-72 w-full object-cover">
+          <p class="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-maroon">Levee de fonds</p>
+          <h3 class="mt-3 font-serif text-3xl leading-tight">Donateurs, entreprises, activites culturelles et sportives.</h3>
+          <p class="mt-3 text-sm leading-8 text-ink/[0.72] sm:text-base">
+            La sollicitation de donateurs, les amis de l'universite, les parents, les concours, foires et activites publiques sont presentes comme des sources de revenus importantes.
+          </p>
+        </article>
+      </section>
+    </section>
+
+    <section class="relative overflow-hidden bg-maroon text-white">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(196,163,77,0.16),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_32%)]"></div>
+      <section class="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+        <article class="reveal">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">Dossier video</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Le projet URH, sa mission et ses moyens en lecture audiovisuelle.</h2>
+          <p class="mt-5 text-sm leading-8 text-white/[0.78] sm:text-base">
+            Le media de cette section accompagne le contexte de creation, les objectifs, la FOAD, le campus numerique et les partenariats institutionnels.
+          </p>
+        </article>
+        <figure class="reveal overflow-hidden border border-white/10 bg-black/20 shadow-soft">
+          <video
+            controls
+            playsinline
+            preload="metadata"
+            poster="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80"
+            class="aspect-video w-full object-cover"
+          >
+            <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
+          </video>
+          <figcaption class="bg-white/[0.06] px-5 py-4 text-sm leading-7 text-white/70">
+            Cette section video accompagne le contexte, les objectifs, la prospection et la levee de fonds presentes par l'URH.
+          </figcaption>
+        </figure>
+      </section>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+      <header class="reveal max-w-4xl">
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Vision et impact</p>
+        <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Les filieres repondent directement aux besoins du pays et du marche global.</h2>
+      </header>
+      <section class="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-12 lg:grid-rows-2">
+        <img class="reveal h-full min-h-[320px] w-full object-cover lg:col-span-7 lg:row-span-2" src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1600&q=80" alt="Etudiants noirs en apprentissage numerique">
+        <img class="reveal h-full min-h-[220px] w-full object-cover lg:col-span-5" src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs dans la vie etudiante">
+        <img class="reveal h-full min-h-[220px] w-full object-cover lg:col-span-3" src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en amphitheatre">
+        <img class="reveal h-full min-h-[220px] w-full object-cover lg:col-span-2" src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs celebrant leur reussite">
+      </section>
+      <section class="mt-12 flex flex-col gap-4 sm:flex-row">
+        <a href="rayonnement.html" class="inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-ink transition hover:bg-[#d3b66c]">
+          Voir le rayonnement
+        </a>
+        <a href="contact.html" class="inline-flex items-center justify-center rounded-full border border-maroon/20 px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-maroon transition hover:bg-white">
+          Contact presse
+        </a>
+      </section>
+    </section>
+  </main>
+
+  <footer class="bg-[#0d1711] text-white">
+    <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
+      <article>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">URH</p>
+        <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Actualites et presse</h2>
+        <p class="mt-5 max-w-xl text-sm leading-8 text-white/[0.68] sm:text-base">
+          Contexte, objectifs, prospection, levee de fonds et justification des filieres sont ici regroupes en un seul dossier.
+        </p>
+      </article>
+      <nav>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Navigation</p>
+        <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+          <li><a class="transition hover:text-gold" href="index.html">Accueil</a></li>
+          <li><a class="transition hover:text-gold" href="facultes.html">Facultes</a></li>
+          <li><a class="transition hover:text-gold" href="rayonnement.html">Rayonnement</a></li>
+          <li><a class="transition hover:text-gold" href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <section>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Presse</p>
+        <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+          <li>Contexte et objectifs</li>
+          <li>Prospections et justification des cours</li>
+          <li>Levee de fonds et objectifs financiers</li>
+          <li>Galerie visuelle du projet</li>
+        </ul>
+      </section>
+    </section>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-98Zb1sQ7sQX6M1tFoZT3zh/OElBTtPlqvGjYH6G+jD/adJzi10BGSAdoo6gWQBaIj++ImQxGc1dQc5sKXc5teQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.querySelector("[data-menu-toggle]");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener("click", () => {
+          const isHidden = mobileMenu.classList.contains("hidden");
+          mobileMenu.classList.toggle("hidden");
+          menuToggle.setAttribute("aria-expanded", String(isHidden));
+          anime({
+            targets: "#mobile-menu a",
+            translateY: isHidden ? [12, 0] : [0, 0],
+            opacity: isHidden ? [0, 1] : [1, 1],
+            easing: "easeOutQuad",
+            duration: 320,
+            delay: anime.stagger(40)
+          });
+        });
+      }
+
+      anime({
+        targets: ".hero-copy",
+        translateY: [30, 0],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 1100,
+        delay: anime.stagger(140)
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || entry.target.dataset.animated === "true") return;
+          entry.target.dataset.animated = "true";
+          anime({
+            targets: entry.target,
+            translateY: [36, 0],
+            opacity: [0, 1],
+            easing: "easeOutCubic",
+            duration: 900
+          });
+        });
+      }, { threshold: 0.14 });
+
+      document.querySelectorAll(".reveal").forEach((element) => {
+        element.style.opacity = "0";
+        observer.observe(element);
+      });
+    });
+  </script>
+</body>
+</html>

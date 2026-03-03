@@ -3,68 +3,547 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title></title>
-
+  <title>URH | Universite Republicaine d'Haiti</title>
+  <meta name="description" content="Accueil officiel de l'URH: mission, programmes, FOAD, admissions, accompagnement et mobilite internationale.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: "#275846",
+            burgundy: "#1c4638",
+            cream: "#f7f3e6",
+            gold: "#c4a34d",
+            ink: "#18211c",
+            sand: "#dbe3cf"
+          },
+          fontFamily: {
+            serif: ["Cormorant Garamond", "serif"],
+            sans: ["Source Sans 3", "sans-serif"]
+          },
+          boxShadow: {
+            soft: "0 24px 60px rgba(24, 33, 28, 0.12)"
+          }
+        }
+      }
+    };
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
-
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
-    .sierra-campus-body {
-      font-family: "Source Sans 3", sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #1f2937;
-      background: #f8fafc;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
+    :root {
+      color-scheme: light;
     }
 
-    .sierra-campus-body h1,
-    .sierra-campus-body h2,
-    .sierra-campus-body h3,
-    .sierra-campus-body h4 {
-      font-family: "Source Serif 4", serif;
-      letter-spacing: 0.01em;
-      line-height: 1.3;
-      color: #111827;
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(196, 163, 77, 0.24), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(39, 88, 70, 0.09), transparent 42%),
+        #f7f3e6;
+      color: #18211c;
+    }
+
+    .hero-overlay {
+      background:
+        linear-gradient(180deg, rgba(24, 33, 28, 0.12) 0%, rgba(24, 33, 28, 0.54) 100%),
+        linear-gradient(125deg, rgba(39, 88, 70, 0.68), rgba(28, 70, 56, 0.42));
+    }
+
+    .noise {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .noise::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 14px 14px;
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    .section-band {
+      background:
+        linear-gradient(180deg, rgba(39, 88, 70, 0.05), rgba(39, 88, 70, 0)),
+        rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(8px);
+    }
+
+    .clip-corner {
+      clip-path: polygon(0 0, 100% 0, 100% 84%, 91% 100%, 0 100%);
     }
   </style>
 </head>
-<body class="sierra-campus-body">
-  <div id="sierra-header-root"></div>
-  <div id="sierra-hero-root"></div>
-  <div id="sierra-news-root"></div>
-  <div id="sierra-section3-root"></div>
-  <div id="sierra-gallery-root"></div>
-  <div id="sierra-creatsection-root"></div>
-  <div id="sierra-gallery2-root"></div>
-  <div id="sierra-footer-root"></div>
+<body class="font-sans text-ink antialiased">
+  <div class="min-h-screen">
+    <header class="sticky top-0 z-50 border-b border-white/10 bg-maroon/95 text-white backdrop-blur-xl">
+      <section class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <a href="index.html" class="flex items-center">
+          <img src="logo.png" alt="Logo de l'Universite Republicaine d'Haiti" class="h-12 w-auto object-contain sm:h-14">
+        </a>
+        <button
+          class="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 transition hover:bg-white/20 md:hidden"
+          aria-label="Ouvrir le menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          data-menu-toggle
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <nav class="hidden items-center gap-6 text-sm font-semibold tracking-[0.08em] md:flex">
+          <a class="transition hover:text-gold" href="vision.html">Vision</a>
+          <a class="transition hover:text-gold" href="facultes.html">Facultes</a>
+          <a class="transition hover:text-gold" href="admissions.html">Admissions</a>
+          <a class="transition hover:text-gold" href="contact.html">Contact</a>
+        </nav>
+      </section>
+      <nav id="mobile-menu" class="hidden border-t border-white/10 bg-[#183529] md:hidden">
+        <section class="mx-auto grid max-w-7xl gap-2 px-4 py-4 sm:px-6">
+          <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="vision.html">Vision</a>
+          <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="facultes.html">Facultes</a>
+          <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="admissions.html">Admissions</a>
+          <a class="rounded-2xl bg-white/[0.08] px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/[0.85] transition hover:bg-white/[0.12]" href="contact.html">Contact</a>
+        </section>
+      </nav>
+    </header>
 
-  <script type="module">
-    const injectionStatus = {
-      header: document.getElementById('sierra-header-root') ? '✅' : '❌',
-      hero: document.getElementById('sierra-hero-root') ? '✅' : '❌',
-      news: document.getElementById('sierra-news-root') ? '✅' : '❌',
-      section3: document.getElementById('sierra-section3-root') ? '✅' : '❌',
-      gallery: document.getElementById('sierra-gallery-root') ? '✅' : '❌',
-      gallery2: document.getElementById('sierra-gallery2-root') ? '✅' : '❌',
-      creatsection: document.getElementById('sierra-creatsection-root') ? '✅' : '❌',
-      footer: document.getElementById('sierra-footer-root') ? '✅' : '❌',
-    };
+    <main>
+      <section class="relative isolate overflow-hidden bg-ink text-white">
+        <video
+          autoplay
+          muted
+          loop
+          playsinline
+          poster="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1800&q=80"
+          class="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="noise relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+          <p class="hero-copy text-xs font-bold uppercase tracking-[0.26em] text-gold">Depuis 2007 | Universite Republicaine d'Haiti</p>
+          <section class="mt-8 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+            <article class="hero-copy max-w-3xl">
+              <h1 class="font-serif text-5xl leading-[0.88] text-white sm:text-6xl lg:text-8xl">
+                Ouvrir l'enseignement superieur,
+                <span class="block text-gold">former pour Haiti et pour le monde.</span>
+              </h1>
+              <p class="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">
+                L'URH est nee d'un projet lance depuis 2007 par un groupe de personnalites du milieu litteraire, des affaires, des sciences et de l'enseignement, avec HTT Inc., Sunartech International Group, Suntel S.A. et d'autres partenaires.
+              </p>
+              <p class="mt-6 max-w-2xl text-sm leading-7 text-white/[0.72] sm:text-base">
+                L'URH se definit comme une institution academique a but non lucratif dediee a l'acces aux etudes superieures, a la creation de connaissances, au transfert du savoir et a la preparation d'etudiants pour des vies d'impact.
+              </p>
+              <section class="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a href="facultes.html" class="inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-ink transition hover:bg-[#d3b66c]">
+                  Voir les filieres
+                </a>
+                <a href="admissions.html" class="inline-flex items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-white/10">
+                  Conditions d'admission
+                </a>
+              </section>
+            </article>
 
-    console.table(injectionStatus);
+            <aside class="hero-meta border-l border-white/[0.15] pl-0 sm:pl-6 lg:pl-8">
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-white/60">Reperes institutionnels</p>
+              <p class="mt-4 max-w-md text-base leading-7 text-white/[0.78]">
+                La page met en avant les axes structurants de l'universite: acces, excellence, innovation, formation a distance, accompagnement et ouverture internationale.
+              </p>
+              <ul class="stagger-list mt-8 divide-y divide-white/10 border-y border-white/10">
+                <li class="grid gap-2 py-4 sm:grid-cols-[56px_1fr] sm:items-start">
+                  <span class="font-serif text-4xl text-gold">01</span>
+                  <span class="text-sm leading-7 text-white/[0.78]">Acces aux etudes superieures, reduction des couts et aide financiere pour les etudiants qualifies.</span>
+                </li>
+                <li class="grid gap-2 py-4 sm:grid-cols-[56px_1fr] sm:items-start">
+                  <span class="font-serif text-4xl text-gold">02</span>
+                  <span class="text-sm leading-7 text-white/[0.78]">Programmes de cycle court, licence, puis masters en droit et sciences du langage, avant doctorats.</span>
+                </li>
+                <li class="grid gap-2 py-4 sm:grid-cols-[56px_1fr] sm:items-start">
+                  <span class="font-serif text-4xl text-gold">03</span>
+                  <span class="text-sm leading-7 text-white/[0.78]">FOAD, CLOM, campus numerique, partenariats internationaux et tele-education relies au Canada, aux USA et a l'Afrique.</span>
+                </li>
+              </ul>
+            </aside>
+          </section>
+        </div>
+      </section>
 
-    setTimeout(() => {
-      import('./header.js').then((module) => {
-        console.log('✅ Header chargé');
-        if (document.getElementById('sierra-header-root')) {
-          new module.default('sierra-header-root');
-        }
-      }).catch(err => console.error('❌ Erreur header:', err));
+      <section class="border-b border-maroon/10 bg-white/75">
+        <section class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <section class="grid gap-4 md:grid-cols-3">
+            <figure class="reveal overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en parcours universitaire" class="h-72 w-full object-cover sm:h-80">
+              <figcaption class="bg-white px-4 py-4 text-sm leading-6 text-ink/[0.72]">Le projet, lance depuis 2007, repond a la difficulte d'acces aux etudes superieures pour de nombreux jeunes en Haiti.</figcaption>
+            </figure>
+            <figure class="reveal overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en groupe d'etude" class="h-72 w-full object-cover sm:h-80">
+              <figcaption class="bg-white px-4 py-4 text-sm leading-6 text-ink/[0.72]">L'URH met en avant la dignite, le respect, la citoyennete, l'excellence, la qualite du service et l'innovation.</figcaption>
+            </figure>
+            <figure class="reveal overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs dans un cadre d'etude" class="h-72 w-full object-cover sm:h-80">
+              <figcaption class="bg-white px-4 py-4 text-sm leading-6 text-ink/[0.72]">Annexe Port-au-Prince: Impasse Rigaud #18, Bois Verna, avec mise a niveau permanente a la rue Rigaud.</figcaption>
+            </figure>
+          </section>
+        </section>
+      </section>
+
+      <section id="decouvrir" class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <section class="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <article class="reveal">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Mission et vision</p>
+            <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
+              Servir Haiti et le monde par le savoir, la formation et l'application des connaissances.
+            </h2>
+            <p class="mt-6 text-base leading-8 text-ink/75 sm:text-lg">
+              L'URH affirme vouloir servir Haiti et le monde en creant des connaissances, en preparant des etudiants pour des vies d'impact et en repondant a des besoins sociaux critiques grace au transfert et a l'application du savoir.
+            </p>
+            <p class="mt-5 text-sm leading-8 text-ink/70 sm:text-base">
+              Dans tous ses actes, l'URH dit vouloir viser haut, controler son destin, etre responsable, inclusive, traiter chacun avec dignite et respect, promouvoir la citoyennete, valoriser l'excellence et favoriser l'innovation.
+            </p>
+            <blockquote class="mt-10 border-l-2 border-gold pl-6 font-serif text-3xl leading-tight text-maroon sm:text-4xl">
+              "Welcome to your university world of URH."
+            </blockquote>
+          </article>
+
+          <figure class="reveal overflow-hidden bg-white shadow-soft">
+            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs en seance d'apprentissage" class="min-h-[420px] w-full object-cover sm:min-h-[520px]">
+            <figcaption class="grid gap-4 bg-white px-6 py-6 sm:grid-cols-[160px_1fr] sm:items-start">
+              <span class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">URH</span>
+              <span class="text-sm leading-7 text-ink/[0.72]">
+                L'URH se definit comme une universite a but non lucratif dont l'objectif est d'etre reconnue parmi les leaders universitaires d'Haiti et de la Caraibe.
+              </span>
+            </figcaption>
+          </figure>
+        </section>
+      </section>
+
+      <section id="facultes" class="border-y border-maroon/10 bg-white">
+        <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+          <header class="reveal max-w-4xl">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Offre de formation</p>
+            <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Programmes pre-universitaires, techniques specialisees et parcours universitaires.</h2>
+            <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+              L'offre de formation comprend les programmes pre-universitaires regulers, Histoire et civilisation, 17 techniques specialisees, des cycles courts et des licences, puis des masters et des doctorats a plus long terme.
+            </p>
+          </header>
+
+          <article class="scene grid gap-8 border-t border-maroon/10 pt-10 sm:pt-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <figure class="reveal overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs en cours magistral" class="h-full min-h-[320px] w-full object-cover sm:min-h-[420px]">
+            </figure>
+            <section class="reveal">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-maroon">Pre-universitaire et licence</p>
+              <h3 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Sciences humaines, nature, arts et integration.</h3>
+              <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+                L'URH dit offrir tous les programmes pre-universitaires reguliers: sciences humaines, sciences de la nature, arts plastiques, arts et lettres, programme d'integration, ainsi que le programme Histoire et civilisation.
+              </p>
+              <ul class="mt-6 space-y-3 text-sm leading-7 text-ink/70 sm:text-base">
+                <li><i class="fa-solid fa-check mr-2 text-gold"></i> Formations de cycle court et de licence a court terme</li>
+                <li><i class="fa-solid fa-check mr-2 text-gold"></i> Masters prevus en droit et sciences du langage</li>
+                <li><i class="fa-solid fa-check mr-2 text-gold"></i> Doctorats envisages dans des matieres cles et sciences politico-sociales</li>
+              </ul>
+            </section>
+          </article>
+
+          <article class="scene mt-10 grid gap-8 border-t border-maroon/10 pt-10 sm:pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <section class="reveal lg:order-1">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-maroon">Disciplines et metiers</p>
+              <h3 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Droit, diplomatie, sciences sociales et double culture juridique.</h3>
+              <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+                Le tableau des cours cite notamment droit, diplomatie, sciences politiques, criminologie, sciences administratives, sciences economiques, communication, histoire et art.
+              </p>
+              <p class="mt-5 text-sm leading-8 text-ink/70 sm:text-base">
+                L'URH veut aussi offrir une double etude de droit, Common Law et Germano-romaine, pour permettre aux diplomes de travailler dans des contextes varies.
+              </p>
+            </section>
+            <figure class="reveal overflow-hidden lg:order-2">
+              <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs en travail collaboratif" class="h-full min-h-[320px] w-full object-cover sm:min-h-[420px]">
+            </figure>
+          </article>
+
+          <article class="scene mt-10 grid gap-8 border-t border-b border-maroon/10 py-10 sm:py-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <figure class="reveal overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs en atelier universitaire" class="h-full min-h-[320px] w-full object-cover sm:min-h-[420px]">
+            </figure>
+            <section class="reveal">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-maroon">Techniques specialisees</p>
+              <h3 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Sante, architecture, reseaux et ingenierie avancee.</h3>
+              <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+                L'offre comprend 17 techniques specialisees, dont hygiene dentaire, inhalotherapie, readaptation physique, dietetique, analyses biomedicales, soins pre-hospitaliers d'urgence, architecture, genie civil, gestion de reseau informatique, technologie forestiere et genie metallurgique.
+              </p>
+              <p class="mt-5 text-sm leading-8 text-ink/70 sm:text-base">
+                Parmi les domaines annonces figurent aussi le genie telecommunication, le genie informatique, le genie aeronautique, le genie electronique, le genie electromecanique, l'agronomie, les mathematiques, la physique, la chimie, la medecine et l'odontologie.
+              </p>
+            </section>
+          </article>
+        </section>
+      </section>
+
+      <section class="relative overflow-hidden bg-maroon text-white">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(196,163,77,0.18),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_32%)]"></div>
+        <section class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+          <article class="reveal relative z-10">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">FOAD, CLOM et campus numerique</p>
+            <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Un enseignement en presence et a distance, appuye par le numerique.</h2>
+            <p class="mt-5 text-sm leading-8 text-white/[0.78] sm:text-base">
+              L'URH developpe la formation ouverte et a distance, les CLOM, une plateforme en ligne, des ressources pedagogiques, l'auto-evaluation, le travail collaboratif, la messagerie, les forums, les web conferences et le suivi des apprenants.
+            </p>
+            <ul class="mt-8 grid gap-5 sm:grid-cols-2">
+              <li class="border-t border-white/[0.12] pt-4 text-sm leading-7 text-white/[0.74]">CLOM appuyes par l'AUF et l'experience FOAD</li>
+              <li class="border-t border-white/[0.12] pt-4 text-sm leading-7 text-white/[0.74]">Partenariats cites: EDX, Coursera, Khan Academia</li>
+              <li class="border-t border-white/[0.12] pt-4 text-sm leading-7 text-white/[0.74]">Campus numerique avec salles, centre de ressources et visio-conference</li>
+              <li class="border-t border-white/[0.12] pt-4 text-sm leading-7 text-white/[0.74]">Infrastructure Ubuntu, logiciels libres et acces internet partage</li>
+            </ul>
+          </article>
+          <figure class="reveal relative z-10 overflow-hidden border border-white/10 bg-black/20 shadow-soft">
+            <video
+              controls
+              playsinline
+              preload="metadata"
+              poster="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1400&q=80"
+              class="aspect-video w-full object-cover"
+            >
+              <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
+            </video>
+            <figcaption class="bg-white/[0.06] px-5 py-4 text-sm leading-7 text-white/70">
+              Le campus numerique comprend la formation en ligne, un centre d'acces a l'information, un espace internet en libre-service et des salles de visio-conference.
+            </figcaption>
+          </figure>
+        </section>
+      </section>
+
+      <section id="actualites" class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <header class="reveal flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <section class="max-w-3xl">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Dossiers institutionnels</p>
+            <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Contexte, objectifs, prospections et levee de fonds.</h2>
+          </section>
+          <p class="max-w-xl text-sm leading-8 text-ink/[0.72] sm:text-base">
+            L'URH met aussi en avant son contexte de creation, l'objectif de former la jeunesse haitienne, la prospection pour 50 a 60 000 bacheliers par an, ainsi que la levee de fonds pour bourses, laboratoires, ressources et projets etudiants.
+          </p>
+        </header>
+
+        <section class="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-12 lg:grid-rows-2">
+          <figure class="reveal overflow-hidden lg:col-span-7 lg:row-span-2">
+            <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1600&q=80" alt="Etudiants noirs en bibliotheque" class="h-full min-h-[320px] w-full object-cover sm:min-h-[520px]">
+          </figure>
+          <figure class="reveal overflow-hidden lg:col-span-5">
+            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs diplomes en celebration" class="h-full min-h-[220px] w-full object-cover sm:min-h-[250px]">
+          </figure>
+          <figure class="reveal overflow-hidden lg:col-span-3">
+            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs en amphitheatre" class="h-full min-h-[220px] w-full object-cover sm:min-h-[250px]">
+          </figure>
+          <figure class="reveal overflow-hidden lg:col-span-2">
+            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80" alt="Etudiants noirs dans la vie universitaire" class="h-full min-h-[220px] w-full object-cover sm:min-h-[250px]">
+          </figure>
+        </section>
+      </section>
+
+      <section id="admissions" class="border-y border-maroon/10 bg-white/80">
+        <section class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+          <section class="grid gap-12 lg:grid-cols-[1fr_0.9fr]">
+            <article class="reveal">
+              <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Admissions et aide financiere</p>
+              <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Des frais reduits, un accompagnement et des solutions concretes.</h2>
+              <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+                L'URH annonce qu'environ 99% des etudiants beneficient d'une forme d'aide, que les frais reguliers sont de 125 dollars US par an via une organisation de base, et que la tuition devient gratuite pour les etudiants munis d'un voucher d'une organisation affiliee.
+              </p>
+              <ol class="mt-10">
+                <li class="grid gap-3 border-t border-maroon/10 py-5 sm:grid-cols-[56px_1fr]">
+                  <span class="font-serif text-4xl text-maroon">1</span>
+                  <span class="text-sm leading-7 text-ink/[0.74]">Les frais de traitement annonces se situent entre 10 et 18 dollars, avec jusqu'a 120 dollars par an pour d'autres couts.</span>
+                </li>
+                <li class="grid gap-3 border-t border-maroon/10 py-5 sm:grid-cols-[56px_1fr]">
+                  <span class="font-serif text-4xl text-maroon">2</span>
+                  <span class="text-sm leading-7 text-ink/[0.74]">Un ordinateur peut aussi etre finance pour un montant n'excedant pas 400 dollars en dix mensualites.</span>
+                </li>
+                <li class="grid gap-3 border-y border-maroon/10 py-5 sm:grid-cols-[56px_1fr]">
+                  <span class="font-serif text-4xl text-maroon">3</span>
+                  <span class="text-sm leading-7 text-ink/[0.74]">Les Student Services sont presentes comme un appui a la maturation intellectuelle, personnelle et a l'integration de valeurs productives.</span>
+                </li>
+              </ol>
+            </article>
+
+            <aside class="reveal">
+              <figure class="overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1400&q=80" alt="Etudiants noirs celebrant leur reussite" class="min-h-[320px] w-full object-cover sm:min-h-[420px]">
+              </figure>
+              <ul class="mt-8 space-y-5 text-sm leading-7 text-ink/[0.72] sm:text-base">
+                <li class="border-l-2 border-gold pl-4">Laptop Suntel a 400 dollars, payable sur une annee academique sans interet.</li>
+                <li class="border-l-2 border-gold pl-4">Garantie Suntel de deux ans sur le laptop et plan internet etudiant a 9.99 dollars plus taxe par mois.</li>
+                <li class="border-l-2 border-gold pl-4">Informations supplementaires au registrariat ou aux numeros (509) 4346-6126 et 3772-9391.</li>
+              </ul>
+            </aside>
+          </section>
+        </section>
+      </section>
+
+      <section id="impact" class="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <section class="grid gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+          <article class="reveal">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-maroon">Mobilite et partenariats</p>
+            <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Des accords internationaux, des stages et une ouverture multilingue.</h2>
+            <p class="mt-5 text-sm leading-8 text-ink/[0.72] sm:text-base">
+              Les etudiants URH peuvent etudier ou faire des stages dans des etablissements americains, canadiens ou europeens et valider un semestre a l'etranger.
+            </p>
+            <p class="mt-5 text-sm leading-8 text-ink/70 sm:text-base">
+              Les parcours en partenariat international sont presentes comme des cursus d'excellence pouvant mener a un double diplome ou a un diplome a sceaux multiples.
+            </p>
+          </article>
+
+          <section class="space-y-8">
+            <article class="scene reveal border-t border-maroon/10 pt-6">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-maroon">Tele-education</p>
+              <h3 class="mt-3 font-serif text-3xl leading-tight sm:text-4xl">Une plateforme d'enseignement reliant Canada, USA et Afrique.</h3>
+              <p class="mt-4 text-sm leading-8 text-ink/[0.72] sm:text-base">
+                L'URH veut aussi offrir des cours de niveau mondial grace a une plateforme de tele-education, avec electricite ininterrompue et connectivite internet continue.
+              </p>
+            </article>
+            <article class="scene reveal border-t border-maroon/10 pt-6">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-maroon">Langues et prealables</p>
+              <h3 class="mt-3 font-serif text-3xl leading-tight sm:text-4xl">Une institution bilingue et trilingue dans ses ambitions.</h3>
+              <p class="mt-4 text-sm leading-8 text-ink/[0.72] sm:text-base">
+                La majorite des cours sont dispenses en anglais, certains cours en francais repondent a l'exigence locale et l'universite veut aussi renforcer la communication en espagnol.
+              </p>
+            </article>
+            <article class="scene reveal border-t border-b border-maroon/10 py-6">
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-maroon">Interface universite / entreprises</p>
+              <h3 class="mt-3 font-serif text-3xl leading-tight sm:text-4xl">Formation continue, services aux entreprises et insertion professionnelle.</h3>
+              <p class="mt-4 text-sm leading-8 text-ink/[0.72] sm:text-base">
+                L'universite s'appuie aussi sur son centre de formation continue, son service d'activites industrielles et commerciales, ainsi que sur l'orientation et l'insertion professionnelle pour faciliter l'interface avec les entreprises.
+              </p>
+            </article>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <section class="relative isolate overflow-hidden bg-[#112018] text-white">
+      <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1800&q=80" alt="Etudiants noirs en bibliotheque" class="absolute inset-0 h-full w-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-r from-[#112018]/92 via-[#112018]/78 to-[#112018]/70"></div>
+      <section class="relative mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_auto] lg:items-end lg:px-8">
+        <article class="reveal max-w-3xl">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">URH une autre universite</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">Pour une jeunesse responsable, formee et mieux equipee.</h2>
+          <p class="mt-5 text-sm leading-8 text-white/[0.76] sm:text-base">
+            L'URH insiste sur le fait que les moyens economiques ne doivent plus etre l'obstacle pour aller a l'universite, grace aux bourses, aux sponsors, au laptop Suntel, au transport et a l'accompagnement.
+          </p>
+        </article>
+        <a href="contact.html" class="reveal inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-ink transition hover:bg-[#d3b66c]">
+          Contacter l'URH
+        </a>
+      </section>
+    </section>
+
+    <footer id="contact" class="bg-[#0d1711] text-white">
+      <section class="mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
+        <article>
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">URH</p>
+          <h2 class="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Universite Republicaine d'Haiti</h2>
+          <p class="mt-5 max-w-xl text-sm leading-8 text-white/[0.68] sm:text-base">
+            Institution a but non lucratif dediee a l'acces aux etudes superieures, a la qualite de la formation, au service et a l'innovation.
+          </p>
+        </article>
+        <nav>
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Acces rapide</p>
+          <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+            <li><a class="transition hover:text-gold" href="facultes.html">Facultes et ecoles</a></li>
+            <li><a class="transition hover:text-gold" href="admissions.html">Admissions</a></li>
+            <li><a class="transition hover:text-gold" href="actualites.html">Actualites</a></li>
+            <li><a class="transition hover:text-gold" href="rayonnement.html">Rayonnement</a></li>
+          </ul>
+        </nav>
+        <section>
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-white/50">Coordonnees reelles</p>
+          <ul class="mt-5 space-y-3 text-sm leading-7 text-white/[0.72]">
+            <li>Annexe Port-au-Prince, Imp. Rigaud #18, Bois Verna</li>
+            <li>(509) 4346-6126 | (509) 3772-9391</li>
+            <li>urhedu@hotmail.com</li>
+            <li>www.urhedu.org</li>
+          </ul>
+        </section>
+      </section>
+    </footer>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-98Zb1sQ7sQX6M1tFoZT3zh/OElBTtPlqvGjYH6G+jD/adJzi10BGSAdoo6gWQBaIj++ImQxGc1dQc5sKXc5teQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuToggle = document.querySelector("[data-menu-toggle]");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener("click", () => {
+          const isHidden = mobileMenu.classList.contains("hidden");
+          mobileMenu.classList.toggle("hidden");
+          menuToggle.setAttribute("aria-expanded", String(isHidden));
+
+          anime({
+            targets: "#mobile-menu a",
+            translateY: isHidden ? [12, 0] : [0, 0],
+            opacity: isHidden ? [0, 1] : [1, 1],
+            easing: "easeOutQuad",
+            duration: 320,
+            delay: anime.stagger(40)
+          });
+        });
+      }
+
+      anime({
+        targets: ".hero-copy",
+        translateY: [28, 0],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 1100,
+        delay: anime.stagger(140)
+      });
+
+      anime({
+        targets: ".hero-meta > *",
+        translateY: [36, 0],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 1000,
+        delay: 260
+      });
+
+      anime({
+        targets: ".stagger-list li",
+        translateX: [18, 0],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 800,
+        delay: anime.stagger(100, { start: 420 })
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || entry.target.dataset.animated === "true") {
+            return;
+          }
+
+          entry.target.dataset.animated = "true";
+          anime({
+            targets: entry.target,
+            translateY: [36, 0],
+            opacity: [0, 1],
+            easing: "easeOutCubic",
+            duration: 900
+          });
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll(".reveal").forEach((element) => {
+        element.style.opacity = "0";
+        observer.observe(element);
+      });
     });
   </script>
 </body>
