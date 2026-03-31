@@ -83,7 +83,7 @@
 </head>
 <body class="font-sans text-ink antialiased">
   <div class="min-h-screen">
-    <header class="sticky top-0 z-50 border-b border-white/10 bg-maroon/95 text-white backdrop-blur-xl">
+    <header data-site-header class="sticky top-0 z-50 border-b border-white/10 bg-maroon/95 text-white backdrop-blur-xl transition-transform duration-300 ease-out">
       <section class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <a href="index.html" class="flex items-center">
           <img src="logo.png" alt="Logo de l'Universite Republicaine d'Haiti" class="h-12 w-auto object-contain sm:h-14">
@@ -469,6 +469,27 @@
     document.addEventListener("DOMContentLoaded", () => {
       const menuToggle = document.querySelector("[data-menu-toggle]");
       const mobileMenu = document.getElementById("mobile-menu");
+      const siteHeader = document.querySelector("[data-site-header]");
+      let lastScrollY = window.scrollY;
+      let headerTicking = false;
+
+      const updateHeaderVisibility = () => {
+        if (!siteHeader) {
+          headerTicking = false;
+          return;
+        }
+
+        const currentScrollY = window.scrollY;
+        const isNearTop = currentScrollY <= 24;
+        const isScrollingUp = currentScrollY < lastScrollY;
+        const isMobileMenuOpen = mobileMenu && !mobileMenu.classList.contains("hidden");
+
+        siteHeader.classList.toggle("-translate-y-full", !isNearTop && !isScrollingUp && !isMobileMenuOpen);
+        siteHeader.classList.toggle("shadow-2xl", !isNearTop);
+
+        lastScrollY = currentScrollY;
+        headerTicking = false;
+      };
 
       if (menuToggle && mobileMenu) {
         menuToggle.addEventListener("click", () => {
@@ -484,7 +505,22 @@
             duration: 320,
             delay: anime.stagger(40)
           });
+
+          updateHeaderVisibility();
         });
+      }
+
+      if (siteHeader) {
+        window.addEventListener("scroll", () => {
+          if (headerTicking) {
+            return;
+          }
+
+          headerTicking = true;
+          window.requestAnimationFrame(updateHeaderVisibility);
+        }, { passive: true });
+
+        updateHeaderVisibility();
       }
 
       anime({
